@@ -1,7 +1,6 @@
 # Domain Layer
 
 ## Class: Space
-
 Represents a reservable physical space within the organization, such as a classroom, meeting room, or workstation. 
 
 ### Attributes
@@ -44,3 +43,37 @@ Represents a reservable physical space within the organization, such as a classr
 - The class enforces **basic domain rules** (e.g., cannot reserve an already reserved space).  
 - Future extensions: handling time-based bookings, adding equipment or restrictions via inheritance, etc.  
 - Status is encapsulated to prevent invalid manual changes outside the class methods.
+
+## Class: Booking
+Represents a reservation of a physical space by a user during a specific time interval.
+It is a core domain entity responsible for maintaining the consistency and validity of a reservation, including its lifecycle and time-related rules.
+
+### Attributes
+
+| Attribute   | Type       | Visibility | Description                       |
+|-------------| ---------- | ---------- | --------------------------------- |
+| `booking_id` | `str`      | private    | Unique identifier of the booking. |
+| `space`     | `Space`    | protected  | Space being reserved.             |
+| `user`      | `User`     | protected  | User who made the reservation.    |
+| `start_time` | `datetime` | protected  | Reservation start time.           |
+| `end_time`  | `datetime` | protected  | Reservation end time.             |
+| `status`    | `str`      | protected  | Current status of the booking.    |
+
+
+### Status Constants
+
+- `STATUS_ACTIVE` — The booking is currently active.
+- `STATUS_CANCELLED` — The booking has been cancelled.
+- `STATUS_FINISHED` — The booking has been completed.
+
+### Methods
+
+| Method        | Description                                                    |
+| ------------- | -------------------------------------------------------------- |
+| `booking_id`  | Returns the unique booking identifier.                         |
+| `status`      | Returns the current booking status.                            |
+| `is_active()` | Returns `True` if the booking is active.                       |
+| `duration()`  | Returns the duration of the booking (`end_time - start_time`). |
+| `cancel()` | Cancels the booking if it is active. Raises `ValueError` otherwise.           |
+| `finish()` | Marks the booking as finished if it is active. Raises `ValueError` otherwise. |
+| `overlaps_with(other_booking)` | Returns `True` if the time interval overlaps with another booking. |
