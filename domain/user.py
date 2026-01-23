@@ -35,8 +35,10 @@ class User:
     def can_make_booking(self):
         return self._active
 
+    @property
     def max_active_bookings(self):
         return self._max_active_bookings
 
+    @property
     def max_booking_duration(self):
         return self._max_booking_duration

@@ -9,20 +9,20 @@ class Space:
         space_name = (space_name or "").strip()
 
         if not space_id:
-            raise ValueError("El identificador del espacio no puede estar vacío.")
+            raise ValueError("Space identifier cannot be empty.")
         if not space_name:
-            raise ValueError("El nombre del espacio no puede estar vacío.")
+            raise ValueError("Space name cannot be empty.")
         if capacity <= 0:
-            raise ValueError("La capacidad debe ser mayor que cero.")
+            raise ValueError("Capacity must be greater than zero.")
 
         self.__space_id = space_id
         self.__space_name = space_name
         self.__capacity = capacity
-        self._status = Space.STATUS_AVAILABLE
+        self._space_status = Space.STATUS_AVAILABLE
         self._bookings = {}
 
     def __str__(self):
-        return f"{self.space_name} ({self._status})"
+        return f"{self.space_name} ({self._space_status})"
 
     # getters
     @property
@@ -38,8 +38,8 @@ class Space:
         return self.__capacity
 
     @property
-    def status(self):
-        return self._status
+    def space_status(self):
+        return self._space_status
 
     @space_id.setter
     def space_id(self, new_space_id):
@@ -51,43 +51,49 @@ class Space:
 
     @capacity.setter
     def capacity(self, new_capacity):
+        if new_capacity <= 0:
+            raise ValueError("Capacity must be greater than zero.")
         self.__capacity = new_capacity
 
-    @status.setter
-    def status(self, new_status):
-        if new_status not in (
+    @space_status.setter
+    def space_status(self, new_space_status):
+        if new_space_status not in (
                 Space.STATUS_AVAILABLE,
                 Space.STATUS_RESERVED,
                 Space.STATUS_MAINTENANCE
         ):
-            raise ValueError("Estado de espacio no válido.")
-        self._status = new_status
+            raise ValueError("Invalid space status.")
+        self._space_status = new_space_status
 
     def is_available(self):
-        return self._status == Space.STATUS_AVAILABLE
+        return self._space_status == Space.STATUS_AVAILABLE
 
     def is_reserved(self):
-        return self._status == Space.STATUS_RESERVED
+        return self._space_status == Space.STATUS_RESERVED
 
     def reserve(self):
-        if self._status != Space.STATUS_AVAILABLE:
-            raise ValueError("El espacio no está disponible para reservar.")
-        self._status = Space.STATUS_RESERVED
+        if self._space_status == Space.STATUS_MAINTENANCE:
+            raise ValueError("Cannot reserve a space under maintenance.")
+        if self._space_status != Space.STATUS_AVAILABLE:
+            raise ValueError("Space is not available for reservation.")
+        self._space_status = Space.STATUS_RESERVED
 
     def release(self):
-        if self._status != Space.STATUS_RESERVED:
-            raise ValueError("El espacio no está reservado.")
-        self._status = Space.STATUS_AVAILABLE
+        if self._space_status == Space.STATUS_MAINTENANCE:
+            raise ValueError("Cannot release a space under maintenance.")
+        if self._space_status != Space.STATUS_RESERVED:
+            raise ValueError("Space is not reserved.")
+        self._space_status = Space.STATUS_AVAILABLE
 
     def set_maintenance(self):
-        self._status = Space.STATUS_MAINTENANCE
+        self._space_status = Space.STATUS_MAINTENANCE
 
-    def get_status_display(self):
-        if self._status == Space.STATUS_AVAILABLE:
+    def get_space_status_display(self):
+        if self._space_status == Space.STATUS_AVAILABLE:
             return "Available"
-        elif self._status == Space.STATUS_RESERVED:
+        elif self._space_status == Space.STATUS_RESERVED:
             return "Reserved"
-        elif self._status == Space.STATUS_MAINTENANCE:
+        elif self._space_status == Space.STATUS_MAINTENANCE:
             return "Under Maintenance"
         else:
             return "Unknown Status"
