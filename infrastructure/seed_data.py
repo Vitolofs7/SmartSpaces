@@ -5,6 +5,7 @@ from domain.user import User
 from infrastructure.space_memory_repository import SpaceMemoryRepository
 from infrastructure.user_memory_repository import UserMemoryRepository
 
+
 def seed_spaces(space_repo: SpaceMemoryRepository):
     """Adds initial spaces to the repository."""
     spaces = [
@@ -16,16 +17,18 @@ def seed_spaces(space_repo: SpaceMemoryRepository):
     for s in spaces:
         space_repo.save(s)
 
+
 def seed_users(user_repo: UserMemoryRepository):
     """Adds initial users to the repository."""
     users = [
-        User("U1", "Alice"),
-        User("U2", "Bob"),
-        User("U3", "Charlie"),
-        User("U4", "Diana"),
+        User("U1", "Alice", "Smith", "Johnson"),
+        User("U2", "Bob", "Brown", "Taylor"),
+        User("U3", "Charlie", "Wilson", "Anderson"),
+        User("U4", "Diana", "Martinez", "Lopez"),
     ]
     for u in users:
         user_repo.save(u)
+
 
 def seed_all(space_repo: SpaceMemoryRepository, user_repo: UserMemoryRepository):
     """Seeds both spaces and users."""
