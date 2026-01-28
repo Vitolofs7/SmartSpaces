@@ -1,88 +1,88 @@
-## **Descripción general** 
-El proyecto consiste en el diseño y desarrollo de un **Sistema de Gestión de Espacios Inteligentes**, orientado a la administración y optimización del uso de espacios físicos compartidos dentro de una organización, como pueden ser aulas, salas de reuniones, puestos de trabajo o salas polivalentes.
+## **Overview**
+The project consists of the design and development of an **Intelligent Space Management System**, aimed at the administration and optimization of the use of shared physical spaces within an organization, such as classrooms, meeting rooms, workstations, or multipurpose rooms.
 
-El sistema modela un conjunto de espacios reservables y un conjunto de usuarios con distintos roles, permitiendo gestionar **reservas temporales** de dichos espacios bajo una serie de normas y restricciones definidas por el propio sistema. Estas normas se aplican automáticamente en función tanto del tipo de usuario como de las características del espacio reservado. 
+The system models a set of reservable spaces and a set of users with different roles, allowing the management of **temporary bookings** for these spaces under a series of rules and restrictions defined by the system itself. These rules are applied automatically based on both the type of user and the characteristics of the reserved space.
 
-Aunque el proyecto se inspira en aplicaciones reales utilizadas en empresas, universidades o espacios de coworking, su objetivo principal es **simular el funcionamiento lógico del sistema**, centrándose en el diseño orientado a objetos, la coherencia de las operaciones y la correcta relación entre los distintos elementos del modelo.
+Although the project is inspired by real applications used in companies, universities, or coworking spaces, its main objective is to **simulate the logical operation of the system**, focusing on object-oriented design, operation consistency, and the correct relationships among the model elements.
 
-## **Objetivos**
-### **Objetivo general**
-Desarrollar un sistema modular basado en Programación Orientada a Objetos que permita gestionar espacios compartidos y sus reservas de forma coherente, evitando conflictos y garantizando el cumplimiento de las reglas de uso establecidas.
+## **Objectives**
+### **General Objective**
+Develop a modular, object-oriented system that allows coherent management of shared spaces and their bookings, avoiding conflicts and ensuring compliance with the established usage rules.
 
-### **Objetivos específicos** 
-- Modelar usuarios con distintos roles y capacidades dentro del sistema. 
-- Representar espacios físicos con características y restricciones diferenciadas. 
-- Gestionar reservas asegurando la disponibilidad de los espacios y evitando solapamientos. 
-- Aplicar reglas automáticas en función del tipo de usuario y del tipo de espacio. 
-- Utilizar herencia y herencia múltiple para favorecer la reutilización de código y la escalabilidad del sistema.
+### **Specific Objectives**
+- Model users with different roles and capabilities within the system.
+- Represent physical spaces with differentiated characteristics and restrictions.
+- Manage bookings, ensuring space availability and avoiding overlaps.
+- Apply automatic rules depending on the user type and the type of space.
+- Use inheritance and multiple inheritance to promote code reuse and system scalability.
 
-## **Características principales** 
-### **Gestión de usuarios** 
-- El sistema contemplará **usuarios genéricos** con información común, como identificador y nombre. 
-- Se definirán **distintos tipos de usuarios**, por ejemplo: 
-  - Usuarios básicos, con límites estrictos de uso. 
-  - Usuarios premium, con mayor flexibilidad en reservas. 
-  - Administradores, con permisos de gestión global del sistema. 
-- Cada tipo de usuario tendrá reglas propias, como: 
-  - Número máximo de reservas activas. 
-  - Duración máxima permitida de una reserva. 
-- Mediante herencia múltiple, un usuario podrá incorporar **comportamientos adicionales**, como prioridad en las reservas o límites ampliados, sin necesidad de duplicar código.
+## **Main Features**
+### **User Management**
+- The system will include **generic users** with common information, such as ID and name.
+- **Different types of users** will be defined, for example:
+  - Basic users, with strict usage limits.
+  - Premium users, with greater booking flexibility.
+  - Administrators, with global system management permissions.
+- Each user type will have its own rules, such as:
+  - Maximum number of active bookings.
+  - Maximum allowed booking duration.
+- Through multiple inheritance, a user can incorporate **additional behaviors**, such as booking priority or extended limits, without duplicating code.
 
-### **Gestión de espacios** 
-- Los espacios representarán los **recursos físicos disponibles para su reserva** dentro de la organización. 
-- Se gestionarán **distintos tipos de espacios**, tales como: 
-  - Aulas. 
-  - Salas de reuniones. 
-  - Puestos de trabajo. 
-  - Salas polivalentes. 
-- Cada espacio contará con información común como identificador, nombre, capacidad y estado (disponible, reservado o en mantenimiento). 
-- Mediante herencia, cada tipo de espacio podrá definir reglas específicas de uso.
+### **Space Management**
+- Spaces will represent the **physical resources available for reservation** within the organization.
+- **Different types of spaces** will be managed, such as:
+  - Classrooms.
+  - Meeting rooms.
+  - Workstations.
+  - Multipurpose rooms.
+- Each space will include common information like ID, name, capacity, and status (available, reserved, or under maintenance).
+- Through inheritance, each space type can define specific usage rules.
 
-### **Características avanzadas y herencia múltiple en espacios** 
-Además del tipo básico de espacio, algunos espacios podrán incorporar **características adicionales**, implementadas mediante herencia múltiple: 
+### **Advanced Features and Multiple Inheritance in Spaces**
+In addition to the basic space type, some spaces may include **additional features**, implemented using multiple inheritance:
 
-- Espacios con equipamiento especial (proyector, sistemas de videoconferencia, sonido). 
-- Espacios con restricciones horarias. 
-- Espacios premium con condiciones de acceso específicas. 
+- Spaces with special equipment (projector, video conferencing systems, sound).
+- Spaces with time restrictions.
+- Premium spaces with specific access conditions.
 
-De este modo, un mismo espacio podrá pertenecer a una categoría funcional y, al mismo tiempo, disponer de características adicionales, evitando la creación de clases rígidas y poco escalables.
+In this way, a single space can belong to a functional category while also having additional features, avoiding rigid and non-scalable class hierarchies.
 
-### **Reservas y control de disponibilidad** 
-- Las **reservas** relacionan un usuario con un espacio durante un intervalo de tiempo determinado. 
-- El sistema comprobará automáticamente: 
-  - La disponibilidad del espacio. 
-  - La inexistencia de solapamientos con otras reservas. 
-  - Que el usuario cumpla los permisos necesarios. 
-  - Que se respeten las reglas propias del espacio. 
-- Las reservas podrán encontrarse en distintos estados, como activas, canceladas o finalizadas.
+### **Bookings and Availability Control**
+- **Bookings** link a user to a space for a specific time interval.
+- The system will automatically check:
+  - Space availability.
+  - Absence of overlaps with other bookings.
+  - That the user has the necessary permissions.
+  - Compliance with space-specific rules.
+- Bookings can have different statuses, such as active, canceled, or finished.
 
-## **Diseño orientado a objetos** 
-El proyecto hará uso de los principales principios de la Programación Orientada a Objetos: 
+## **Object-Oriented Design**
+The project will follow core Object-Oriented Programming principles:
 
-- **Encapsulación**, para proteger los datos y controlar las operaciones válidas. 
-- **Herencia**, para modelar distintos tipos de usuarios y espacios a partir de clases base. 
-- **Herencia múltiple**, para añadir comportamientos adicionales como prioridades, equipamiento o restricciones horarias. 
-- **Polimorfismo**, permitiendo tratar de forma uniforme a distintos tipos de usuarios y espacios.
+- **Encapsulation**, to protect data and control valid operations.
+- **Inheritance**, to model different types of users and spaces from base classes.
+- **Multiple inheritance**, to add additional behaviors such as priority, equipment, or time restrictions.
+- **Polymorphism**, allowing uniform handling of different types of users and spaces.
 
-## **Acciones y consultas disponibles** 
-El sistema permitirá realizar, entre otras, las siguientes acciones: 
+## **Available Actions and Queries**
+The system will allow, among other things:
 
-- Registrar, modificar y eliminar usuarios. 
-- Registrar, modificar y desactivar espacios. 
-- Consultar la disponibilidad de los espacios. 
-- Crear, cancelar y finalizar reservas. 
-- Listar reservas activas por usuario o por espacio. 
-- Detectar y evitar operaciones no válidas, como reservas solapadas o accesos no autorizados.
+- Registering, modifying, and deleting users.
+- Registering, modifying, and deactivating spaces.
+- Checking space availability.
+- Creating, canceling, and finishing bookings.
+- Listing active bookings by user or by space.
+- Detecting and preventing invalid operations, such as overlapping bookings or unauthorized access.
 
-## **Alcance del proyecto** 
-### **Incluye** 
-- Modelado de usuarios, espacios y reservas. 
-- Gestión de distintos tipos de usuarios y espacios con comportamientos diferenciados. 
-- Implementación de herencia y herencia múltiple de forma justificada. 
-- Control de estados y validación de reglas de uso. 
-- Verificaciones que impidan estados u operaciones incoherentes. 
+## **Project Scope**
+### **Includes**
+- Modeling of users, spaces, and bookings.
+- Management of different types of users and spaces with differentiated behaviors.
+- Implementation of inheritance and multiple inheritance where justified.
+- State control and validation of usage rules.
+- Checks to prevent inconsistent states or operations.
 
-### **No incluye** 
-- Interfaces gráficas o aplicaciones web. 
-- Persistencia en bases de datos. 
-- Integración con sistemas externos de pago, sensores o notificaciones. 
+### **Excludes**
+- Graphical interfaces or web applications.
+- Database persistence.
+- Integration with external payment systems, sensors, or notifications.
