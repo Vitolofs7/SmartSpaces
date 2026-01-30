@@ -3,8 +3,9 @@ class Space:
     STATUS_AVAILABLE = "AVAILABLE"
     STATUS_RESERVED = "RESERVED"
     STATUS_MAINTENANCE = "MAINTENANCE"
+    TYPE_GENERIC = "Basic Space"
 
-    def __init__(self, space_id, space_name, capacity):
+    def __init__(self, space_id, space_name, capacity, space_type=None):
         space_id = (space_id or "").strip()
         space_name = (space_name or "").strip()
 
@@ -19,10 +20,16 @@ class Space:
         self.__space_name = space_name
         self.__capacity = capacity
         self._space_status = Space.STATUS_AVAILABLE
+        self._space_type = space_type or Space.TYPE_GENERIC
         self._bookings = {}
 
     def __str__(self):
-        return f"{self.space_name} ({self._space_status})"
+        return (
+            f"[{self.space_id}] {self.space_name}\n"
+            f"  • Type: {self.space_type}\n"
+            f"  • Status: {self.space_status}\n"
+            f"  • Capacity: {self.capacity}"
+        )
 
     # getters
     @property
@@ -40,6 +47,10 @@ class Space:
     @property
     def space_status(self):
         return self._space_status
+
+    @property
+    def space_type(self):
+        return self._space_type
 
     @space_id.setter
     def space_id(self, new_space_id):

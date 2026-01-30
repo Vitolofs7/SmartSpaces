@@ -2,22 +2,30 @@ from domain.space import Space
 
 
 class SpaceMeetingroom(Space):
+    TYPE = "Meeting room"
+
     def __init__(self, space_id, space_name, capacity, room_number, floor, equipment_list, num_power_outlets):
-        super().__init__(space_id, space_name, capacity)
+        super().__init__(space_id, space_name, capacity, space_type=SpaceMeetingroom.TYPE)
         self.__room_number = room_number
         self.__floor = floor
         self.__num_power_outlets = num_power_outlets
         self.__equipment_list = equipment_list or []
 
+        self._space_type = "Meeting room"
         self._validate_room_number(room_number)
         self._validate_floor(floor)
         self._validate_num_power_outlets(num_power_outlets)
 
     def __str__(self):
         return (
-            f"Room {self.room_number} - {self.space_name} ({self.get_space_status_display()})\n"
-            f"Floor: {self.floor}, Capacity: {self.capacity}, Power Outlets: {self.num_power_outlets}\n"
-            f"Equipment: {', '.join(self.__equipment_list) if self.__equipment_list else 'None'}"
+            f"[{self.space_id}] {self.space_name}\n"
+            f"  • Type: {self.space_type}\n"
+            f"  • Status: {self.space_status}\n"
+            f"  • Capacity: {self.capacity}\n"
+            f"  • Room number: {self.room_number}\n"
+            f"  • Floor: {self.floor}\n"
+            f"  • Power outlets: {self.num_power_outlets}\n"
+            f"  • Equipment: {', '.join(self.equipment_list) or 'None'}"
         )
 
     @property
