@@ -12,6 +12,7 @@ from application.booking_service import BookingService
 # Dominio
 from domain.space import Space
 from domain.user import User
+from domain.space_meetingroom import SpaceMeetingroom
 
 # Data
 from infrastructure.seed_data import seed_all
@@ -25,7 +26,8 @@ def mostrar_menu():
     print("4. Create booking")
     print("5. Cancel booking")
     print("6. Finish booking")
-    print("7. Exit")
+    print("7. Create space")
+    print("8. Exit")
 
 
 def parse_datetime(value: str) -> datetime:
@@ -61,7 +63,7 @@ def main():
             if opcion == "1":
                 print("\nSpaces:")
                 for s in space_repo.list():
-                    print(f"{s.space_id} - {s.space_name} - Status: {s.space_status} - Capacity: {s.capacity}")
+                    print(s)
 
             elif opcion == "2":
                 print("\nUsers:")
@@ -112,6 +114,48 @@ def main():
                 print("Booking finished.")
 
             elif opcion == "7":
+                print("\nSelect space type:")
+                print("1. Generic space")
+                print("2. Meeting room")
+                space_type = input("Choose type: ").strip()
+
+                space_id = input("Space ID: ").strip()
+                space_name = input("Space name: ").strip()
+                capacity = int(input("Capacity: ").strip())
+
+                if space_type == "1":
+                    space = Space(space_id, space_name, capacity, space_type)
+
+                elif space_type == "2":
+                    room_number = input("Room number: ").strip()
+                    floor = int(input("Floor: ").strip())
+                    num_power_outlets = int(input("Number of power outlets: ").strip())
+                    equipment_raw = input(
+                        "Equipment list (comma separated, optional): "
+                    ).strip()
+                    equipment_list = (
+                        [e.strip() for e in equipment_raw.split(",")]
+                        if equipment_raw
+                        else []
+                    )
+
+                    space = SpaceMeetingroom(
+                        space_id=space_id,
+                        space_name=space_name,
+                        capacity=capacity,
+                        room_number=room_number,
+                        floor=floor,
+                        num_power_outlets=num_power_outlets,
+                        equipment_list=equipment_list,
+                    )
+                else:
+                    print("Invalid space type.")
+                    continue
+
+                space_repo.save(space)
+                print("\nSpace created successfully.")
+
+            elif opcion == "8":
                 print("Goodbye!")
                 break
 

@@ -9,10 +9,10 @@ from infrastructure.user_memory_repository import UserMemoryRepository
 def seed_spaces(space_repo: SpaceMemoryRepository):
     """Adds initial spaces to the repository."""
     spaces = [
-        Space("S1", "Conference Room", 5),
-        Space("S2", "Meeting Room", 3),
-        Space("S3", "Open Space", 10),
-        Space("S4", "Private Office", 2),
+        Space("S1", "Conference Room", 5, "Basic"),
+        Space("S2", "Meeting Room", 3, "Basic"),
+        Space("S3", "Open Space", 10,  "Basic"),
+        Space("S4", "Private Office", 2,  "Basic"),
     ]
     for s in spaces:
         space_repo.save(s)
