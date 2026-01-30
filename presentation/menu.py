@@ -1,24 +1,25 @@
 # presentation/menu.py
 from datetime import datetime, timedelta
 
-# Repositorios
+# Repositories
 from infrastructure.space_memory_repository import SpaceMemoryRepository
 from infrastructure.user_memory_repository import UserMemoryRepository
 from infrastructure.booking_memory_repository import BookingMemoryRepository
 
-# Servicio
+# Service
 from application.booking_service import BookingService
 
-# Dominio
+# Domain
 from domain.space import Space
 from domain.user import User
 from domain.space_meetingroom import SpaceMeetingroom
 
-# Data
+# Seed data
 from infrastructure.seed_data import seed_all
 
 
 def mostrar_menu():
+    """Displays the main menu to the user."""
     print("\n=== SMART SPACES MENU ===")
     print("1. List spaces")
     print("2. List users")
@@ -31,6 +32,19 @@ def mostrar_menu():
 
 
 def parse_datetime(value: str) -> datetime:
+    """Parses a datetime string into a datetime object.
+
+    Supports multiple formats: YYYY-MM-DD HH:MM and YYYY/MM/DD HH:MM.
+
+    Args:
+        value: The datetime string to parse.
+
+    Returns:
+        A datetime object corresponding to the input string.
+
+    Raises:
+        ValueError: If the string cannot be parsed in any supported format.
+    """
     formats = [
         "%Y-%m-%d %H:%M",
         "%Y/%m/%d %H:%M",
@@ -46,13 +60,22 @@ def parse_datetime(value: str) -> datetime:
 
 
 def main():
-    # Crear repositorios y servicio
+    """Main entry point for the Smart Spaces CLI application.
+
+    Handles user input and provides menu options to:
+        - List spaces, users, and bookings
+        - Create, cancel, and finish bookings
+        - Create new spaces
+
+    Uses in-memory repositories and seeds example data on startup.
+    """
+    # Create repositories and service
     space_repo = SpaceMemoryRepository()
     user_repo = UserMemoryRepository()
     booking_repo = BookingMemoryRepository()
     service = BookingService(booking_repo, space_repo, user_repo)
 
-    # Datos de ejemplo
+    # Seed example data
     seed_all(space_repo, user_repo)
 
     while True:
@@ -84,12 +107,8 @@ def main():
                 print(" - YYYY-MM-DD HH:MM")
                 print(" - YYYY/MM/DD HH:MM")
 
-                start = parse_datetime(
-                    input("Start datetime: ").strip()
-                )
-                end = parse_datetime(
-                    input("End datetime: ").strip()
-                )
+                start = parse_datetime(input("Start datetime: ").strip())
+                end = parse_datetime(input("End datetime: ").strip())
 
                 booking_id = f"B{len(service.list_bookings()) + 1}"
 
