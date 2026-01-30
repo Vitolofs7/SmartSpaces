@@ -7,19 +7,27 @@ from infrastructure.user_memory_repository import UserMemoryRepository
 
 
 def seed_spaces(space_repo: SpaceMemoryRepository):
-    """Adds initial spaces to the repository."""
+    """Adds initial space instances to the space repository.
+
+    Args:
+        space_repo: An instance of SpaceMemoryRepository where spaces will be added.
+    """
     spaces = [
         Space("S1", "Conference Room", 5, "Basic"),
         Space("S2", "Meeting Room", 3, "Basic"),
-        Space("S3", "Open Space", 10,  "Basic"),
-        Space("S4", "Private Office", 2,  "Basic"),
+        Space("S3", "Open Space", 10, "Basic"),
+        Space("S4", "Private Office", 2, "Basic"),
     ]
     for s in spaces:
         space_repo.save(s)
 
 
 def seed_users(user_repo: UserMemoryRepository):
-    """Adds initial users to the repository."""
+    """Adds initial user instances to the user repository.
+
+    Args:
+        user_repo: An instance of UserMemoryRepository where users will be added.
+    """
     users = [
         User("U1", "Alice", "Smith", "Johnson"),
         User("U2", "Bob", "Brown", "Taylor"),
@@ -31,6 +39,11 @@ def seed_users(user_repo: UserMemoryRepository):
 
 
 def seed_all(space_repo: SpaceMemoryRepository, user_repo: UserMemoryRepository):
-    """Seeds both spaces and users."""
+    """Seeds both spaces and users into their respective repositories.
+
+    Args:
+        space_repo: The space repository to seed.
+        user_repo: The user repository to seed.
+    """
     seed_spaces(space_repo)
     seed_users(user_repo)
