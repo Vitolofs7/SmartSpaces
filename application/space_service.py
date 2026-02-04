@@ -22,3 +22,12 @@ class SpaceService:
 
     def list_spaces(self):
         return self._space_repo.list()
+
+    def get_available_spaces(self, booking_repo, start_time, end_time):
+        """Devuelve espacios que no tienen bookings activas que se solapen con el rango dado."""
+        available = []
+        for space in self._space_repo.list():
+            bookings = [b for b in booking_repo.list() if b.space.space_id == space.space_id and b.is_active()]
+            if all(not (start_time < b.end_time and b.start_time < end_time) for b in bookings):
+                available.append(space)
+        return available

@@ -51,6 +51,22 @@ class BookingService:
         s = self._find_space_by_name(space_name)
         return [b for b in self._booking_repo.list() if b.space.space_id == s.space_id] if s else []
 
+    def get_available_spaces(self, start_time: datetime, end_time: datetime):
+        all_spaces = self._space_repo.list()
+        bookings = self._booking_repo.list()
+
+        available_spaces = []
+        for space in all_spaces:
+            overlapping = any(
+                b.is_active() and b.space.space_id == space.space_id and
+                start_time < b.end_time and b.start_time < end_time
+                for b in bookings
+            )
+            if not overlapping:
+                available_spaces.append(space)
+
+        return available_spaces
+
     # Aux
     def _find_user_by_name(self, full_name: str):
         return next((u for u in self._user_repo.list() if u.full_name().lower() == full_name.lower()), None)
