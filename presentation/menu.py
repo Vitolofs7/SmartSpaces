@@ -126,7 +126,6 @@ def main():
                 new_start, new_end = input_dates()
                 booking = booking_service.modify_booking(booking_id, new_start, new_end)
                 print(f"Booking {booking.booking_id} rescheduled to {booking.start_time} - {booking.end_time}")
-
             elif option == "10":
                 print("Goodbye!")
                 break
