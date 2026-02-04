@@ -2,98 +2,40 @@ from datetime import timedelta
 
 
 class User:
-    """Represents a user who can make bookings in the system."""
+    """Represents a user who can make bookings."""
 
     def __init__(self, user_id, name, surname1, surname2):
-        """Initializes a User instance with validation.
-
-        Args:
-            user_id: Unique identifier for the user.
-            name: First name of the user.
-            surname1: First surname of the user.
-            surname2: Second surname of the user.
-
-        Raises:
-            ValueError: If any of the arguments are empty.
-        """
-        user_id = (user_id or "").strip()
-        name = (name or "").strip()
-        surname1 = (surname1 or "").strip()
-        surname2 = (surname2 or "").strip()
-
-        if not user_id:
-            raise ValueError("User id cannot be empty.")
-        if not name:
-            raise ValueError("User name cannot be empty.")
-        if not surname1:
-            raise ValueError("User first surname cannot be empty")
-        if not surname2:
-            raise ValueError("User second surname cannot be empty")
-
-        self.__user_id = user_id
-        self._name = name
-        self._surname1 = surname1
-        self._surname2 = surname2
+        user_id, name, surname1, surname2 = (x.strip() for x in
+                                             (user_id or "", name or "", surname1 or "", surname2 or ""))
+        if not all([user_id, name, surname1, surname2]):
+            raise ValueError("All user fields must be non-empty.")
+        self.__user_id, self._name, self._surname1, self._surname2 = user_id, name, surname1, surname2
         self._active = True
-
-        # Default rules (basic behaviour)
         self._max_active_bookings = 1
         self._max_booking_duration = timedelta(hours=2)
 
     @property
-    def user_id(self):
-        """Returns the unique identifier of the user."""
-        return self.__user_id
+    def user_id(self): return self.__user_id
 
     @property
-    def name(self):
-        """Returns the first name of the user."""
-        return self._name
+    def name(self): return self._name
 
     @property
-    def surname1(self):
-        """Returns the first surname of the user."""
-        return self._surname1
+    def surname1(self): return self._surname1
 
     @property
-    def surname2(self):
-        """Returns the second surname of the user."""
-        return self._surname2
+    def surname2(self): return self._surname2
 
-    def full_name(self):
-        """Returns the full name of the user.
+    def full_name(self): return f"{self.name} {self.surname1} {self.surname2}"
 
-        Returns:
-            Concatenation of name, surname1, and surname2.
-        """
-        return f"{self.name} {self.surname1} {self.surname2}"
+    def is_active(self): return self._active
 
-    def is_active(self):
-        """Checks if the user is currently active.
+    def deactivate(self): self._active = False
 
-        Returns:
-            True if the user is active, False otherwise.
-        """
-        return self._active
-
-    def deactivate(self):
-        """Deactivates the user, preventing future bookings."""
-        self._active = False
-
-    def can_make_booking(self):
-        """Checks if the user is allowed to make bookings.
-
-        Returns:
-            True if the user is active, False otherwise.
-        """
-        return self._active
+    def can_make_booking(self): return self._active
 
     @property
-    def max_active_bookings(self):
-        """Returns the maximum number of active bookings allowed for the user."""
-        return self._max_active_bookings
+    def max_active_bookings(self): return self._max_active_bookings
 
     @property
-    def max_booking_duration(self):
-        """Returns the maximum duration allowed per booking for the user."""
-        return self._max_booking_duration
+    def max_booking_duration(self): return self._max_booking_duration
