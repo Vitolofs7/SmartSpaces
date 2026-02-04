@@ -8,6 +8,7 @@ from application.space_service import SpaceService
 from application.user_service import UserService
 from infrastructure.seed_data import seed_all
 
+
 def show_menu():
     print("\n=== SMART SPACES MENU ===")
     print("\n".join([
@@ -18,24 +19,33 @@ def show_menu():
         "5. Cancel booking",
         "6. Finish booking",
         "7. Create space",
-        "8. Exit"
+        "8. List available spaces",
+        "9. Exit"
     ]))
+
 
 def parse_datetime(value: str) -> datetime:
     for fmt in ("%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M"):
-        try: return datetime.strptime(value, fmt)
-        except ValueError: pass
+        try:
+            return datetime.strptime(value, fmt)
+        except ValueError:
+            pass
     raise ValueError("Invalid date format. Use YYYY-MM-DD HH:MM or YYYY/MM/DD HH:MM")
+
 
 def select_user(user_service):
     print("\nAvailable users:")
-    for u in user_service.list_users(): print(u.full_name())
+    for u in user_service.list_users():
+        print(u.full_name())
     return input("Choose user name: ").strip()
+
 
 def select_space(space_service):
     print("\nAvailable spaces:")
-    for s in space_service.list_spaces(): print(s.space_name)
+    for s in space_service.list_spaces():
+        print(s.space_name)
     return input("Choose space name: ").strip()
+
 
 def input_dates():
     print("\nEnter booking dates. (YYYY-MM-DD HH:MM or YYYY/MM/DD HH:MM)")
@@ -43,27 +53,36 @@ def input_dates():
     end = parse_datetime(input("End datetime: ").strip())
     return start, end
 
+
 def create_space(space_service):
     print("\nSelect space type:\n1. Generic space\n2. Meeting room")
     space_type = input("Choose type: ").strip()
-    space_id, space_name, capacity = input("Space ID: ").strip(), input("Space name: ").strip(), int(input("Capacity: ").strip())
+    space_id, space_name, capacity = input("Space ID: ").strip(), input("Space name: ").strip(), int(
+        input("Capacity: ").strip())
     if space_type == "1":
         space_service.create_space(space_id, space_name, capacity, "Basic")
     elif space_type == "2":
-        room_number, floor, num_power_outlets = input("Room number: ").strip(), int(input("Floor: ").strip()), int(input("Number of power outlets: ").strip())
+        room_number, floor, num_power_outlets = input("Room number: ").strip(), int(input("Floor: ").strip()), int(
+            input("Number of power outlets: ").strip())
         equipment_raw = input("Equipment list (comma separated, optional): ").strip()
         equipment_list = [e.strip() for e in equipment_raw.split(",")] if equipment_raw else []
-        space_service.create_meeting_room(space_id, space_name, capacity, room_number, floor, num_power_outlets, equipment_list)
+        space_service.create_meeting_room(space_id, space_name, capacity, room_number, floor, num_power_outlets,
+                                          equipment_list)
     else:
         print("Invalid space type.")
         return
     print("\nSpace created successfully.")
 
+
 def main():
     # Initialize repositories and services
-    space_repo, user_repo, booking_repo = SpaceMemoryRepository(), UserMemoryRepository(), BookingMemoryRepository()
-    booking_service, space_service, user_service = BookingService(booking_repo, space_repo, user_repo), SpaceService(space_repo), UserService(user_repo)
-    seed_all(space_repo, user_repo)
+    space_repo = SpaceMemoryRepository()
+    user_repo = UserMemoryRepository()
+    booking_repo = BookingMemoryRepository()
+    booking_service = BookingService(booking_repo, space_repo, user_repo)
+    space_service = SpaceService(space_repo)
+    user_service = UserService(user_repo)
+    seed_all(space_repo, user_repo, booking_repo)
 
     while True:
         show_menu()
@@ -72,9 +91,12 @@ def main():
             if option == "1":
                 print("\n".join(str(s) for s in space_service.list_spaces()))
             elif option == "2":
-                print("\n".join(f"{u.user_id} - {u.full_name()} - Active: {u.is_active()}" for u in user_service.list_users()))
+                print("\n".join(
+                    f"{u.user_id} - {u.full_name()} - Active: {u.is_active()}" for u in user_service.list_users()))
             elif option == "3":
-                print("\n".join(f"{b.booking_id} - {b._user.name} - {b._space.space_name} - Status: {b._booking_status}" for b in booking_service.list_bookings()))
+                print("\n".join(
+                    f"{b.booking_id} - {b.user.full_name()} - {b.space.space_name} - Status: {b.status}" for b in
+                    booking_service.list_bookings()))
             elif option == "4":
                 user_name = select_user(user_service)
                 space_name = select_space(space_service)
@@ -90,11 +112,22 @@ def main():
             elif option == "7":
                 create_space(space_service)
             elif option == "8":
-                print("Goodbye!"); break
+                start, end = input_dates()
+                available_spaces = space_service.get_available_spaces(booking_repo, start, end)
+                if not available_spaces:
+                    print("No spaces available for the selected dates.")
+                else:
+                    print("\nAvailable spaces:")
+                    for s in available_spaces:
+                        print(s)
+            elif option == "9":
+                print("Goodbye!")
+                break
             else:
                 print("Invalid option.")
         except ValueError as e:
             print(f"Error: {e}")
+
 
 if __name__ == "__main__":
     main()
