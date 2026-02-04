@@ -1,122 +1,101 @@
-# domain/booking.py
-from datetime import datetime
+from domain import booking_repository
 
 
 class Booking:
-    """Represents a booking for a user in a specific space with a start and end time.
-
-    Attributes:
-        STATUS_ACTIVE: Status indicating the booking is active.
-        STATUS_CANCELLED: Status indicating the booking was cancelled.
-        STATUS_FINISHED: Status indicating the booking has finished.
-    """
-
     STATUS_ACTIVE = "ACTIVE"
     STATUS_CANCELLED = "CANCELLED"
     STATUS_FINISHED = "FINISHED"
 
-    def __init__(self, booking_id, space, user, start_time, end_time):
-        """Initializes a Booking instance.
+    _id_counter = 1
 
-        Validates that the booking_id is not empty and that start_time is
-        before end_time.
+    def __init__(self, space, user, start_time, end_time):
 
-        Args:
-            booking_id: Unique identifier for the booking.
-            space: The Space object being booked.
-            user: The User object making the booking.
-            start_time: Start datetime of the booking.
-            end_time: End datetime of the booking.
-
-        Raises:
-            ValueError: If booking_id is empty or start_time is not before end_time.
-        """
-        if not booking_id:
-            raise ValueError("Booking id cannot be empty.")
         if start_time >= end_time:
             raise ValueError("Start time must be before end time.")
 
-        self.__booking_id = booking_id
+        self._booking_id = None
         self._space = space
         self._user = user
         self._start_time = start_time
         self._end_time = end_time
         self._booking_status = Booking.STATUS_ACTIVE
 
+    # =========================
+    # FACTORY METHOD (DOMINIO)
+    # =========================
+
+    @staticmethod
+    def create(space, user, start_time, end_time, booking_repo):
+        if not user.is_active():
+            raise ValueError("User is inactive")
+        if not space.is_available():
+            raise ValueError("Space is not available")
+
+        new_booking = Booking(space, user, start_time, end_time)
+
+        for booking in booking_repo.list():
+            if booking.space.space_id == space.space_id and new_booking.overlaps_with(booking):
+                raise ValueError(f"Space '{space.space_name}' already booked.")
+
+        space.reserve()
+        booking_repo.save(new_booking)  # ID generado aquí
+        return new_booking
+
+    # =========================
+    # PROPERTIES
+    # =========================
+
     @property
     def booking_id(self):
-        """Returns the unique identifier of the booking.
+        return self._booking_id
 
-        Returns:
-            The booking ID as a string.
-        """
-        return self.__booking_id
+    @property
+    def space(self):
+        return self._space
+
+    @property
+    def user(self):
+        return self._user
+
+    @property
+    def start_time(self):
+        return self._start_time
+
+    @property
+    def end_time(self):
+        return self._end_time
 
     @property
     def status(self):
-        """Returns the current status of the booking.
-
-        Returns:
-            One of STATUS_ACTIVE, STATUS_CANCELLED, or STATUS_FINISHED.
-        """
         return self._booking_status
 
-    def is_active(self):
-        """Checks if the booking is currently active.
+    # =========================
+    # BEHAVIOUR
+    # =========================
 
-        Returns:
-            True if the booking is active, False otherwise.
-        """
+    def is_active(self):
         return self._booking_status == Booking.STATUS_ACTIVE
 
     def cancel(self):
-        """Cancels an active booking.
-
-        Updates the booking status to STATUS_CANCELLED.
-
-        Raises:
-            ValueError: If the booking is not active.
-        """
-        if self._booking_status != Booking.STATUS_ACTIVE:
+        if not self.is_active():
             raise ValueError("Only active bookings can be cancelled.")
+
         self._booking_status = Booking.STATUS_CANCELLED
+        self._space.release()
 
     def finish(self):
-        """Marks an active booking as finished.
-
-        Updates the booking status to STATUS_FINISHED.
-
-        Raises:
-            ValueError: If the booking is not active.
-        """
-        if self._booking_status != Booking.STATUS_ACTIVE:
+        if not self.is_active():
             raise ValueError("Only active bookings can be finished.")
+
         self._booking_status = Booking.STATUS_FINISHED
+        self._space.release()
 
     def overlaps_with(self, other):
-        """Checks if this booking overlaps with another booking.
 
-        Only active bookings are considered. Two bookings overlap if their
-        time ranges intersect.
-
-        Args:
-            other: Another Booking instance to compare against.
-
-        Returns:
-            True if the bookings overlap, False otherwise.
-        """
         if not self.is_active() or not other.is_active():
             return False
 
         return (
-                self._start_time < other._end_time
-                and other._start_time < self._end_time
+                self._start_time < other.end_time
+                and other.start_time < self._end_time
         )
-
-    def duration(self):
-        """Calculates the duration of the booking.
-
-        Returns:
-            A timedelta representing the length of the booking.
-        """
-        return self._end_time - self._start_time

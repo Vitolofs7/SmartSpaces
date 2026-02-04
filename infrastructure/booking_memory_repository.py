@@ -7,40 +7,21 @@ class BookingMemoryRepository(BookingRepository):
     """In-memory implementation of the BookingRepository interface."""
 
     def __init__(self):
-        """Initializes an empty in-memory data store for bookings."""
         self._data = {}
+        self._last_id = 0  # Nuevo atributo para controlar IDs
 
     def save(self, booking):
-        """Saves a booking in memory.
-
-        Args:
-            booking: The Booking instance to save.
-        """
+        """Saves a booking in memory, generating an ID if needed."""
+        if booking.booking_id is None:
+            self._last_id += 1
+            booking._booking_id = f"B{self._last_id}"  # ID generado aquí
         self._data[booking.booking_id] = booking
 
     def get(self, booking_id):
-        """Retrieves a booking by its ID.
-
-        Args:
-            booking_id: The ID of the booking to retrieve.
-
-        Returns:
-            The Booking instance if found, or None otherwise.
-        """
         return self._data.get(booking_id)
 
     def list(self):
-        """Returns all bookings stored in memory.
-
-        Returns:
-            A list of all Booking instances.
-        """
         return list(self._data.values())
 
     def delete(self, booking_id):
-        """Deletes a booking from memory by its ID.
-
-        Args:
-            booking_id: The ID of the booking to delete.
-        """
         self._data.pop(booking_id, None)

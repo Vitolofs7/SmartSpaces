@@ -1,189 +1,100 @@
 # presentation/menu.py
-from datetime import datetime, timedelta
-
-# Repositories
+from datetime import datetime
 from infrastructure.space_memory_repository import SpaceMemoryRepository
 from infrastructure.user_memory_repository import UserMemoryRepository
 from infrastructure.booking_memory_repository import BookingMemoryRepository
-
-# Service
 from application.booking_service import BookingService
-
-# Domain
-from domain.space import Space
-from domain.user import User
-from domain.space_meetingroom import SpaceMeetingroom
-
-# Seed data
+from application.space_service import SpaceService
+from application.user_service import UserService
 from infrastructure.seed_data import seed_all
 
-
-def mostrar_menu():
-    """Displays the main menu to the user."""
+def show_menu():
     print("\n=== SMART SPACES MENU ===")
-    print("1. List spaces")
-    print("2. List users")
-    print("3. List bookings")
-    print("4. Create booking")
-    print("5. Cancel booking")
-    print("6. Finish booking")
-    print("7. Create space")
-    print("8. Exit")
-
+    print("\n".join([
+        "1. List spaces",
+        "2. List users",
+        "3. List bookings",
+        "4. Create booking",
+        "5. Cancel booking",
+        "6. Finish booking",
+        "7. Create space",
+        "8. Exit"
+    ]))
 
 def parse_datetime(value: str) -> datetime:
-    """Parses a datetime string into a datetime object.
+    for fmt in ("%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M"):
+        try: return datetime.strptime(value, fmt)
+        except ValueError: pass
+    raise ValueError("Invalid date format. Use YYYY-MM-DD HH:MM or YYYY/MM/DD HH:MM")
 
-    Supports multiple formats: YYYY-MM-DD HH:MM and YYYY/MM/DD HH:MM.
+def select_user(user_service):
+    print("\nAvailable users:")
+    for u in user_service.list_users(): print(u.full_name())
+    return input("Choose user name: ").strip()
 
-    Args:
-        value: The datetime string to parse.
+def select_space(space_service):
+    print("\nAvailable spaces:")
+    for s in space_service.list_spaces(): print(s.space_name)
+    return input("Choose space name: ").strip()
 
-    Returns:
-        A datetime object corresponding to the input string.
+def input_dates():
+    print("\nEnter booking dates. (YYYY-MM-DD HH:MM or YYYY/MM/DD HH:MM)")
+    start = parse_datetime(input("Start datetime: ").strip())
+    end = parse_datetime(input("End datetime: ").strip())
+    return start, end
 
-    Raises:
-        ValueError: If the string cannot be parsed in any supported format.
-    """
-    formats = [
-        "%Y-%m-%d %H:%M",
-        "%Y/%m/%d %H:%M",
-    ]
-    for fmt in formats:
-        try:
-            return datetime.strptime(value, fmt)
-        except ValueError:
-            pass
-    raise ValueError(
-        "Invalid date format. Please use YYYY-MM-DD HH:MM or YYYY/MM/DD HH:MM"
-    )
-
+def create_space(space_service):
+    print("\nSelect space type:\n1. Generic space\n2. Meeting room")
+    space_type = input("Choose type: ").strip()
+    space_id, space_name, capacity = input("Space ID: ").strip(), input("Space name: ").strip(), int(input("Capacity: ").strip())
+    if space_type == "1":
+        space_service.create_space(space_id, space_name, capacity, "Basic")
+    elif space_type == "2":
+        room_number, floor, num_power_outlets = input("Room number: ").strip(), int(input("Floor: ").strip()), int(input("Number of power outlets: ").strip())
+        equipment_raw = input("Equipment list (comma separated, optional): ").strip()
+        equipment_list = [e.strip() for e in equipment_raw.split(",")] if equipment_raw else []
+        space_service.create_meeting_room(space_id, space_name, capacity, room_number, floor, num_power_outlets, equipment_list)
+    else:
+        print("Invalid space type.")
+        return
+    print("\nSpace created successfully.")
 
 def main():
-    """Main entry point for the Smart Spaces CLI application.
-
-    Handles user input and provides menu options to:
-        - List spaces, users, and bookings
-        - Create, cancel, and finish bookings
-        - Create new spaces
-
-    Uses in-memory repositories and seeds example data on startup.
-    """
-    # Create repositories and service
-    space_repo = SpaceMemoryRepository()
-    user_repo = UserMemoryRepository()
-    booking_repo = BookingMemoryRepository()
-    service = BookingService(booking_repo, space_repo, user_repo)
-
-    # Seed example data
+    # Initialize repositories and services
+    space_repo, user_repo, booking_repo = SpaceMemoryRepository(), UserMemoryRepository(), BookingMemoryRepository()
+    booking_service, space_service, user_service = BookingService(booking_repo, space_repo, user_repo), SpaceService(space_repo), UserService(user_repo)
     seed_all(space_repo, user_repo)
 
     while True:
-        mostrar_menu()
-        opcion = input("Choose an option: ").strip()
-
+        show_menu()
+        option = input("Choose an option: ").strip()
         try:
-            if opcion == "1":
-                print("\nSpaces:")
-                for s in space_repo.list():
-                    print(s)
-
-            elif opcion == "2":
-                print("\nUsers:")
-                for u in user_repo.list():
-                    print(f"{u.user_id} - {u.full_name()} - Active: {u.is_active()}")
-
-            elif opcion == "3":
-                print("\nBookings:")
-                for b in service.list_bookings():
-                    print(f"{b.booking_id} - {b._user.name} - {b._space.space_name} - Status: {b._booking_status}")
-
-            elif opcion == "4":
-                user_id = input("User ID: ").strip()
-                space_id = input("Space ID: ").strip()
-
-                print("\nEnter booking dates.")
-                print("Accepted formats:")
-                print(" - YYYY-MM-DD HH:MM")
-                print(" - YYYY/MM/DD HH:MM")
-
-                start = parse_datetime(input("Start datetime: ").strip())
-                end = parse_datetime(input("End datetime: ").strip())
-
-                booking_id = f"B{len(service.list_bookings()) + 1}"
-
-                booking = service.create_booking(
-                    booking_id=booking_id,
-                    user_id=user_id,
-                    space_id=space_id,
-                    start_time=start,
-                    end_time=end,
-                )
-
+            if option == "1":
+                print("\n".join(str(s) for s in space_service.list_spaces()))
+            elif option == "2":
+                print("\n".join(f"{u.user_id} - {u.full_name()} - Active: {u.is_active()}" for u in user_service.list_users()))
+            elif option == "3":
+                print("\n".join(f"{b.booking_id} - {b._user.name} - {b._space.space_name} - Status: {b._booking_status}" for b in booking_service.list_bookings()))
+            elif option == "4":
+                user_name = select_user(user_service)
+                space_name = select_space(space_service)
+                start, end = input_dates()
+                booking = booking_service.create_booking(user_name, space_name, start, end)
                 print(f"\nBooking {booking.booking_id} created successfully")
-
-            elif opcion == "5":
-                booking_id = input("Booking ID to cancel: ").strip()
-                service.cancel_booking(booking_id)
+            elif option == "5":
+                booking_service.cancel_booking(input("Booking ID to cancel: ").strip())
                 print("Booking cancelled.")
-
-            elif opcion == "6":
-                booking_id = input("Booking ID to finish: ").strip()
-                service.finish_booking(booking_id)
+            elif option == "6":
+                booking_service.finish_booking(input("Booking ID to finish: ").strip())
                 print("Booking finished.")
-
-            elif opcion == "7":
-                print("\nSelect space type:")
-                print("1. Generic space")
-                print("2. Meeting room")
-                space_type = input("Choose type: ").strip()
-
-                space_id = input("Space ID: ").strip()
-                space_name = input("Space name: ").strip()
-                capacity = int(input("Capacity: ").strip())
-
-                if space_type == "1":
-                    space = Space(space_id, space_name, capacity, space_type)
-
-                elif space_type == "2":
-                    room_number = input("Room number: ").strip()
-                    floor = int(input("Floor: ").strip())
-                    num_power_outlets = int(input("Number of power outlets: ").strip())
-                    equipment_raw = input(
-                        "Equipment list (comma separated, optional): "
-                    ).strip()
-                    equipment_list = (
-                        [e.strip() for e in equipment_raw.split(",")]
-                        if equipment_raw
-                        else []
-                    )
-
-                    space = SpaceMeetingroom(
-                        space_id=space_id,
-                        space_name=space_name,
-                        capacity=capacity,
-                        room_number=room_number,
-                        floor=floor,
-                        num_power_outlets=num_power_outlets,
-                        equipment_list=equipment_list,
-                    )
-                else:
-                    print("Invalid space type.")
-                    continue
-
-                space_repo.save(space)
-                print("\nSpace created successfully.")
-
-            elif opcion == "8":
-                print("Goodbye!")
-                break
-
+            elif option == "7":
+                create_space(space_service)
+            elif option == "8":
+                print("Goodbye!"); break
             else:
                 print("Invalid option.")
-
         except ValueError as e:
             print(f"Error: {e}")
-
 
 if __name__ == "__main__":
     main()
