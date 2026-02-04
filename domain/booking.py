@@ -63,3 +63,25 @@ class Booking:
     def overlaps_with(self, other):
         if not self.is_active() or not other.is_active(): return False
         return self._start_time < other.end_time and other.start_time < self._end_time
+
+    def reschedule(self, new_start, new_end, booking_repo):
+        """Reschedule the booking to new dates.
+
+        Raises:
+            ValueError: If new dates are invalid, or space is unavailable.
+        """
+        if not self.is_active():
+            raise ValueError("Only active bookings can be rescheduled.")
+        if new_start >= new_end:
+            raise ValueError("Start time must be before end time.")
+
+        # Check overlap with other bookings
+        for b in booking_repo.list():
+            if b.space.space_id == self.space.space_id and b != self and b.is_active():
+                if new_start < b.end_time and b.start_time < new_end:
+                    raise ValueError(
+                        f"Space '{self.space.space_name}' is already booked from {b.start_time} to {b.end_time}")
+
+        # Update booking dates
+        self._start_time = new_start
+        self._end_time = new_end
