@@ -3,6 +3,34 @@
 All relevant project changes, organized by version/release.
 ---
 
+## [0.3.2] - 2026-02-04
+
+### Added (New Features)
+
+- **List available spaces by date range**:
+    - Added option **8. List available spaces** in the console menu.
+    - Users can enter a start and end datetime.
+    - System lists only spaces that are not booked in that range.
+- Enhanced **date input parsing** for bookings with flexible formats (`YYYY-MM-DD HH:MM` and `YYYY/MM/DD HH:MM`).
+- Updated seed data to include **sample bookings** for testing.
+
+### Changed (Changes)
+
+- Refactored presentation layer (`menu.py`) to support date input for available spaces.
+- `BookingService` used to check active bookings when listing availability.
+
+### Fixed (Bug Fixes)
+
+- Validations prevent showing already reserved spaces for the selected period.
+- Corrected date format handling in presentation layer.
+
+### Compatibility / Breaking Changes (Compatibility)
+
+- **Breaking**: Menu now includes option 8; numbering shifted for subsequent options.
+- Spaces marked as reserved are considered unavailable in the date range query.
+
+---
+
 ## [0.3.1] - 2026-02-04
 
 ### Added (New Features)
