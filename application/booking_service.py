@@ -19,6 +19,14 @@ class BookingService:
         self._space_repo.save(space)
         return booking
 
+    def modify_booking(self, booking_id: str, new_start, new_end):
+        booking = self._booking_repo.get(booking_id)
+        if not booking:
+            raise ValueError("Booking not found")
+        booking.reschedule(new_start, new_end, self._booking_repo)
+        self._booking_repo.save(booking)
+        return booking
+
     def cancel_booking(self, booking_id: str):
         b = self._booking_repo.get(booking_id)
         if not b: raise ValueError("Booking not found")

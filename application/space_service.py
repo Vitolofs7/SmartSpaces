@@ -1,5 +1,6 @@
 from domain.space import Space
 from domain.space_meetingroom import SpaceMeetingroom
+from datetime import datetime
 
 
 class SpaceService:
@@ -23,11 +24,16 @@ class SpaceService:
     def list_spaces(self):
         return self._space_repo.list()
 
-    def get_available_spaces(self, booking_repo, start_time, end_time):
-        """Devuelve espacios que no tienen bookings activas que se solapen con el rango dado."""
-        available = []
+    def get_available_spaces(self, booking_repo, start: datetime, end: datetime):
+        """Devuelve espacios disponibles que no tengan reservas activas solapadas con las fechas dadas."""
+        available_spaces = []
         for space in self._space_repo.list():
-            bookings = [b for b in booking_repo.list() if b.space.space_id == space.space_id and b.is_active()]
-            if all(not (start_time < b.end_time and b.start_time < end_time) for b in bookings):
-                available.append(space)
-        return available
+            # obtener bookings activas para este espacio
+            bookings_for_space = [
+                b for b in booking_repo.list()
+                if b.space.space_id == space.space_id and b.is_active()
+            ]
+            # comprobar si hay algún solapamiento
+            if all(end <= b.start_time or start >= b.end_time for b in bookings_for_space):
+                available_spaces.append(space)
+        return available_spaces

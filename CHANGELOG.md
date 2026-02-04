@@ -3,6 +3,47 @@
 All relevant project changes, organized by version/release.
 ---
 
+## [0.3.3] - 2026-02-04
+
+### Added (New Features)
+
+- Added **option 8: List available spaces** with date range filtering.
+- Added **option 9: Modify booking** to reschedule existing bookings.
+- Implemented `BookingService.modify_booking(booking_id, new_start, new_end)` in the application layer.
+- Added `get_available_spaces` method in `SpaceService` to return spaces free in a given datetime range.
+- Seed data updated to include sample bookings for testing availability logic.
+
+### Changed (Changes)
+
+- Updated `menu.py` to integrate date-based filtering and modification of bookings.
+- Refactored booking creation to use standardized date input format (`YYYY-MM-DD HH:MM` or `YYYY/MM/DD HH:MM`).
+- Improved display of bookings and spaces in the console for clarity.
+
+### Fixed (Bug Fixes)
+
+- Corrected filtering of spaces when checking availability for a given date range.
+- Fixed minor inconsistencies in booking status display.
+
+### Deprecated (Deprecated)
+
+- None.
+
+### Removed (Removed)
+
+- None.
+
+### Security (Security)
+
+- Centralized validation for booking modification to prevent invalid states.
+
+### Compatibility / Breaking Changes (Compatibility)
+
+- **Breaking**: Menu options shifted (previous option 8 → now 8/9 for new features). Update any scripts calling menu
+  options.
+- `BookingService.modify_booking` enforces overlap and user/space validation.
+
+---
+
 ## [0.3.2] - 2026-02-04
 
 ### Added (New Features)

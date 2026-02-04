@@ -20,7 +20,8 @@ def show_menu():
         "6. Finish booking",
         "7. Create space",
         "8. List available spaces",
-        "9. Exit"
+        "9. Modify booking",
+        "10. Exit"
     ]))
 
 
@@ -121,6 +122,11 @@ def main():
                     for s in available_spaces:
                         print(s)
             elif option == "9":
+                booking_id = input("Enter booking ID to modify: ").strip()
+                new_start, new_end = input_dates()
+                booking = booking_service.modify_booking(booking_id, new_start, new_end)
+                print(f"Booking {booking.booking_id} rescheduled to {booking.start_time} - {booking.end_time}")
+            elif option == "10":
                 print("Goodbye!")
                 break
             else:
