@@ -9,8 +9,14 @@ from infrastructure.space_memory_repository import SpaceMemoryRepository
 from infrastructure.user_memory_repository import UserMemoryRepository
 from infrastructure.booking_memory_repository import BookingMemoryRepository
 
-
 def seed_spaces(space_repo: SpaceMemoryRepository):
+    """Seeds the space repository with sample spaces.
+
+    Includes generic spaces and meeting rooms with different capacities and equipment.
+
+    Args:
+        space_repo: The in-memory space repository to populate.
+    """
     spaces = [
         Space("S1", "Conference Room", 5, "Basic"),
         Space("S2", "Open Space", 10, "Basic"),
@@ -21,8 +27,12 @@ def seed_spaces(space_repo: SpaceMemoryRepository):
     for s in spaces:
         space_repo.save(s)
 
-
 def seed_users(user_repo: UserMemoryRepository):
+    """Seeds the user repository with sample users.
+
+    Args:
+        user_repo: The in-memory user repository to populate.
+    """
     users = [
         User("U1", "Alice", "Smith", "Johnson"),
         User("U2", "Bob", "Brown", "Taylor"),
@@ -33,9 +43,16 @@ def seed_users(user_repo: UserMemoryRepository):
     for u in users:
         user_repo.save(u)
 
-
 def seed_bookings(booking_repo: BookingMemoryRepository, space_repo, user_repo):
-    """Seed some initial bookings for testing."""
+    """Seeds the booking repository with sample bookings.
+
+    Creates bookings for existing users and spaces with specific start and end times.
+
+    Args:
+        booking_repo: The in-memory booking repository to populate.
+        space_repo: Repository to fetch spaces.
+        user_repo: Repository to fetch users.
+    """
     now = datetime.now()
     bookings_data = [
         ("U1", "S1", now + timedelta(hours=1), now + timedelta(hours=2)),
@@ -48,8 +65,16 @@ def seed_bookings(booking_repo: BookingMemoryRepository, space_repo, user_repo):
         if user and space:
             Booking.create(space, user, start, end, booking_repo)
 
-
 def seed_all(space_repo: SpaceMemoryRepository, user_repo: UserMemoryRepository, booking_repo: BookingMemoryRepository):
+    """Seeds all repositories with initial sample data.
+
+    Populates spaces, users, and bookings in the given repositories.
+
+    Args:
+        space_repo: Space repository to seed.
+        user_repo: User repository to seed.
+        booking_repo: Booking repository to seed.
+    """
     seed_spaces(space_repo)
     seed_users(user_repo)
     seed_bookings(booking_repo, space_repo, user_repo)

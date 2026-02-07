@@ -1,163 +1,236 @@
-# Smart Spaces
+<p align="center">
+  <img src="./docs/img/app_logo.png" alt="Smart Spaces Logo" width="400"/>
+</p>
 
-## **Overview**
+**Intelligent Space Management System**  
+Manage and optimize shared physical spaces such as classrooms, meeting rooms, and workstations, ensuring bookings are conflict-free and usage rules are automatically enforced.
 
+---
+
+Smart Spaces provides a clear, object-oriented simulation of space reservation and user management.  
+It focuses on **modular design**, **scalable architecture**, and **rule-enforced bookings** for organizations looking to streamline resource usage.
+
+
+📖 **Overview**  
 The project is an **Intelligent Space Management System** designed to manage and optimize the use of shared physical
-spaces within an organization, such as classrooms, meeting rooms, workstations, or multipurpose rooms.
+spaces within an organization, including classrooms, meeting rooms, workstations, or multipurpose rooms.
 
-The system models reservable spaces and users with different roles, allowing **temporary bookings** while enforcing
-rules based on both user type and space characteristics.
+The system models reservable spaces, users with different roles, and temporary bookings, while enforcing rules based on
+user type, space type, and booking conditions. It emphasizes **object-oriented design**, correct domain logic, and safe
+operations without overlapping bookings or unauthorized access.
 
-> Note: This project focuses on simulating the logical operation of the system, emphasizing **object-oriented design**,
-> consistent operations, and correct relationships among model elements.
-
----
-
-## **Objectives**
-
-### **General Objective**
-
-Develop a modular, object-oriented system that enables coherent management of shared spaces and bookings, avoiding
-conflicts and ensuring compliance with usage rules.
-
-### **Specific Objectives**
-
-- Model users with different roles and capabilities.
-- Represent physical spaces with specific characteristics and restrictions.
-- Manage bookings while preventing overlaps and ensuring availability.
-- Automatically enforce rules depending on user type and space type.
-- Use inheritance and multiple inheritance to promote code reuse and system scalability.
+The focus is on the **domain and business rules**, independent of persistence, external APIs, or graphical interfaces.
 
 ---
 
-## **Main Features**
+🎯 **Objectives**
 
-### **User Management**
+**General Objective**  
+Develop a modular, object-oriented system that manages shared spaces and bookings coherently, preventing conflicts and
+enforcing usage rules.
 
-- Generic users with common attributes like ID and name.
-- Different user types with specific rules:
-    - Basic users: strict booking limits.
-    - Premium users: more flexible booking rules.
-    - Administrators: global system management capabilities.
-- Each user type can define:
-    - Maximum number of active bookings.
-    - Maximum allowed booking duration.
-- Additional behaviors can be added via multiple inheritance (e.g., booking priority) without duplicating code.
+**Specific Objectives**
 
-### **Space Management**
-
-- Spaces represent **physical resources** available for reservation.
-- Different types of spaces:
-    - Classrooms
-    - Meeting rooms
-    - Workstations
-    - Multipurpose rooms
-- Common attributes: ID, name, capacity, status (available, reserved, maintenance).
-- Specific space types can define additional rules through inheritance.
-
-### **Advanced Features for Spaces**
-
-- Spaces can include **special features**, implemented via multiple inheritance:
-    - Equipment (projector, video conference, sound systems)
-    - Time restrictions
-    - Premium access rules
-- A single space can belong to a functional category and have extra features, avoiding rigid class hierarchies.
-
-### **Bookings and Availability Control**
-
-- Bookings link a user to a space for a specific time interval.
-- Automatic checks:
-    - Space availability
-    - No overlaps with existing bookings
-    - User permissions
-    - Compliance with space-specific rules
-- Booking statuses: active, canceled, finished.
+- Model users with different roles and booking constraints.
+- Represent physical spaces with capacities, status, and additional features.
+- Manage bookings ensuring availability and avoiding overlaps.
+- Enforce rules depending on user type and space type automatically.
+- Leverage inheritance and multiple inheritance for reusable and extensible design.
 
 ---
 
-## **Object-Oriented Design**
+🧩 **Main Domain Entities**
 
-The project follows core OOP principles:
+The system revolves around several key entities:
 
-- **Encapsulation**: Protect data and validate operations.
-- **Inheritance**: Model different types of users and spaces.
-- **Multiple inheritance**: Add extra behaviors like priority, equipment, or time restrictions.
-- **Polymorphism**: Handle different types uniformly.
-
----
-
-## **Available Actions**
-
-The system supports:
-
-- Registering, modifying, and deleting users.
-- Registering, modifying, and deactivating spaces.
-- Checking space availability.
-- Creating, canceling, and finishing bookings.
-- Listing active bookings by user or by space.
-- Preventing invalid operations (overlapping bookings, unauthorized access).
+- **User**: Represents people interacting with the system, with different roles and booking limits.
+- **Space**: Represents physical resources available for reservation, including generic spaces and specialized meeting
+  rooms.
+- **Booking**: Links users to spaces for specific time intervals, tracking status and enforcing availability.
 
 ---
 
-## **Installation & Execution**
+🏢 **Spaces Management**
+
+The system allows:
+
+- Registering spaces with attributes: ID, name, capacity, type, and status (available, reserved, maintenance).
+- Specialized spaces (e.g., meeting rooms) can have additional features such as equipment, floor number, or number of
+  power outlets.
+- Checking availability for a given time interval and automatically preventing double-booking.
+
+---
+
+👤 **User Management**
+
+Users can have different types and rules:
+
+- **Basic Users**: Strict limits on active bookings and booking duration.
+- **Premium Users**: Higher limits for flexibility.
+- **Administrators**: Can manage all spaces, users, and bookings.
+
+User behaviors include:
+
+- Checking active bookings and allowed duration.
+- Enforcing booking permissions based on space type.
+
+---
+
+📦 **Bookings and Availability Control**
+
+- Bookings link users and spaces for a defined time period.
+- Automatic validations include:
+    - Space availability.
+    - No overlap with existing bookings.
+    - Compliance with user permissions and space rules.
+- Booking statuses: **active**, **canceled**, **finished**.
+- Bookings can be created, canceled, finished, or rescheduled with conflict detection.
+
+---
+
+🧱 **Architecture**
+
+The system uses a layered architecture:
+
+- **Presentation**: Console-based interactive menu (`presentation.menu`).
+- **Application**: Services coordinating use cases (`BookingService`, `SpaceService`, `UserService`).
+- **Domain**: Core models and rules (`User`, `Space`, `Booking`, etc.).
+- **Infrastructure**: In-memory repositories and initial seed data.
+
+This separation ensures maintainability, scalability, and clear responsibility for each layer.
+
+---
+
+🚀 **Installation & Execution**
+
+Follow these steps to set up and run the Smart Spaces management system in your local environment.
+The repository is on the main branch (`main`) with the current content for delivery.
 
 ### **Requirements**
 
 - Python 3.9+
-- No external dependencies are required (all in-memory for simulation).
+- No external dependencies (all data in-memory for simulation).
 
 ### **Installation**
 
 1. Clone the repository:
 
 ```bash
-git clone <repository_url>
-cd SmartSpaces
+  git clone https://github.com/Vitolofs7/SmartSpaces.git
 ```
 
-2. The project uses only standard Python libraries, so no additional packages are required.
-
-### **Running the Application**
-
-From the project root, execute the menu module:
+2. Go to the root of the project:
 
 ```bash
-python -m presentation.menu
+  cd SmartSpaces
 ```
 
-- Use the interactive menu to list spaces, users, bookings, or perform actions like creating, canceling, or finishing
-  bookings.
+3. Run the application:
 
-- The system will automatically enforce booking rules and space availability constraints.
+```bash
+  python -m presentation.menu
+```
 
-### **Project Scope**
+🌳 **Workflow (Git Flow)**  
+This project follows a branch-based development methodology, where each change is integrated via Pull Requests to
+maintain traceability and code quality.
 
-## **Includes**
+🔄 **Contribution Process**
 
-- Modeling of users, spaces, and bookings.
+1. Create a specific branch from `master` using the prefixes detailed below.
+2. Make changes and commits following the naming standards.
+3. Open a Pull Request (PR) describing the changes introduced.
+4. Merge into the main branch after ensuring all tests pass successfully.
 
-- Management of different types of users and spaces with specific behaviors.
+**Prefixes**
 
-- Use of inheritance and multiple inheritance for scalable design.
+| Prefix    | Description                              |
+|-----------|------------------------------------------|
+| feature/  | New features and capabilities            |
+| fix/      | Bug fixes and error corrections          |
+| docs/     | Documentation updates and improvements   |
+| refactor/ | Code improvements without changing logic |
+| test/     | Adding or updating test cases            |
 
-- State control and validation to enforce usage rules.
 
-- Checks to prevent inconsistent or invalid operations (e.g., overlapping bookings).
+---
 
-## **Excludes**
+🌀 **Application Lifecycle & Layered Architecture**  
 
-- Graphical or web interfaces.
+The Smart Spaces system follows a **layered architecture**, ensuring separation of concerns, maintainability, and clear data flow. The diagram below illustrates the lifecycle of a booking request and the interaction between layers:
 
-- Database or file persistence (all data is in-memory).
+1. **Presentation Layer**  
+   - CLI Menu (`presentation/menu.py`) where users interact with the system.  
+   - Handles input, displays output, and forwards requests to the Application Layer.
 
-- Integration with external services (payments, notifications, sensors).
+2. **Application Layer**  
+   - Services (`BookingService`, `SpaceService`, `UserService`) orchestrate business logic.  
+   - Validates user actions, manages booking operations, and interacts with the Domain Layer.
 
-Contributing
+3. **Domain Layer**  
+   - Core models and rules (`Booking`, `Space`, `User`).  
+   - Encapsulates business logic, validations, and domain-specific constraints.
 
-Fork the repository and create a feature branch (git checkout -b feature/my-feature).
+4. **Infrastructure Layer**  
+   - Repositories (`BookingRepository`, `SpaceRepository`, `UserRepository`).  
+   - Handles data storage and retrieval (in-memory for this project).  
 
-Commit your changes (git commit -am 'Add new feature').
+The flow of a request is as follows: the user interacts with the **Presentation Layer**, which communicates with the **Application Layer**, triggering **Domain Layer** logic, and finally storing or retrieving data via the **Infrastructure Layer**. The response follows the reverse path back to the user.
 
-Push to the branch (git push origin feature/my-feature).
+![Smart Spaces Lifecycle](./docs/img/smart_spaces_lifecycle.png)
 
-Open a Pull Request and describe your changes.
+> This layered design ensures that changes in one layer (e.g., switching from in-memory repositories to a database) have minimal impact on other layers.
+
+
+📂 **Project Structure**
+
+```text
+SmartSpaces
+ ┣ 📜CHANGELOG.md               # Record of project changes and versions
+ ┣ 📜README.md                  # Main project documentation
+ ┣ 📜__init__.py                # Root package initializer
+ ┣ 📂application                # Application layer: orchestrates business logic and use cases
+ ┃ ┣ 📜booking_service.py       # Services related to bookings
+ ┃ ┣ 📜space_service.py         # Services related to space management
+ ┃ ┣ 📜user_service.py          # Services related to user management
+ ┃ ┣ 📜__init__.py              # Package initializer for the application layer
+ ┣ 📂docs                       # Project documentation
+ ┃ ┣ 📜BUSINESS_RULES.md        # Document describing business rules
+ ┃ ┣ 📜DESCRIPTION_AND_SCOPE.md # Document detailing project description and scope
+ ┃ ┣ 📜DOMAIN_MODEL.md          # Domain model diagrams and explanations
+ ┃ ┣ 📜EXECUTION.md             # Instructions for running the project
+ ┃ ┣ 📜INITIAL_DATA.md          # Initial seed data for testing/demo
+ ┃ ┣ 📜LAYERED_ARCHITECTURE.md  # Details about the layered architecture
+ ┃ ┣ 📜README.md                # Documentation specific to docs folder
+ ┃ ┣ 📜REPOSITORY_CONTRACT.md   # Repository interfaces/contracts
+ ┃ ┣ 📜TESTS_AND_STEPS.md       # Steps for testing and test instructions
+ ┃ ┣ 📜USE_CASES.md             # Description of main use cases
+ ┃ ┗ 📂img                      # Images used in README and documentation
+ ┣ 📂domain                     # Domain layer: core models and business rules
+ ┃ ┣ 📜booking.py               # Booking model and logic
+ ┃ ┣ 📜booking_repository.py    # Booking repository interface
+ ┃ ┣ 📜space.py                 # Generic space model
+ ┃ ┣ 📜space_meetingroom.py     # Specialized meeting room model
+ ┃ ┣ 📜space_repository.py      # Space repository interface
+ ┃ ┣ 📜user.py                  # User model
+ ┃ ┣ 📜user_repository.py       # User repository interface
+ ┃ ┣ 📜__init__.py              # Package initializer for the domain layer
+ ┣ 📂infrastructure             # Infrastructure layer: concrete implementations of repositories
+ ┃ ┣ 📜booking_memory_repository.py  # In-memory implementation of Booking repository
+ ┃ ┣ 📜seed_data.py             # Script to populate initial data
+ ┃ ┣ 📜space_memory_repository.py    # In-memory implementation of Space repository
+ ┃ ┣ 📜user_memory_repository.py     # In-memory implementation of User repository
+ ┃ ┣ 📜__init__.py              # Package initializer for infrastructure layer
+ ┗ 📂presentation               # Presentation layer: user interface
+   ┣ 📜menu.py                  # Console menu for user interaction
+   ┗ 📜__init__.py              # Package initializer for presentation layer
+```
+
+---
+
+👤 **Author & Creator**  
+Víctor Felipe Suárez – Architect and Developer of Smart Spaces
+
+📄 **Version & Credits**  
+Initial version developed as part of the Smart Spaces project. All code, documentation, and examples created by the
+author.

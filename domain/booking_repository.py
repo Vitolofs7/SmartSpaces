@@ -1,13 +1,65 @@
+# domain/booking_repository.py
+
 from domain.booking import Booking
 
 
 class BookingRepository:
-    """Abstract repository interface for Booking instances."""
+    """Abstract repository interface for Booking instances.
 
-    def save(self, booking: Booking): raise NotImplementedError
+    This repository defines the contract for persisting, retrieving,
+    listing, and deleting booking entities. Concrete implementations
+    must provide the actual data storage logic.
 
-    def get(self, booking_id: str) -> Booking | None: raise NotImplementedError
+    Methods:
+        save: Stores or updates a booking.
+        get: Retrieves a booking by its identifier.
+        list: Retrieves all stored bookings.
+        delete: Removes a booking by its identifier.
+    """
 
-    def list(self) -> list[Booking]: raise NotImplementedError
+    def save(self, booking: Booking):
+        """Stores or updates a booking.
 
-    def delete(self, booking_id: str): raise NotImplementedError
+        Args:
+            booking: Booking instance to persist.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses.
+        """
+        raise NotImplementedError
+
+    def get(self, booking_id: str) -> Booking | None:
+        """Retrieves a booking by its identifier.
+
+        Args:
+            booking_id: Unique identifier of the booking.
+
+        Returns:
+            The booking instance if found, otherwise None.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses.
+        """
+        raise NotImplementedError
+
+    def list(self) -> list[Booking]:
+        """Retrieves all stored bookings.
+
+        Returns:
+            A list containing all bookings.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses.
+        """
+        raise NotImplementedError
+
+    def delete(self, booking_id: str):
+        """Deletes a booking by its identifier.
+
+        Args:
+            booking_id: Unique identifier of the booking to delete.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses.
+        """
+        raise NotImplementedError
