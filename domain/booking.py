@@ -1,5 +1,3 @@
-from domain import booking_repository
-
 
 class Booking:
     STATUS_ACTIVE, STATUS_CANCELLED, STATUS_FINISHED = "ACTIVE", "CANCELLED", "FINISHED"
