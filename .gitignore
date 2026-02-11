@@ -4,5 +4,7 @@ __pycache__/
 *.pyd
 .idea/
 *.swp
+.venv/
 .DS_Store
-test
+.coverage
+htmlcov
