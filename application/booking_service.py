@@ -31,18 +31,18 @@ class BookingService:
         b = self._booking_repo.get(booking_id)
         if not b: raise ValueError("Booking not found")
         if not b.is_active(): raise ValueError("Only active bookings can be cancelled")
-        b.cancel();
+        b.cancel()
         b.space.release()
-        self._space_repo.save(b.space);
+        self._space_repo.save(b.space)
         self._booking_repo.save(b)
 
     def finish_booking(self, booking_id: str):
         b = self._booking_repo.get(booking_id)
         if not b: raise ValueError("Booking not found")
         if not b.is_active(): raise ValueError("Only active bookings can be finished")
-        b.finish();
+        b.finish()
         b.space.release()
-        self._space_repo.save(b.space);
+        self._space_repo.save(b.space)
         self._booking_repo.save(b)
 
     def list_bookings(self):
