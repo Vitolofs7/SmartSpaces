@@ -3,6 +3,65 @@
 All relevant project changes, organized by version/release.
 ---
 
+## [0.3.4] - 2026-02-11
+
+### Added (New Features)
+
+- Implemented comprehensive **unit tests** for domain classes:
+  - `Booking` domain:
+    - Full coverage for creation, cancellation, finishing, overlap detection, and rescheduling.
+    - Tests for invalid users, unavailable spaces, and overlapping bookings.
+  - `Space` domain:
+    - Tests for creation, invalid values, status transitions (`AVAILABLE`, `RESERVED`, `MAINTENANCE`), and helper methods (`is_available`, `is_reserved`, `reserve`, `release`).
+  - `User` domain:
+    - Tests for creation, invalid fields, deactivation, full name property, and booking permissions.
+- Added **integration tests** (`TestIntegrationBookingSystem`) to simulate full booking flows including:
+  - Multiple users and spaces.
+  - Booking creation, cancellation, finishing, and rescheduling.
+  - Validation for inactive users and spaces in maintenance.
+  - Verification of booking IDs uniqueness.
+
+### Changed (Changes)
+
+- Refactored **integration test `test_full_booking_flow`**:
+  - Ensured `finish()` only called on active reservations to prevent `Space not reserved` errors.
+  - Adjusted test steps to properly handle spaces before and after maintenance mode.
+  - Rearranged booking/cancellation flow to prevent invalid state transitions during testing.
+- Updated test mocks for repository behavior:
+  - `FakeBookingRepo` now assigns `_booking_id` automatically.
+  - Ensures `Booking.create` interacts with the repo similarly to real application behavior.
+- Updated unit tests to increase code coverage:
+  - `Booking` coverage now 93–100% including edge cases.
+  - `Space` coverage improved to 97–100%.
+  - `User` coverage improved to 97–100%.
+
+### Fixed (Bug Fixes)
+
+- Resolved `ValueError: Space not reserved` in integration test by correcting the order of operations for finishing and maintenance transitions.
+- Fixed minor edge-case errors in unit tests:
+  - Overlapping bookings detection.
+  - Rescheduling with active and inactive bookings.
+  - Creation of bookings on unavailable or maintenance spaces.
+
+### Deprecated (Deprecated)
+
+- None.
+
+### Removed (Removed)
+
+- None.
+
+### Security (Security)
+
+- None.
+
+### Compatibility / Breaking Changes (Compatibility)
+
+- Fully backward-compatible with domain and service layers.
+- No changes to production code logic; only tests were added and integration flow corrected.
+
+---
+
 ## [0.3.3] - 2026-02-04
 
 ### Added (New Features)
