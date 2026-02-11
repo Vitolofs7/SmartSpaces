@@ -6,6 +6,5 @@ __pycache__/
 *.swp
 .venv/
 .DS_Store
-tests
 .coverage
 htmlcov
