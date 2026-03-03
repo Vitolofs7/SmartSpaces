@@ -1,4 +1,97 @@
-﻿REVISIONES
+# Revisión del proyecto — Víctor
+
+**Fuente de verdad:** `SmartSpaces/` (código en raíz del repositorio, sin carpetas numeradas de fase)
+**Fases detectadas:** Sin carpetas numeradas; el contenido equivale a la fase 03 (Testing)
+
+
+## REVISIÓN FASE 03 - 2026-03-03 — Nota: 8,5/10
+
+### Resuelto desde la revisión anterior
+
+- Añadida la carpeta `tests/` con estructura de paquetes (`tests/__init__.py`, `tests/domain/__init__.py`) y tests para `Booking`, `Space`, `User` e integración: 28 tests, todos pasan.
+- `requirements.txt` creado con `coverage` como dependencia.
+- `docs/TESTS_AND_STEPS.md` expandido con la descripción de cada fichero de test y lo que valida cada caso.
+
+### Cumple
+
+- Tests organizados en `tests/domain/` con `__init__.py` en cada nivel de paquete.
+- Tests unitarios para las tres clases del dominio (`Booking`, `Space`, `User`) y test de integración del flujo completo.
+- Los 28 tests pasan: `Ran 28 tests in 0.000s — OK`.
+- `coverage` declarado en `requirements.txt`.
+- `docs/TESTS_AND_STEPS.md` documenta qué valida cada fichero de test.
+- `CHANGELOG.md` actualizado con versión `0.3.0` hasta `0.3.4`, con secciones Added/Changed/Fixed.
+- `README.md` actualizado con la estructura del proyecto y las instrucciones de ejecución.
+
+### Errores y aspectos a mejorar
+
+- **[IMPORTANTE] `docs/TESTS_AND_STEPS.md` — No incluye los comandos para ejecutar la cobertura.** La sección 4 muestra porcentajes de cobertura pero no cómo reproducirlos. El criterio de la fase exige documentar la ejecución de `coverage`.
+  - *Cómo resolverlo:* Añade una subsección con la secuencia completa: `pip install -r requirements.txt`, después `coverage run -m unittest`, luego `coverage report` y opcionalmente `coverage html`.
+
+- **[IMPORTANTE] `docs/EXECUTION.md` — No está actualizado para la fase 03.** El documento no menciona cómo ejecutar los tests ni cómo obtener el informe de cobertura. 
+  - *Cómo resolverlo:* Añade una sección "Running tests" con los comandos de tests y cobertura. 
+
+
+## REVISIÓN FASE 02 - 2026-03-03 — Nota: 7,5/10
+
+### Cumple
+
+- `CHANGELOG.md` muy bien estructurado con secciones Added/Changed/Fixed/Security desde `0.1.0` hasta `0.3.4`.
+- `README.md` completo: descripción, objetivos, entidades principales, arquitectura, estructura del proyecto e instrucciones de instalación y ejecución.
+- Docstrings completos en clases y métodos públicos del dominio, servicios e infraestructura, con `Args`, `Returns` y `Raises`.
+- Reglas de negocio documentadas en `docs/BUSINESS_RULES.md`: creación, estados, transiciones y cancelación para espacios, salas de reuniones, usuarios y reservas.
+- `docs/` contiene: `DESCRIPTION_AND_SCOPE.md`, `LAYERED_ARCHITECTURE.md`, `USE_CASES.md`, `BUSINESS_RULES.md`, `DOMAIN_MODEL.md`, `REPOSITORY_CONTRACT.md`, `INITIAL_DATA.md`, `EXECUTION.md`, `TESTS_AND_STEPS.md`.
+
+### Errores y aspectos a mejorar
+
+- **[IMPORTANTE] `docs/README.md` — El fichero existe pero está vacío.** La carpeta `docs/` debería tener un fichero de entrada que explique qué contiene cada documento.
+  - *Cómo resolverlo:* Escribe un índice con una línea descriptiva por cada fichero de `docs/` y una referencia o enlace a él.
+
+- **[IMPORTANTE] Falta `docs/TROUBLESHOOTING.md`.** 
+
+- **[IMPORTANTE] `README.md:64-77` — Se documentan tres tipos de usuario (`Basic Users`, `Premium Users`, `Administrators`) que no están implementados en el código.** Solo existe la clase `User` genérica en `domain/user.py`.
+  - *Cómo resolverlo:* O bien implementa los roles como subclases de `User` con distintos límites, o bien elimina esa sección del `README.md` y describe solo lo que realmente existe.
+
+- **[IMPORTANTE] Falta docstring en módulos**
+
+- **[SUGERENCIA] Nombres que no siguen convenciones o no se utilizan.** Revisa y corrige los siguientes casos:
+  - `domain/space_meetingroom.py:6` — Clase `SpaceMeetingroom`: "Room" es palabra independiente, debe ser `SpaceMeetingRoom`.
+  - `domain/space_meetingroom.py:61,83,105,114` — Parámetro `v` en los setters: usa el nombre del atributo que recibe (`room_number`, `floor`, `num_power_outlets`).
+  - `domain/space_meetingroom.py:202` — Parámetro `n` en `can_accommodate`: renombra a `num_people` o `people_count`.
+  - `domain/space_meetingroom.py:48` — Variable local `eq` en `__str__`: renombra a `equipment_display`.
+  - `infrastructure/*_memory_repository.py:15` — Atributo `_data` en los tres repositorios: no indica qué almacena; usa `_bookings`, `_spaces`, `_users`.
+  - `application/booking_service.py:92,146,158`, `presentation/menu.py:137,141,145` — Variables de una letra `b`, `u`, `s`: usa `booking`, `user`, `space`.
+  - `domain/booking.py:18` — `_id_counter = 1` es atributo de clase que nunca se usa; elimínalo.
+  - `domain/space.py:45` — `self._bookings = {}` se define pero nunca se usa; elimínalo.
+  - Servicios — `BookingService` usa `_booking_repo` y `SpaceService` usa `_space_repo`, pero `UserService` usa `_user_repository`. Elige una convención y aplícala en los tres.
+ 
+ - **[SUGERENCIA] Comentarios que repiten lo obvio**. `presentation/menu.py:136,139,143,148,155,159,163,166,176` —  (`# List all spaces`, etc.): elimínalos.
+
+ - **[TYPO]** `docs/BUSINESS_RULES.md:100,108` — Usa `CANCELLED` en lugar de `CANCELED` para coincidir con el código.
+
+## REVISIÓN FASE 01 - 2026-03-03 — Nota: 8,5/10
+
+### Cumple
+
+- Proyecto organizado en las cuatro capas: `domain/`, `application/`, `infrastructure/`, `presentation/`, cada una con su `__init__.py`.
+- POO bien aplicado: atributos privados con doble guion bajo y propiedades, herencia (`SpaceMeetingroom` extiende `Space` con `super().__init__`), validaciones propias en cada entidad.
+- Contrato de repositorio definido en el dominio (`BookingRepository`, `SpaceRepository`, `UserRepository`) e implementaciones en infraestructura.
+- El menú delega en los servicios de aplicación y no accede directamente al dominio ni a los repositorios (salvo el problema señalado abajo).
+- `README.md` con instrucciones de instalación y ejecución.
+
+### Errores y aspectos a mejorar
+
+- **[BUG] `application/booking_service.py:95-96` y `113-114` — Las opciones 5 (Cancelar) y 6 (Finalizar) del menú siempre fallan con `ValueError: Space not reserved`.** `b.cancel()` ya llama internamente a `space.release()` (`domain/booking.py:139`), que cambia el estado del espacio de `RESERVED` a `AVAILABLE`. El servicio vuelve a llamar a `b.space.release()` sobre un espacio ya disponible, lo que lanza la excepción en `domain/space.py:176`. El mismo error ocurre en `finish_booking`.
+  - *Cómo resolverlo:* Elimina del servicio las líneas `b.space.release()` y `self._space_repo.save(b.space)` que aparecen después de `b.cancel()` / `b.finish()`. El dominio ya gestiona el estado del espacio; el servicio solo necesita llamar al método del dominio y guardar la reserva.
+
+- **[DISEÑO] `application/space_service.py:80` — `get_available_spaces` recibe `booking_repo` directamente desde la capa de presentación (`presentation/menu.py:168`).** La presentación no debe conocer ni manejar repositorios.
+  - *Cómo resolverlo:* Inyecta el repositorio de reservas en el constructor de `SpaceService` como se hace en `BookingService`, y elimina el parámetro `booking_repo` del método.
+
+- **[DISEÑO] `domain/user.py:37-38` — Las reglas de usuario (`max_active_bookings`, `max_booking_duration`) están definidas en el dominio pero no se aplican en ningún caso de uso.** `BookingService.create_booking` no valida si el usuario supera sus límites.
+  - *Cómo resolverlo:* En `create_booking`, comprueba cuántas reservas activas tiene el usuario y valida que `end_time - start_time` no supere `user.max_booking_duration`.
+
+- **[DISEÑO] `domain/booking.py:61` y `64` — Conviven dos mecanismos de disponibilidad que se contradicen.** La creación exige `space.is_available()` (estado global AVAILABLE) y además comprueba solapes por fecha. Pero al crear una reserva el espacio queda en `RESERVED` globalmente, impidiendo reservar ese mismo espacio para una fecha futura aunque no haya solape.
+  - *Cómo resolverlo:* Basa la disponibilidad únicamente en la ausencia de solapes temporales. Mantén `MAINTENANCE` como bloqueo global, pero no uses el estado `RESERVED` como condición de rechazo para nuevas reservas.
+
 
 ## REVISIÓN FASE 03 - 2026-02-25
 
@@ -12,9 +105,9 @@ Evidencia:
 Recomendación:
 - Añadir en `docs/TESTS_AND_STEPS.md` el flujo completo con comandos de cobertura y el orden de ejecución.
 
-## REVISIÓN FASE 02 - 2026-02-25
+---
 
-### RESULTADO DE LA REVISIÓN DE DOCUMENTACIÓN
+## REVISIÓN FASE 02 - 2026-02-25
 
 ### Incumplimientos detectados
 
@@ -23,10 +116,6 @@ Evidencia:
 - `README.md:112` -> `No external dependencies (all data in-memory for simulation).`
 - `docs/EXECUTION.md:9` -> `No external libraries or frameworks are required`
 - `requirements.txt:1` -> `coverage`
-
-Explicación:
-- En docs se afirma que no hay dependencias externas.
-- En el repositorio sí hay al menos una dependencia declarada para pruebas (`coverage`).
 
 2. Falta documentación base dentro de `docs/`.
 Evidencia:
@@ -42,18 +131,13 @@ Evidencia:
 4. Inconsistencia de nomenclatura en estados.
 Evidencia:
 - `docs/BUSINESS_RULES.md:100` -> `CANCELED`
-- `docs/BUSINESS_RULES.md:108` -> `A CANCELED or FINISHED...`
 - `domain/booking.py:17` -> `STATUS_CANCELLED = "CANCELLED"`
 
 5. El menú documentado no coincide con el menú real de la aplicación.
 Evidencia:
 - `docs/EXECUTION.md:47` -> `8. Exit`
-- `docs/USE_CASES.md:238-247` -> `UC-8: Exit Application` en opción `8`
 - `presentation/menu.py:25` -> `9. Modify booking`
 - `presentation/menu.py:26` -> `10. Exit`
-
-Explicación:
-- La documentación sigue describiendo salida en opción 8, pero el código actual expone 10 opciones y la salida real está en la opción 10.
 
 6. La versión mínima de Python es inconsistente entre documentos.
 Evidencia:
@@ -63,184 +147,49 @@ Evidencia:
 
 ### Incumplimientos de nombres
 
-7. Nombre de clase no consistente con PascalCase recomendado.
-Evidencia:
-- `domain/space_meetingroom.py:6` -> `class SpaceMeetingroom(Space):`
+7. `domain/space_meetingroom.py:6` -> `class SpaceMeetingroom(Space):` — Renombrar a `SpaceMeetingRoom`.
 
-Recomendación:
-- Renombrar a `SpaceMeetingRoom` para mantener un PascalCase claro y consistente.
+8. Variables de una letra (`b`, `u`, `s`) en servicio y menú.
 
-8. Uso de abreviaturas de una letra en variables que ocultan intención.
-Evidencia:
-- `application/booking_service.py:92` -> `b = self._booking_repo.get(booking_id)`
-- `application/booking_service.py:146` -> `u = self._find_user_by_name(user_name)`
-- `application/booking_service.py:158` -> `s = self._find_space_by_name(space_name)`
-- `presentation/menu.py:145` -> `for b in booking_service.list_bookings()`
-- `presentation/menu.py:141` -> `for u in user_service.list_users()`
-- `presentation/menu.py:137` -> `for s in space_service.list_spaces()`
+9. Colecciones genéricas `self._data` en repositorios — renombrar a `bookings_by_id`, `spaces_by_id`, `users_by_id`.
 
-- El criterio indica evitar abreviaturas poco descriptivas (`tmp`, `aux`, etc.). Variables como `b`, `u`, `s` dificultan leer qué representa cada dato en flujos largos.
-
-Recomendación:
-- Usar nombres explícitos (`booking`, `user`, `space`) en lugar de abreviaturas de una letra.
-
-9. Nombres de colecciones genéricos y poco orientados al dominio.
-Evidencia:
-- `infrastructure/booking_memory_repository.py:15` -> `self._data, self._last_id = {}, 0`
-- `infrastructure/space_memory_repository.py:15` -> `self._data = {}`
-- `infrastructure/user_memory_repository.py:15` -> `self._data = {}`
-
-- El criterio recomienda describir intención y usar vocabulario del dominio. `_data` es demasiado genérico y no comunica si almacena bookings, spaces o users.
-
-Recomendación:
-- Renombrar colecciones a nombres de dominio en plural (`bookings_by_id`, `spaces_by_id`, `users_by_id`).
-
-10. Nombres con unidades no explícitas en reglas de duración.
-Evidencia:
-- `domain/user.py:38` -> `self._max_booking_duration = timedelta(hours=2)`
-- `domain/user.py:94` -> `def max_booking_duration(self):`
-
-- El criterio indica incluir unidades cuando aplique. Aquí se maneja una duración en horas, pero el nombre no explicita unidad y obliga a mirar implementación.
-
-Recomendación:
-- Usar nombres que indiquen unidad o forma (`max_booking_duration_hours` o documentar explícitamente la unidad en el nombre de la regla).
+10. `domain/user.py:94` -> `max_booking_duration` sin indicar unidad.
 
 ### Incumplimientos de documentación inline
 
-11. Falta docstring de módulo en archivos principales (la primera línea no es `"""..."""`).
-Evidencia:
-- `presentation/menu.py:1` -> `# presentation/menu.py`
-- `application/booking_service.py:1` -> `# application/booking_service.py`
-- `application/space_service.py:1` -> `# application/space_service.py`
-- `application/user_service.py:1` -> `# application/user_service.py`
-- `domain/booking.py:1` -> `# domain/booking.py`
-- `domain/space.py:1` -> `# domain/space.py`
-- `domain/user.py:1` -> `# domain/user.py`
-- `infrastructure/seed_data.py:1` -> `# infrastructure/seed_data.py`
+11. Módulos sin docstring (usan comentario `# ruta/fichero.py` en vez de `"""..."""`).
 
-12. Clases de tests sin docstring de clase.
-Evidencia:
-- `tests/domain/test_booking.py:6` -> `class FakeUser:`
-- `tests/domain/test_booking.py:14` -> `class FakeSpace:`
-- `tests/domain/test_booking.py:34` -> `class FakeBookingRepo:`
-- `tests/domain/test_booking.py:45` -> `class TestBooking(unittest.TestCase):`
-- `tests/domain/test_space.py:4` -> `class TestSpace(unittest.TestCase):`
-- `tests/domain/test_user.py:5` -> `class TestUser(unittest.TestCase):`
-- `tests/domain/test_integration.py:8` -> `class TestIntegrationBookingSystem(unittest.TestCase):`
+12. Clases de test sin docstring de clase.
 
-Recomendación:
-- Añadir una línea de docstring por clase de test explicando su objetivo y alcance de validación.
+13. Comentarios evidentes en el menú (`# List all spaces`, `# List all users`, etc.).
 
-13. Comentarios de línea que repiten lo obvio en lugar de explicar "por qué".
-Evidencia:
-- `presentation/menu.py:136` -> `# List all spaces`
-- `presentation/menu.py:139` -> `# List all users`
-- `presentation/menu.py:143` -> `# List all bookings`
-- `presentation/menu.py:148` -> `# Create a new booking`
-- `presentation/menu.py:155` -> `# Cancel a booking`
-- `presentation/menu.py:159` -> `# Finish a booking`
-- `presentation/menu.py:163` -> `# Create a new space or meeting room`
-- `presentation/menu.py:166` -> `# List available spaces for a given date range`
-- `presentation/menu.py:176` -> `# Modify an existing booking`
-- `presentation/menu.py:182` -> `# Exit the program`
+14. `docs/README.md` existe pero está vacío.
 
-- El criterio pide evitar ruido y no comentar lo evidente.
-
-### Incumplimientos de estructura documental del proyecto
-
-14. Falta índice utilizable en `docs/README.md` (archivo de entrada de la carpeta `docs`).
-Evidencia:
-- `docs/README.md` existe pero está vacío (0 bytes).
+---
 
 ## REVISIÓN FASE 01 - 2026-02-25
 
 ### Incumplimientos detectados
 
-1. El contrato de repositorio documentado no coincide con la implementación real.
+1. El contrato de repositorio documentado no coincide con la implementación.
 Evidencia:
 - `docs/REPOSITORY_CONTRACT.md:65` -> `Raises an error if the entity does not exist.`
-- `infrastructure/space_memory_repository.py:34` -> `return self._data.get(space_id)`
-- `infrastructure/user_memory_repository.py:34` -> `return self._data.get(user_id)`
-- `infrastructure/booking_memory_repository.py:39` -> `return self._data.get(booking_id)`
-
-Explicación:
-- La documentación dice que `get` lanza error cuando no existe entidad.
-- Las implementaciones reales usan `.get(...)`, que devuelve `None` y no lanza excepción.
-
-Cómo arreglarlo:
-- Definir un comportamiento único para `get` y sincronizar documentación e implementación.
+- `infrastructure/space_memory_repository.py:34` -> `return self._data.get(space_id)` (devuelve `None`, no lanza excepción)
 
 2. Bug en cancelación/finalización por doble liberación del espacio.
 Evidencia:
-- `application/booking_service.py:95` -> `b.cancel()`
-- `application/booking_service.py:96` -> `b.space.release()`
-- `application/booking_service.py:113` -> `b.finish()`
-- `application/booking_service.py:114` -> `b.space.release()`
-- `domain/booking.py:132-140` -> `cancel()` ya libera el espacio.
-- `domain/booking.py:142-150` -> `finish()` ya libera el espacio.
+- `application/booking_service.py:95-96` -> `b.cancel()` + `b.space.release()`
+- `domain/booking.py:132-140` -> `cancel()` ya libera el espacio internamente.
 
-En servicio se libera el espacio dos veces: una dentro de `cancel()/finish()` y otra inmediatamente después con `b.space.release()`.
+3. Disponibilidad temporal incoherente: estado global `RESERVED` bloquea reservas futuras sin solape.
 
-Eso puede provocar error de estado (`Space not reserved`) en ejecución real.
+4. Reglas de usuario (`max_active_bookings`, `max_booking_duration`) definidas en dominio pero no aplicadas en el servicio.
 
-3. Disponibilidad temporal incoherente con la lógica de solape.
+5. Duplicación de validación de solape: en dominio (`domain/booking.py:64`) y en servicio (`application/booking_service.py:54`).
 
-Ahora mismo el código decide si un espacio se puede reservar usando **dos reglas distintas a la vez**:
+6. Acoplamiento de presentación con persistencia: `presentation/menu.py:168` pasa `booking_repo` directamente al servicio.
 
-1. Regla por estado global del espacio  
-- En `domain/booking.py:61` se pide que `space.is_available()` sea `True`.  
-- Pero cuando se crea una reserva, `domain/space.py:161-168` cambia el espacio a `RESERVED` para todo el sistema.
-
-2. Regla por solape de fechas  
-- En `domain/booking.py:64` también se comprueba si la nueva reserva se cruza en tiempo con otra.
-
-El problema:
-- Si existe una reserva activa hoy (por ejemplo de 10:00 a 11:00), el espacio queda en estado global `RESERVED`.
-- Luego intentas reservar ese mismo espacio para mañana (sin solape), pero puede fallar antes por estado global, aunque por fechas sería válido.
-- Es decir: la regla temporal (solape) dice "sí se puede", pero la regla global de estado dice "no", y se contradicen.
-
-Por eso se considera incoherente:
-- Estás modelando disponibilidad "por agenda/horario" y "por estado único global" al mismo tiempo.
-- Para reservas con fecha/hora, normalmente debe mandar la agenda temporal (solapes), no un bloqueo global permanente hasta cancelar/finalizar.
-
-Sugerencia:
-- Quita en creación de reserva la dependencia de `space.is_available()` para casos con fecha/hora.
-- Decide disponibilidad solo con "no solapa con reservas activas del mismo espacio".
-- Mantén `MAINTENANCE` como bloqueo global (eso sí tiene sentido global).
-- Deja `RESERVED` como estado derivado para mostrar en UI, no como criterio de rechazo de nuevas reservas futuras.
-- Centraliza esa regla en un único sitio (dominio o servicio, pero solo uno).
-
-
-4. Reglas de usuario definidas pero no aplicadas en casos de uso de reserva.
-Evidencia:
-- `domain/user.py:37` -> `_max_active_bookings = 1`
-- `domain/user.py:38` -> `_max_booking_duration = timedelta(hours=2)`
-- `domain/user.py:89-96` -> propiedades públicas de esos límites.
-- `application/booking_service.py:31-59` -> `create_booking` no valida esos límites.
-- `application/booking_service.py:61-80` -> `modify_booking` no valida duración máxima de usuario.
-
-Explicación:
-- El dominio expone políticas de reserva por usuario, pero el servicio no las usa para aceptar/rechazar reservas.
-- La regla existe en código, pero no se hace cumplir en el flujo principal.
-
-5. Duplicación de validación/persistencia en creación de reservas.
-Evidencia:
-- `application/booking_service.py:54` -> `_check_overlap(...)` en servicio.
-- `domain/booking.py:64` -> validación de solape también en dominio.
-- `domain/booking.py:67` -> `Booking.create(...)` guarda en repositorio.
-- `application/booking_service.py:57` -> servicio vuelve a guardar el booking.
-
-Explicación:
-- El mismo control (solape) y parte de la persistencia se ejecutan en dos capas diferentes.
-- Esto añade complejidad y riesgo de inconsistencias.
-
-6. Acoplamiento de presentación con persistencia en consulta de disponibilidad.
-Evidencia:
-- `presentation/menu.py:168` -> pasa `booking_repo` al servicio.
-- `application/space_service.py:80` -> `get_available_spaces(self, booking_repo, start, end)`.
-- `application/space_service.py:94` -> consulta directa `booking_repo.list()` dentro del servicio.
-
-Este caso de uso (buscar espacios disponibles) debería ser responsabilidad completa de la capa de aplicación. Pero ahora la capa de presentación está participando en cómo se accede a datos.
+---
 
 ## REVISIÓN FASE 01 - 2026-02-03
 
