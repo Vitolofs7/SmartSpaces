@@ -82,6 +82,9 @@ class BookingService:
     def cancel_booking(self, booking_id: str):
         """Cancels an active booking and releases the associated space.
 
+        The domain method booking.cancel() already handles the space state
+        transition internally; the service only needs to persist the booking.
+
         Args:
             booking_id: Unique identifier of the booking to cancel.
 
@@ -93,12 +96,13 @@ class BookingService:
         if not booking: raise ValueError("Booking not found")
         if not booking.is_active(): raise ValueError("Only active bookings can be cancelled")
         booking.cancel()
-        booking.space.release()
-        self._space_repo.save(booking.space)
         self._booking_repo.save(booking)
 
     def finish_booking(self, booking_id: str):
         """Marks an active booking as finished and releases the associated space.
+
+        The domain method booking.finish() already handles the space state
+        transition internally; the service only needs to persist the booking.
 
         Args:
             booking_id: Unique identifier of the booking to finish.
@@ -111,8 +115,6 @@ class BookingService:
         if not booking: raise ValueError("Booking not found")
         if not booking.is_active(): raise ValueError("Only active bookings can be finished")
         booking.finish()
-        booking.space.release()
-        self._space_repo.save(booking.space)
         self._booking_repo.save(booking)
 
     def list_bookings(self):
@@ -144,7 +146,8 @@ class BookingService:
             A list of bookings belonging to the user. Returns an empty list if the user is not found.
         """
         user = self._find_user_by_name(user_name)
-        return [booking for booking in self._booking_repo.list() if booking.user.user_id == user.user_id] if user else []
+        return [booking for booking in self._booking_repo.list() if
+                booking.user.user_id == user.user_id] if user else []
 
     def get_bookings_for_space(self, space_name: str):
         """Retrieves all bookings associated with a specific space.
@@ -156,7 +159,8 @@ class BookingService:
             A list of bookings for the space. Returns an empty list if the space is not found.
         """
         space = self._find_space_by_name(space_name)
-        return [booking for booking in self._booking_repo.list() if booking.space.space_id == space.space_id] if space else []
+        return [booking for booking in self._booking_repo.list() if
+                booking.space.space_id == space.space_id] if space else []
 
     def get_available_spaces(self, start_time: datetime, end_time: datetime):
         """Retrieves all spaces available for a given time range.
@@ -203,7 +207,8 @@ class BookingService:
         Returns:
             The space instance if found, otherwise None.
         """
-        return next((space for space in self._space_repo.list() if space.space_name.lower() == space_name.lower()), None)
+        return next((space for space in self._space_repo.list() if space.space_name.lower() == space_name.lower()),
+                    None)
 
     def _check_overlap(self, space: Space, start_time: datetime, end_time: datetime):
         """Validates that a booking time range does not overlap with existing active bookings.
@@ -216,6 +221,8 @@ class BookingService:
         Raises:
             ValueError: If an active booking overlaps with the requested time range.
         """
-        for booking in (booking for booking in self._booking_repo.list() if booking.space.space_id == space.space_id and booking.is_active()):
+        for booking in (booking for booking in self._booking_repo.list() if
+                        booking.space.space_id == space.space_id and booking.is_active()):
             if start_time < booking.end_time and booking.start_time < end_time:
-                raise ValueError(f"Space '{space.space_name}' is already booked from {booking.start_time} to {booking.end_time}")
+                raise ValueError(
+                    f"Space '{space.space_name}' is already booked from {booking.start_time} to {booking.end_time}")

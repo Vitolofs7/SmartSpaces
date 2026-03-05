@@ -14,15 +14,18 @@ class SpaceService:
 
     Args:
         space_repo: Repository responsible for storing and retrieving spaces.
+        booking_repo: Repository responsible for storing and retrieving bookings.
     """
 
-    def __init__(self, space_repo):
-        """Initializes the space service with its repository.
+    def __init__(self, space_repo, booking_repo):
+        """Initializes the space service with its repositories.
 
         Args:
             space_repo: Repository used to manage space persistence.
+            booking_repo: Repository used to retrieve bookings for availability checks.
         """
         self._space_repo = space_repo
+        self._booking_repo = booking_repo
 
     def create_space(self, space_id, space_name, capacity, space_type):
         """Creates a new generic space.
@@ -40,9 +43,9 @@ class SpaceService:
             ValueError: If a space with the given ID already exists.
         """
         if self._space_repo.get(space_id): raise ValueError("Space with this ID already exists")
-        s = Space(space_id, space_name, capacity, space_type)
-        self._space_repo.save(s)
-        return s
+        space = Space(space_id, space_name, capacity, space_type)
+        self._space_repo.save(space)
+        return space
 
     def create_meeting_room(self, space_id, space_name, capacity, room_number, floor, num_power_outlets,
                             equipment_list):
@@ -64,10 +67,11 @@ class SpaceService:
             ValueError: If a space with the given ID already exists.
         """
         if self._space_repo.get(space_id): raise ValueError("Space with this ID already exists")
-        s = SpaceMeetingRoom(space_id, space_name, capacity, room_number, floor, num_power_outlets=num_power_outlets,
-                             equipment_list=equipment_list)
-        self._space_repo.save(s)
-        return s
+        space = SpaceMeetingRoom(space_id, space_name, capacity, room_number, floor,
+                                 num_power_outlets=num_power_outlets,
+                                 equipment_list=equipment_list)
+        self._space_repo.save(space)
+        return space
 
     def list_spaces(self):
         """Retrieves all stored spaces.
@@ -77,11 +81,10 @@ class SpaceService:
         """
         return self._space_repo.list()
 
-    def get_available_spaces(self, booking_repo, start: datetime, end: datetime):
+    def get_available_spaces(self, start: datetime, end: datetime):
         """Retrieves spaces that do not have overlapping active bookings.
 
         Args:
-            booking_repo: Repository used to retrieve bookings.
             start: Desired booking start datetime.
             end: Desired booking end datetime.
 
@@ -91,10 +94,9 @@ class SpaceService:
         available_spaces = []
         for space in self._space_repo.list():
             bookings_for_space = [
-                b for b in booking_repo.list()
-                if b.space.space_id == space.space_id and b.is_active()
+                booking for booking in self._booking_repo.list()
+                if booking.space.space_id == space.space_id and booking.is_active()
             ]
-
-            if all(end <= b.start_time or start >= b.end_time for b in bookings_for_space):
+            if all(end <= booking.start_time or start >= booking.end_time for booking in bookings_for_space):
                 available_spaces.append(space)
         return available_spaces
