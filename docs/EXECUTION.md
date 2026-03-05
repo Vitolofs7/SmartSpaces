@@ -3,8 +3,8 @@
 ## Requirements
 
 To execute the Smart Spaces project, the following requirements are needed:
-
-- **Python 3.9 or higher**
+- 
+- **Python 3.13 or higher**
 - A terminal or command-line interface
 - No external libraries or frameworks are required
 
@@ -42,11 +42,77 @@ Once the application is running, the user can interact with the system through t
 
 6. Finish booking
 
-7. Create Space
+7. Create space
 
-8. Exit
+8. List available spaces
+
+9. Modify booking
+
+10. Exit
 
 Each option is selected by typing its number and pressing Enter.
+
+---
+
+## Running Tests
+
+### Running the Test Suite
+
+All tests are located in the `tests/` directory and use Python's built-in `unittest` module. From the project root (`SmartSpaces/`), run:
+
+```bash
+# Run all tests
+python -m unittest discover -s tests -t .
+
+# Run a specific test module (for example, Booking)
+python -m unittest tests.domain.test_booking
+```
+
+A successful run will output something like:
+
+```
+....................
+----------------------------------------------------------------------
+Ran 28 tests in 0.006s
+
+OK
+```
+
+### Running Tests with Coverage
+
+To measure and report test coverage, follow this sequence:
+
+**Step 1 — Install dependencies** (including `coverage`):
+
+```bash
+pip install -r requirements.txt
+```
+
+> If `coverage` is not yet in `requirements.txt`, install it directly with `pip install coverage`.
+
+**Step 2 — Run the test suite under `coverage`:**
+
+```bash
+coverage run -m unittest discover -s tests -t .
+```
+
+**Step 3 — Display the coverage report in the terminal:**
+
+```bash
+coverage report
+```
+
+**Step 4 (optional) — Generate an HTML report** for line-by-line visualisation:
+
+```bash
+coverage html
+```
+
+This creates an `htmlcov/` directory. Open `htmlcov/index.html` in your browser to browse results interactively, with covered and uncovered lines highlighted.
+
+> **Tip:** Add `htmlcov/` and `.coverage` to your `.gitignore` to avoid committing generated coverage artefacts.
+
+---
 
 # Example Execution Flows
 
@@ -106,7 +172,7 @@ attempting an invalid booking), the system will:
 
 * All data is stored in memory and is reset each time the program is executed.
 * The system is designed for single-user, sequential interaction.
-* To exit the application safely, select option `8` (Exit).
+* To exit the application safely, select option `10` (Exit).
 
 ## Summary
 

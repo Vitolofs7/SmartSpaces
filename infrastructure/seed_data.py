@@ -1,8 +1,8 @@
-# infrastructure/seed_data.py
+"""infrastructure/seed_data.py"""
 
 from datetime import datetime, timedelta
 from domain.space import Space
-from domain.space_meetingroom import SpaceMeetingroom
+from domain.space_meetingroom import SpaceMeetingRoom
 from domain.user import User
 from domain.booking import Booking
 from infrastructure.space_memory_repository import SpaceMemoryRepository
@@ -20,8 +20,8 @@ def seed_spaces(space_repo: SpaceMemoryRepository):
     spaces = [
         Space("S1", "Conference Room", 5, "Basic"),
         Space("S2", "Open Space", 10, "Basic"),
-        SpaceMeetingroom("S3", "Main Meeting Room", 8, "101", 1, ["Projector", "Whiteboard"], 4),
-        SpaceMeetingroom("S4", "Small Meeting Room", 4, "102", 1, ["TV"], 2),
+        SpaceMeetingRoom("S3", "Main Meeting Room", 8, "101", 1, ["Projector", "Whiteboard"], 4),
+        SpaceMeetingRoom("S4", "Small Meeting Room", 4, "102", 1, ["TV"], 2),
         Space("S5", "Private Office", 2, "Private"),
     ]
     for s in spaces:

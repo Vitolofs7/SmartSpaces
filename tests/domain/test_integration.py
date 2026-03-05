@@ -1,3 +1,5 @@
+"""tests/domain/test_integration.py"""
+
 import unittest
 from datetime import datetime, timedelta
 from domain.booking import Booking

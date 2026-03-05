@@ -1,5 +1,8 @@
+"""tests/domain/test_space.py"""
+
 import unittest
 from domain.space import Space
+
 
 class TestSpace(unittest.TestCase):
 
@@ -74,6 +77,7 @@ class TestSpace(unittest.TestCase):
     def test_invalid_status_setter(self):
         with self.assertRaises(ValueError):
             self.space.space_status = "INVALID"
+
 
 if __name__ == "__main__":
     unittest.main()

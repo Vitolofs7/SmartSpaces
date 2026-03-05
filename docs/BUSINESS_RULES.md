@@ -97,22 +97,22 @@ A booking can only be created if:
 A booking can have the following states:
 
 - ACTIVE
-- CANCELED
+- CANCELLED
 - FINISHED
 
 ### State Transitions
 
 - An ACTIVE booking can be:
-    - Canceled
+    - Cancelled
     - Finished
-- A CANCELED or FINISHED booking cannot be modified further.
+- A CANCELLED or FINISHED booking cannot be modified further.
 
 ---
 
 ## Booking Cancellation Rules
 
-- Only existing bookings can be canceled.
-- A booking that is already canceled or finished cannot be canceled again.
+- Only existing bookings can be Cancelled.
+- A booking that is already Cancelled or finished cannot be Cancelled again.
 - Canceling a booking releases the associated space.
 
 ---

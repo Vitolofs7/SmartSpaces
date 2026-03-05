@@ -1,7 +1,6 @@
-# application/booking_service.py
+"""application/booking_service.py"""
 
 from domain.booking import Booking
-from domain.space import Space
 from datetime import datetime
 
 
@@ -10,7 +9,8 @@ class BookingService:
 
     This service coordinates the creation, modification, cancellation, completion,
     and retrieval of bookings, ensuring business rules are enforced such as:
-    user and space existence, space availability, and booking overlap validation.
+    user and space existence, user booking limits, and space availability.
+    Overlap validation is delegated entirely to the domain layer.
 
     Args:
         booking_repo: Repository responsible for storing and retrieving bookings.
@@ -31,8 +31,10 @@ class BookingService:
     def create_booking(self, user_name, space_name, start_time, end_time):
         """Creates a new booking for a user in a specific space and time range.
 
-        Validates that the user and space exist and ensures that the requested
-        time slot does not overlap with other active bookings for the same space.
+        Validates that the user and space exist, that the user has not exceeded
+        their active booking limit, and that the requested duration does not exceed
+        the user's maximum booking duration. Overlap and availability checks are
+        delegated to the domain layer via Booking.create.
 
         Args:
             user_name: Full name of the user making the booking.
@@ -45,16 +47,32 @@ class BookingService:
 
         Raises:
             ValueError: If the user or space does not exist.
+            ValueError: If the user has reached their maximum active bookings limit.
+            ValueError: If the requested duration exceeds the user's maximum booking duration.
             ValueError: If the booking time overlaps with an existing active booking.
         """
-        user = next((u for u in self._user_repo.list() if u.full_name() == user_name), None)
+        user = next((user for user in self._user_repo.list() if user.full_name() == user_name), None)
         if not user: raise ValueError("User not found")
-        space = next((s for s in self._space_repo.list() if s.space_name == space_name), None)
+        space = next((space for space in self._space_repo.list() if space.space_name == space_name), None)
         if not space: raise ValueError("Space not found")
-        self._check_overlap(space, start_time, end_time)
+
+        active_user_bookings = [
+            booking for booking in self._booking_repo.list()
+            if booking.user.user_id == user.user_id and booking.is_active()
+        ]
+        if len(active_user_bookings) >= user.max_active_bookings:
+            raise ValueError(
+                f"User '{user_name}' has reached the maximum of {user.max_active_bookings} active booking(s)."
+            )
+
+        duration = end_time - start_time
+        if duration > user.max_booking_duration:
+            raise ValueError(
+                f"Booking duration exceeds the allowed maximum of {user.max_booking_duration} for user '{user_name}'."
+            )
+
         booking = Booking.create(space=space, user=user, start_time=start_time, end_time=end_time,
                                  booking_repo=self._booking_repo)
-        self._booking_repo.save(booking)
         self._space_repo.save(space)
         return booking
 
@@ -82,6 +100,9 @@ class BookingService:
     def cancel_booking(self, booking_id: str):
         """Cancels an active booking and releases the associated space.
 
+        The domain method booking.cancel() handles the space state transition
+        internally; the service only needs to persist the booking.
+
         Args:
             booking_id: Unique identifier of the booking to cancel.
 
@@ -89,16 +110,17 @@ class BookingService:
             ValueError: If the booking does not exist.
             ValueError: If the booking is not active.
         """
-        b = self._booking_repo.get(booking_id)
-        if not b: raise ValueError("Booking not found")
-        if not b.is_active(): raise ValueError("Only active bookings can be cancelled")
-        b.cancel()
-        b.space.release()
-        self._space_repo.save(b.space)
-        self._booking_repo.save(b)
+        booking = self._booking_repo.get(booking_id)
+        if not booking: raise ValueError("Booking not found")
+        if not booking.is_active(): raise ValueError("Only active bookings can be cancelled")
+        booking.cancel()
+        self._booking_repo.save(booking)
 
     def finish_booking(self, booking_id: str):
         """Marks an active booking as finished and releases the associated space.
+
+        The domain method booking.finish() handles the space state transition
+        internally; the service only needs to persist the booking.
 
         Args:
             booking_id: Unique identifier of the booking to finish.
@@ -107,13 +129,11 @@ class BookingService:
             ValueError: If the booking does not exist.
             ValueError: If the booking is not active.
         """
-        b = self._booking_repo.get(booking_id)
-        if not b: raise ValueError("Booking not found")
-        if not b.is_active(): raise ValueError("Only active bookings can be finished")
-        b.finish()
-        b.space.release()
-        self._space_repo.save(b.space)
-        self._booking_repo.save(b)
+        booking = self._booking_repo.get(booking_id)
+        if not booking: raise ValueError("Booking not found")
+        if not booking.is_active(): raise ValueError("Only active bookings can be finished")
+        booking.finish()
+        self._booking_repo.save(booking)
 
     def list_bookings(self):
         """Returns all stored bookings.
@@ -143,8 +163,9 @@ class BookingService:
         Returns:
             A list of bookings belonging to the user. Returns an empty list if the user is not found.
         """
-        u = self._find_user_by_name(user_name)
-        return [b for b in self._booking_repo.list() if b.user.user_id == u.user_id] if u else []
+        user = self._find_user_by_name(user_name)
+        return [booking for booking in self._booking_repo.list() if
+                booking.user.user_id == user.user_id] if user else []
 
     def get_bookings_for_space(self, space_name: str):
         """Retrieves all bookings associated with a specific space.
@@ -155,8 +176,9 @@ class BookingService:
         Returns:
             A list of bookings for the space. Returns an empty list if the space is not found.
         """
-        s = self._find_space_by_name(space_name)
-        return [b for b in self._booking_repo.list() if b.space.space_id == s.space_id] if s else []
+        space = self._find_space_by_name(space_name)
+        return [booking for booking in self._booking_repo.list() if
+                booking.space.space_id == space.space_id] if space else []
 
     def get_available_spaces(self, start_time: datetime, end_time: datetime):
         """Retrieves all spaces available for a given time range.
@@ -168,23 +190,19 @@ class BookingService:
         Returns:
             A list of spaces that are not booked during the specified time range.
         """
-        all_spaces = self._space_repo.list()
-        bookings = self._booking_repo.list()
-
         available_spaces = []
-        for space in all_spaces:
+        for space in self._space_repo.list():
             overlapping = any(
-                b.is_active() and b.space.space_id == space.space_id and
-                start_time < b.end_time and b.start_time < end_time
-                for b in bookings
+                booking.is_active() and booking.space.space_id == space.space_id and
+                start_time < booking.end_time and booking.start_time < end_time
+                for booking in self._booking_repo.list()
             )
             if not overlapping:
                 available_spaces.append(space)
-
         return available_spaces
 
     def _find_user_by_name(self, full_name: str):
-        """Finds a user by full name
+        """Finds a user by full name.
 
         Args:
             full_name: Full name of the user.
@@ -192,10 +210,10 @@ class BookingService:
         Returns:
             The user instance if found, otherwise None.
         """
-        return next((u for u in self._user_repo.list() if u.full_name().lower() == full_name.lower()), None)
+        return next((user for user in self._user_repo.list() if user.full_name().lower() == full_name.lower()), None)
 
     def _find_space_by_name(self, space_name: str):
-        """Finds a space by name
+        """Finds a space by name.
 
         Args:
             space_name: Name of the space.
@@ -203,19 +221,5 @@ class BookingService:
         Returns:
             The space instance if found, otherwise None.
         """
-        return next((s for s in self._space_repo.list() if s.space_name.lower() == space_name.lower()), None)
-
-    def _check_overlap(self, space: Space, start_time: datetime, end_time: datetime):
-        """Validates that a booking time range does not overlap with existing active bookings.
-
-        Args:
-            space: Space to validate availability for.
-            start_time: Proposed booking start datetime.
-            end_time: Proposed booking end datetime.
-
-        Raises:
-            ValueError: If an active booking overlaps with the requested time range.
-        """
-        for b in (b for b in self._booking_repo.list() if b.space.space_id == space.space_id and b.is_active()):
-            if start_time < b.end_time and b.start_time < end_time:
-                raise ValueError(f"Space '{space.space_name}' is already booked from {b.start_time} to {b.end_time}")
+        return next((space for space in self._space_repo.list() if space.space_name.lower() == space_name.lower()),
+                    None)

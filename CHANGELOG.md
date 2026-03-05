@@ -3,45 +3,139 @@
 All relevant project changes, organized by version/release.
 ---
 
+## [0.3.5] - 2026-03-05
+
+### Added (New Features)
+
+- Added `docs/README.md` as an index and entry point for the `docs/` folder, listing all documents with descriptions and
+  a Quick Start section.
+
+### Changed (Changes)
+
+- Updated `docs/EXECUTION.md` to cover phase 03:
+    - Added **Running Tests** section with commands to run the full test suite via `unittest discover`.
+    - Added **Running Tests with Coverage** subsection with the complete four-step sequence:
+      `pip install -r requirements.txt`, `coverage run`, `coverage report`, and optional `coverage html`.
+- Updated `docs/TESTS_AND_STEPS.md`:
+    - Added subsection **4.1 How to Reproduce Coverage Results** under the Test Coverage section, documenting the full
+      command sequence to reproduce the reported coverage percentages.
+- Renamed `SpaceMeetingroom` to `SpaceMeetingRoom` across `domain/space_meetingroom.py` to follow Python naming
+  conventions (`Room` as an independent word).
+- Renamed setter parameters `v` to their descriptive names (`room_number`, `floor`, `num_power_outlets`) in
+  `domain/space_meetingroom.py`.
+- Renamed parameter `n` to `num_people` in `can_accommodate` method (`domain/space_meetingroom.py`).
+- Renamed local variable `eq` to `equipment_display` in `__str__` (`domain/space_meetingroom.py`).
+- Renamed `_data` attribute to `_bookings`, `_spaces`, and `_users` in the three memory repositories for clarity.
+- Renamed single-letter variables `b`, `u`, `s` to `booking`, `user`, `space` in `application/booking_service.py` and
+  `presentation/menu.py`.
+- Standardized repository attribute naming across services: `_booking_repo`, `_space_repo`, and `_user_repo` (replacing
+  `_user_repository` in `UserService`).
+- Removed obvious inline comments in `presentation/menu.py` (lines 136–176) that restated what the code already
+  expressed.
+- Fixed typo in `docs/BUSINESS_RULES.md`: replaced `CANCELED` with `CANCELLED` to match the codebase.
+- Removed undocumented user role descriptions (`Basic Users`, `Premium Users`, `Administrators`) from `README.md` (lines
+  64–77) as they do not correspond to any implemented class; updated the section to describe the actual `User` domain
+  class.
+- Injected `booking_repo` into `SpaceService.__init__` and removed it as a parameter from `get_available_spaces`, so
+  the presentation layer no longer handles repositories directly.
+- Updated `BookingService.create_booking` to enforce user-level booking constraints defined in the domain: maximum
+  number of concurrent active bookings (`max_active_bookings`) and maximum booking duration (`max_booking_duration`).
+- Reworked availability logic in `Booking.create`: availability is now determined exclusively by the absence of
+  overlapping active bookings. `MAINTENANCE` remains a global block, but `RESERVED` status no longer prevents future
+  non-overlapping bookings for the same space.
+- Removed `_check_overlap` from `BookingService`: overlap validation is now delegated entirely to the domain layer
+  (`Booking.create`), eliminating the duplication between service and domain.
+- Removed `space_id` parameter from `SpaceService.create_space` and `create_meeting_room`: space IDs are now assigned
+  automatically by `SpaceMemoryRepository`, consistent with the existing behavior for bookings.
+- Updated `presentation/menu.py` option 7 to no longer prompt the operator for a Space ID.
+- Updated `domain/space.py` constructor to accept `space_id=None` to support auto-ID assignment by the repository.
+- Updated `domain/space.py` `reserve()` method: removed the `AVAILABLE`-only guard; the method now only blocks if the
+  space is under `MAINTENANCE`, allowing a `RESERVED` space to accept additional non-overlapping bookings.
+- Added `is_maintenance()` method to `domain/space.py` to support the maintenance check in `Booking.create`.
+- Added auto-increment ID generation to `SpaceMemoryRepository`, consistent with `BookingMemoryRepository`.
+
+### Fixed (Bug Fixes)
+
+- Removed unused class attribute `_id_counter = 1` from `domain/booking.py`.
+- Removed unused instance attribute `self._bookings = {}` from `domain/space.py`.
+- Fixed `cancel_booking` and `finish_booking` in `BookingService`: removed redundant `space.release()` and
+  `space_repo.save()` calls that caused `ValueError: Space not reserved` because the domain methods `booking.cancel()`
+  and `booking.finish()` already handle the space state transition internally.
+- Fixed `ValueError: Space not available` when booking a `RESERVED` space for a non-overlapping time range, caused by
+  `reserve()` rejecting any space not in `AVAILABLE` status.
+- Fixed `AttributeError: 'Space' object has no attribute 'is_maintenance'` raised during booking creation after
+  `Booking.create` was updated to check for maintenance status.
+
+### Deprecated (Deprecated)
+
+- None.
+
+### Removed (Removed)
+
+- None.
+
+### Security (Security)
+
+- None.
+
+### Compatibility / Breaking Changes (Compatibility)
+
+- **Breaking**: `SpaceMeetingroom` renamed to `SpaceMeetingRoom`. Update any imports or references across the codebase.
+- **Breaking**: `SpaceService.__init__` now requires `booking_repo` as a second argument. Update all instantiation sites
+  accordingly.
+- **Breaking**: `SpaceService.get_available_spaces` signature changed from `(booking_repo, start, end)` to
+  `(start, end)`. Update any call sites in the presentation layer.
+- **Breaking**: `SpaceService.create_space` signature changed from `(space_id, space_name, capacity, space_type)` to
+  `(space_name, capacity, space_type)`. Update any call sites accordingly.
+- **Breaking**: `SpaceService.create_meeting_room` signature changed from `(space_id, space_name, ...)` to
+  `(space_name, ...)`. Update any call sites accordingly.
+- **Breaking**: `domain/space.py` constructor now accepts `space_id=None`; existing code passing empty strings as IDs
+  will no longer raise `ValueError` — pass `None` explicitly for auto-assignment.
+- All other changes are backward-compatible.
+
+---
+
 ## [0.3.4] - 2026-02-11
 
 ### Added (New Features)
 
 - Implemented comprehensive **unit tests** for domain classes:
-  - `Booking` domain:
-    - Full coverage for creation, cancellation, finishing, overlap detection, and rescheduling.
-    - Tests for invalid users, unavailable spaces, and overlapping bookings.
-  - `Space` domain:
-    - Tests for creation, invalid values, status transitions (`AVAILABLE`, `RESERVED`, `MAINTENANCE`), and helper methods (`is_available`, `is_reserved`, `reserve`, `release`).
-  - `User` domain:
-    - Tests for creation, invalid fields, deactivation, full name property, and booking permissions.
+    - `Booking` domain:
+        - Full coverage for creation, cancellation, finishing, overlap detection, and rescheduling.
+        - Tests for invalid users, unavailable spaces, and overlapping bookings.
+    - `Space` domain:
+        - Tests for creation, invalid values, status transitions (`AVAILABLE`, `RESERVED`, `MAINTENANCE`), and helper
+          methods (`is_available`, `is_reserved`, `reserve`, `release`).
+    - `User` domain:
+        - Tests for creation, invalid fields, deactivation, full name property, and booking permissions.
 - Added **integration tests** (`TestIntegrationBookingSystem`) to simulate full booking flows including:
-  - Multiple users and spaces.
-  - Booking creation, cancellation, finishing, and rescheduling.
-  - Validation for inactive users and spaces in maintenance.
-  - Verification of booking IDs uniqueness.
+    - Multiple users and spaces.
+    - Booking creation, cancellation, finishing, and rescheduling.
+    - Validation for inactive users and spaces in maintenance.
+    - Verification of booking IDs uniqueness.
 
 ### Changed (Changes)
 
 - Refactored **integration test `test_full_booking_flow`**:
-  - Ensured `finish()` only called on active reservations to prevent `Space not reserved` errors.
-  - Adjusted test steps to properly handle spaces before and after maintenance mode.
-  - Rearranged booking/cancellation flow to prevent invalid state transitions during testing.
+    - Ensured `finish()` only called on active reservations to prevent `Space not reserved` errors.
+    - Adjusted test steps to properly handle spaces before and after maintenance mode.
+    - Rearranged booking/cancellation flow to prevent invalid state transitions during testing.
 - Updated test mocks for repository behavior:
-  - `FakeBookingRepo` now assigns `_booking_id` automatically.
-  - Ensures `Booking.create` interacts with the repo similarly to real application behavior.
+    - `FakeBookingRepo` now assigns `_booking_id` automatically.
+    - Ensures `Booking.create` interacts with the repo similarly to real application behavior.
 - Updated unit tests to increase code coverage:
-  - `Booking` coverage now 93–100% including edge cases.
-  - `Space` coverage improved to 97–100%.
-  - `User` coverage improved to 97–100%.
+    - `Booking` coverage now 93–100% including edge cases.
+    - `Space` coverage improved to 97–100%.
+    - `User` coverage improved to 97–100%.
 
 ### Fixed (Bug Fixes)
 
-- Resolved `ValueError: Space not reserved` in integration test by correcting the order of operations for finishing and maintenance transitions.
+- Resolved `ValueError: Space not reserved` in integration test by correcting the order of operations for finishing and
+  maintenance transitions.
 - Fixed minor edge-case errors in unit tests:
-  - Overlapping bookings detection.
-  - Rescheduling with active and inactive bookings.
-  - Creation of bookings on unavailable or maintenance spaces.
+    - Overlapping bookings detection.
+    - Rescheduling with active and inactive bookings.
+    - Creation of bookings on unavailable or maintenance spaces.
 
 ### Deprecated (Deprecated)
 

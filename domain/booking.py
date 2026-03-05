@@ -1,4 +1,4 @@
-# domain/booking.py
+"""domain/booking.py"""
 
 class Booking:
     """Domain entity representing a booking for a space.
@@ -8,6 +8,10 @@ class Booking:
     It enforces business rules such as time validation, availability checks,
     and overlap prevention.
 
+    Availability is determined exclusively by the absence of overlapping active
+    bookings. The MAINTENANCE status acts as a global block, while RESERVED does
+    not prevent future bookings for non-overlapping time ranges.
+
     Attributes:
         STATUS_ACTIVE: Indicates that the booking is currently active.
         STATUS_CANCELLED: Indicates that the booking has been cancelled.
@@ -15,7 +19,6 @@ class Booking:
     """
 
     STATUS_ACTIVE, STATUS_CANCELLED, STATUS_FINISHED = "ACTIVE", "CANCELLED", "FINISHED"
-    _id_counter = 1
 
     def __init__(self, space, user, start_time, end_time):
         """Initializes a booking instance.
@@ -38,8 +41,10 @@ class Booking:
     def create(space, user, start_time, end_time, booking_repo):
         """Creates and validates a new booking.
 
-        Ensures the user is active, the space is available, and that
-        the new booking does not overlap with existing bookings.
+        Ensures the user is active, the space is not under maintenance, and
+        that the new booking does not overlap with existing active bookings.
+        Availability is based solely on overlap checks; a RESERVED space can
+        still accept future bookings that do not overlap in time.
 
         Args:
             space: Space to be booked.
@@ -54,15 +59,19 @@ class Booking:
 
         Raises:
             ValueError: If the user is inactive.
-            ValueError: If the space is not available.
-            ValueError: If the booking overlaps with an existing booking.
+            ValueError: If the space is under maintenance.
+            ValueError: If the booking overlaps with an existing active booking.
         """
-        if not user.is_active(): raise ValueError("User is inactive")
-        if not space.is_available(): raise ValueError("Space is not available")
+        if not user.is_active():
+            raise ValueError("User is inactive")
+        if space.is_maintenance():
+            raise ValueError("Space is under maintenance and cannot be booked")
+
         new_booking = Booking(space, user, start_time, end_time)
-        for b in booking_repo.list():
-            if b.space.space_id == space.space_id and new_booking.overlaps_with(b):
+        for booking in booking_repo.list():
+            if booking.space.space_id == space.space_id and new_booking.overlaps_with(booking):
                 raise ValueError(f"Space '{space.space_name}' already booked.")
+
         space.reserve()
         booking_repo.save(new_booking)
         return new_booking
@@ -182,11 +191,11 @@ class Booking:
         if new_start >= new_end:
             raise ValueError("Start time must be before end time.")
 
-        for b in booking_repo.list():
-            if b.space.space_id == self.space.space_id and b != self and b.is_active():
-                if new_start < b.end_time and b.start_time < new_end:
+        for booking in booking_repo.list():
+            if booking.space.space_id == self.space.space_id and booking != self and booking.is_active():
+                if new_start < booking.end_time and booking.start_time < new_end:
                     raise ValueError(
-                        f"Space '{self.space.space_name}' is already booked from {b.start_time} to {b.end_time}")
+                        f"Space '{self.space.space_name}' is already booked from {booking.start_time} to {booking.end_time}")
 
         self._start_time = new_start
         self._end_time = new_end

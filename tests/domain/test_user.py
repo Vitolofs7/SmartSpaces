@@ -1,6 +1,9 @@
+"""tests/domain/test_user.py"""
+
 import unittest
 from datetime import timedelta
 from domain.user import User
+
 
 class TestUser(unittest.TestCase):
 
@@ -42,6 +45,7 @@ class TestUser(unittest.TestCase):
         user = User("U4", "Eve", "Green", "Blue")
         self.assertEqual(user.max_active_bookings, 1)
         self.assertEqual(user.max_booking_duration, timedelta(hours=2))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -63,12 +63,6 @@ The system allows:
 
 👤 **User Management**
 
-Users can have different types and rules:
-
-- **Basic Users**: Strict limits on active bookings and booking duration.
-- **Premium Users**: Higher limits for flexibility.
-- **Administrators**: Can manage all spaces, users, and bookings.
-
 User behaviors include:
 
 - Checking active bookings and allowed duration.
@@ -108,7 +102,7 @@ The repository is on the main branch (`main`) with the current content for deliv
 
 ### **Requirements**
 
-- Python 3.9+
+- Python 3.13+
 - No external dependencies (all data in-memory for simulation).
 
 ### **Installation**

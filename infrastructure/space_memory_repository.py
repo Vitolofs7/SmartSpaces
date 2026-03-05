@@ -1,4 +1,4 @@
-# infrastructure/space_memory_repository.py
+"""infrastructure/space_memory_repository.py"""
 
 from domain.space_repository import SpaceRepository
 
@@ -6,21 +6,28 @@ from domain.space_repository import SpaceRepository
 class SpaceMemoryRepository(SpaceRepository):
     """In-memory implementation of the SpaceRepository interface.
 
-    Stores spaces in a dictionary using their IDs as keys. Useful for testing
-    or scenarios without a persistent storage backend.
+    Stores spaces in a dictionary using their IDs as keys. Assigns unique
+    auto-incremented IDs to new spaces. Useful for testing or scenarios
+    without a persistent storage backend.
     """
 
     def __init__(self):
-        """Initializes an empty in-memory space repository."""
-        self._data = {}
+        """Initializes an empty in-memory space repository with auto-increment ID tracking."""
+        self._spaces = {}
+        self._last_id = 0
 
     def save(self, space):
         """Stores or updates a space in memory.
 
+        If the space does not have an ID, assigns a new unique ID.
+
         Args:
             space: Space instance to save.
         """
-        self._data[space.space_id] = space
+        if space.space_id is None:
+            self._last_id += 1
+            space._space_id = f"S{self._last_id}"
+        self._spaces[space.space_id] = space
 
     def get(self, space_id):
         """Retrieves a space by its ID.
@@ -31,7 +38,7 @@ class SpaceMemoryRepository(SpaceRepository):
         Returns:
             The space instance if found, otherwise None.
         """
-        return self._data.get(space_id)
+        return self._spaces.get(space_id)
 
     def list(self):
         """Retrieves all stored spaces.
@@ -39,7 +46,7 @@ class SpaceMemoryRepository(SpaceRepository):
         Returns:
             A list of all space instances.
         """
-        return list(self._data.values())
+        return list(self._spaces.values())
 
     def delete(self, space_id):
         """Deletes a space by its ID if it exists.
@@ -47,4 +54,4 @@ class SpaceMemoryRepository(SpaceRepository):
         Args:
             space_id: Unique identifier of the space to delete.
         """
-        self._data.pop(space_id, None)
+        self._spaces.pop(space_id, None)

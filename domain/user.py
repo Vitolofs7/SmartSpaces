@@ -1,4 +1,4 @@
-# domain/user.py
+"""domain/user.py"""
 
 from datetime import timedelta
 
