@@ -36,13 +36,23 @@ All relevant project changes, organized by version/release.
 - Removed undocumented user role descriptions (`Basic Users`, `Premium Users`, `Administrators`) from `README.md` (lines
   64–77) as they do not correspond to any implemented class; updated the section to describe the actual `User` domain
   class.
-- Injected `booking_repo` into `SpaceService.__init__` and removed it as a parameter from `get_available_spaces`, so the
-  presentation layer no longer handles repositories directly.
+- Injected `booking_repo` into `SpaceService.__init__` and removed it as a parameter from `get_available_spaces`, so
+  the presentation layer no longer handles repositories directly.
 - Updated `BookingService.create_booking` to enforce user-level booking constraints defined in the domain: maximum
   number of concurrent active bookings (`max_active_bookings`) and maximum booking duration (`max_booking_duration`).
 - Reworked availability logic in `Booking.create`: availability is now determined exclusively by the absence of
   overlapping active bookings. `MAINTENANCE` remains a global block, but `RESERVED` status no longer prevents future
   non-overlapping bookings for the same space.
+- Removed `_check_overlap` from `BookingService`: overlap validation is now delegated entirely to the domain layer
+  (`Booking.create`), eliminating the duplication between service and domain.
+- Removed `space_id` parameter from `SpaceService.create_space` and `create_meeting_room`: space IDs are now assigned
+  automatically by `SpaceMemoryRepository`, consistent with the existing behavior for bookings.
+- Updated `presentation/menu.py` option 7 to no longer prompt the operator for a Space ID.
+- Updated `domain/space.py` constructor to accept `space_id=None` to support auto-ID assignment by the repository.
+- Updated `domain/space.py` `reserve()` method: removed the `AVAILABLE`-only guard; the method now only blocks if the
+  space is under `MAINTENANCE`, allowing a `RESERVED` space to accept additional non-overlapping bookings.
+- Added `is_maintenance()` method to `domain/space.py` to support the maintenance check in `Booking.create`.
+- Added auto-increment ID generation to `SpaceMemoryRepository`, consistent with `BookingMemoryRepository`.
 
 ### Fixed (Bug Fixes)
 
@@ -51,6 +61,10 @@ All relevant project changes, organized by version/release.
 - Fixed `cancel_booking` and `finish_booking` in `BookingService`: removed redundant `space.release()` and
   `space_repo.save()` calls that caused `ValueError: Space not reserved` because the domain methods `booking.cancel()`
   and `booking.finish()` already handle the space state transition internally.
+- Fixed `ValueError: Space not available` when booking a `RESERVED` space for a non-overlapping time range, caused by
+  `reserve()` rejecting any space not in `AVAILABLE` status.
+- Fixed `AttributeError: 'Space' object has no attribute 'is_maintenance'` raised during booking creation after
+  `Booking.create` was updated to check for maintenance status.
 
 ### Deprecated (Deprecated)
 
@@ -71,6 +85,12 @@ All relevant project changes, organized by version/release.
   accordingly.
 - **Breaking**: `SpaceService.get_available_spaces` signature changed from `(booking_repo, start, end)` to
   `(start, end)`. Update any call sites in the presentation layer.
+- **Breaking**: `SpaceService.create_space` signature changed from `(space_id, space_name, capacity, space_type)` to
+  `(space_name, capacity, space_type)`. Update any call sites accordingly.
+- **Breaking**: `SpaceService.create_meeting_room` signature changed from `(space_id, space_name, ...)` to
+  `(space_name, ...)`. Update any call sites accordingly.
+- **Breaking**: `domain/space.py` constructor now accepts `space_id=None`; existing code passing empty strings as IDs
+  will no longer raise `ValueError` — pass `None` explicitly for auto-assignment.
 - All other changes are backward-compatible.
 
 ---

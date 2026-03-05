@@ -1,4 +1,4 @@
-# domain/space_meetingroom
+"""domain/space_meetingroom"""
 
 from domain.space import Space
 

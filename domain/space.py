@@ -1,4 +1,5 @@
-# domain/space.py
+"""domain/space.py"""
+
 
 class Space:
     """Domain entity representing a reservable space.
@@ -7,9 +8,14 @@ class Space:
     It manages its availability lifecycle including reservation, release,
     and maintenance state transitions.
 
+    Availability for new bookings is determined exclusively by the absence of
+    overlapping active bookings (enforced in Booking.create). The RESERVED status
+    reflects that at least one active booking exists for the space, but does NOT
+    block future non-overlapping bookings. Only MAINTENANCE acts as a global block.
+
     Attributes:
-        STATUS_AVAILABLE: Indicates the space is free to be reserved.
-        STATUS_RESERVED: Indicates the space is currently reserved.
+        STATUS_AVAILABLE: Indicates the space has no active bookings.
+        STATUS_RESERVED: Indicates the space has at least one active booking.
         STATUS_MAINTENANCE: Indicates the space is unavailable due to maintenance.
         TYPE_GENERIC: Default type assigned to spaces when no type is provided.
     """
@@ -23,17 +29,16 @@ class Space:
         """Initializes a space instance.
 
         Args:
-            space_id: Unique identifier of the space.
+            space_id: Unique identifier of the space, or None for auto-assignment.
             space_name: Name of the space.
             capacity: Maximum number of occupants allowed.
             space_type: Optional classification of the space.
 
         Raises:
-            ValueError: If space_id or space_name is empty.
+            ValueError: If space_name is empty.
             ValueError: If capacity is not greater than zero.
         """
-        space_id, space_name = (space_id or "").strip(), (space_name or "").strip()
-        if not space_id: raise ValueError("Space ID cannot be empty")
+        space_name = (space_name or "").strip()
         if not space_name: raise ValueError("Space name cannot be empty")
         if capacity <= 0: raise ValueError("Capacity must be > 0")
 
@@ -53,55 +58,32 @@ class Space:
 
     @property
     def space_id(self):
-        """Returns the unique identifier of the space.
-
-        Returns:
-            Space identifier.
-        """
+        """Returns the unique identifier of the space."""
         return self.__space_id
 
     @space_id.setter
     def space_id(self, value):
-        """Sets the unique identifier of the space.
-
-        Args:
-            value: New space identifier.
-        """
+        """Sets the unique identifier of the space."""
         self.__space_id = value
 
     @property
     def space_name(self):
-        """Returns the name of the space.
-
-        Returns:
-            Space name.
-        """
+        """Returns the name of the space."""
         return self.__space_name
 
     @space_name.setter
     def space_name(self, value):
-        """Sets the name of the space.
-
-        Args:
-            value: New space name.
-        """
+        """Sets the name of the space."""
         self.__space_name = value
 
     @property
     def capacity(self):
-        """Returns the capacity of the space.
-
-        Returns:
-            Maximum occupancy of the space.
-        """
+        """Returns the capacity of the space."""
         return self.__capacity
 
     @capacity.setter
     def capacity(self, value):
         """Sets the capacity of the space.
-
-        Args:
-            value: New capacity value.
 
         Raises:
             ValueError: If capacity is not greater than zero.
@@ -111,19 +93,12 @@ class Space:
 
     @property
     def space_status(self):
-        """Returns the current status of the space.
-
-        Returns:
-            Current space status.
-        """
+        """Returns the current status of the space."""
         return self._space_status
 
     @space_status.setter
     def space_status(self, value):
         """Sets the status of the space.
-
-        Args:
-            value: New status value.
 
         Raises:
             ValueError: If the status value is invalid.
@@ -134,36 +109,44 @@ class Space:
 
     @property
     def space_type(self):
-        """Returns the type of the space.
-
-        Returns:
-            Space type classification.
-        """
+        """Returns the type of the space."""
         return self._space_type
 
     def is_available(self):
-        """Checks whether the space is available for reservation.
+        """Checks whether the space has no active bookings.
 
         Returns:
-            True if the space is available, otherwise False.
+            True if the space status is AVAILABLE, otherwise False.
         """
         return self._space_status == Space.STATUS_AVAILABLE
 
     def is_reserved(self):
-        """Checks whether the space is currently reserved.
+        """Checks whether the space has at least one active booking.
 
         Returns:
-            True if the space is reserved, otherwise False.
+            True if the space status is RESERVED, otherwise False.
         """
         return self._space_status == Space.STATUS_RESERVED
+
+    def is_maintenance(self):
+        """Checks whether the space is under maintenance.
+
+        Returns:
+            True if the space status is MAINTENANCE, otherwise False.
+        """
+        return self._space_status == Space.STATUS_MAINTENANCE
 
     def reserve(self):
         """Marks the space as reserved.
 
+        Can be called on an AVAILABLE or already RESERVED space, since a space
+        may have multiple non-overlapping bookings. Only blocked if under MAINTENANCE.
+
         Raises:
-            ValueError: If the space is not currently available.
+            ValueError: If the space is under maintenance.
         """
-        if self._space_status != Space.STATUS_AVAILABLE: raise ValueError("Space not available")
+        if self._space_status == Space.STATUS_MAINTENANCE:
+            raise ValueError("Space is under maintenance and cannot be reserved")
         self._space_status = Space.STATUS_RESERVED
 
     def release(self):
@@ -172,7 +155,8 @@ class Space:
         Raises:
             ValueError: If the space is not currently reserved.
         """
-        if self._space_status != Space.STATUS_RESERVED: raise ValueError("Space not reserved")
+        if self._space_status != Space.STATUS_RESERVED:
+            raise ValueError("Space not reserved")
         self._space_status = Space.STATUS_AVAILABLE
 
     def set_maintenance(self):

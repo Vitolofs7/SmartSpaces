@@ -1,4 +1,4 @@
-# infrastructure/seed_data.py
+"""infrastructure/seed_data.py"""
 
 from datetime import datetime, timedelta
 from domain.space import Space

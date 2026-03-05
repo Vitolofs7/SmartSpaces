@@ -1,4 +1,4 @@
-# infrastructure/booking_memory_repository.py
+"""infrastructure/booking_memory_repository.py"""
 
 from domain.booking_repository import BookingRepository
 

@@ -1,4 +1,4 @@
-# domain/space_repository.py
+"""domain/space_repository.py"""
 
 from domain.space import Space
 

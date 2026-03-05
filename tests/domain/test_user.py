@@ -1,3 +1,5 @@
+"""tests/domain/test_user.py"""
+
 import unittest
 from datetime import timedelta
 from domain.user import User

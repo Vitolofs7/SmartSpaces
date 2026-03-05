@@ -62,7 +62,8 @@ Each repository must support the following operations.
 **Behavior**
 
 - Returns the entity if found.
-- Raises an error if the entity does not exist.
+- Returns `None` if no entity with the given identifier exists.
+- Callers are responsible for checking the return value before use.
 
 **Example**
 
@@ -105,12 +106,12 @@ Each repository must support the following operations.
 
 ## Repository Contract Summary
 
-| Operation           | Description                  |
-|---------------------|------------------------------|
-| `save(entity)`      | Stores or updates an entity  |
-| `get(entity_id)`    | Retrieves an entity by ID    |
-| `list()`            | Returns all entities         |
-| `delete(entity_id)` | Removes an entity (optional) |
+| Operation           | Description                                        |
+|---------------------|----------------------------------------------------|
+| `save(entity)`      | Stores or updates an entity                        |
+| `get(entity_id)`    | Retrieves an entity by ID, or `None` if not found  |
+| `list()`            | Returns all entities                               |
+| `delete(entity_id)` | Removes an entity (optional)                       |
 
 ---
 
@@ -119,8 +120,8 @@ Each repository must support the following operations.
 The current repositories (`SpaceMemoryRepository`, `UserMemoryRepository`, `BookingMemoryRepository`) implement the
 contract using:
 
-- Internal collections (lists or dictionaries).
-- Simple lookup by ID.
+- Internal collections (dictionaries keyed by entity ID).
+- Simple lookup by ID, returning `None` for missing keys.
 - No persistence beyond application runtime.
 
 These implementations are suitable for:

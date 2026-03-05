@@ -1,4 +1,4 @@
-# domain/booking.py
+"""domain/booking.py"""
 
 class Booking:
     """Domain entity representing a booking for a space.

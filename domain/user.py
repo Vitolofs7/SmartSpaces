@@ -1,102 +1,96 @@
-# application/space_service.py
+"""domain/user.py"""
 
-from domain.space import Space
-from domain.space_meetingroom import SpaceMeetingRoom
-from datetime import datetime
+from datetime import timedelta
 
 
-class SpaceService:
-    """Application service responsible for managing spaces.
+class User:
+    """Domain entity representing a user who can make bookings.
 
-    This service handles the creation and retrieval of spaces, including
-    specialized meeting rooms, and determines space availability based on
-    active bookings.
+    A user has identification, full name, and account status. The entity
+    also defines booking-related constraints such as maximum active
+    bookings and maximum booking duration.
 
-    Args:
-        space_repo: Repository responsible for storing and retrieving spaces.
-        booking_repo: Repository responsible for storing and retrieving bookings.
+    Attributes:
+        _active: Indicates whether the user is active.
+        _max_active_bookings: Maximum number of concurrent active bookings allowed.
+        _max_booking_duration: Maximum allowed duration for a single booking.
     """
 
-    def __init__(self, space_repo, booking_repo):
-        """Initializes the space service with its repositories.
+    def __init__(self, user_id, name, surname1, surname2):
+        """Initializes a user instance.
 
         Args:
-            space_repo: Repository used to manage space persistence.
-            booking_repo: Repository used to retrieve bookings for availability checks.
-        """
-        self._space_repo = space_repo
-        self._booking_repo = booking_repo
-
-    def create_space(self, space_id, space_name, capacity, space_type):
-        """Creates a new generic space.
-
-        Args:
-            space_id: Unique identifier for the space.
-            space_name: Name of the space.
-            capacity: Maximum number of people allowed in the space.
-            space_type: Type/category of the space.
-
-        Returns:
-            The newly created space instance.
+            user_id: Unique identifier of the user.
+            name: First name of the user.
+            surname1: First surname of the user.
+            surname2: Second surname of the user.
 
         Raises:
-            ValueError: If a space with the given ID already exists.
+            ValueError: If any of the user fields are empty.
         """
-        if self._space_repo.get(space_id): raise ValueError("Space with this ID already exists")
-        space = Space(space_id, space_name, capacity, space_type)
-        self._space_repo.save(space)
-        return space
+        user_id, name, surname1, surname2 = (x.strip() for x in
+                                             (user_id or "", name or "", surname1 or "", surname2 or ""))
+        if not all([user_id, name, surname1, surname2]):
+            raise ValueError("All user fields must be non-empty.")
+        self.__user_id, self._name, self._surname1, self._surname2 = user_id, name, surname1, surname2
+        self._active = True
+        self._max_active_bookings = 1
+        self._max_booking_duration = timedelta(hours=2)
 
-    def create_meeting_room(self, space_id, space_name, capacity, room_number, floor, num_power_outlets,
-                            equipment_list):
-        """Creates a new meeting room space with additional attributes.
+    @property
+    def user_id(self):
+        """Returns the unique identifier of the user."""
+        return self.__user_id
 
-        Args:
-            space_id: Unique identifier for the meeting room.
-            space_name: Name of the meeting room.
-            capacity: Maximum number of people allowed in the meeting room.
-            room_number: Room number identifier.
-            floor: Floor where the meeting room is located.
-            num_power_outlets: Number of available power outlets.
-            equipment_list: List of equipment available in the meeting room.
+    @property
+    def name(self):
+        """Returns the user's first name."""
+        return self._name
+
+    @property
+    def surname1(self):
+        """Returns the user's first surname."""
+        return self._surname1
+
+    @property
+    def surname2(self):
+        """Returns the user's second surname."""
+        return self._surname2
+
+    def full_name(self):
+        """Returns the full name of the user.
 
         Returns:
-            The newly created meeting room instance.
-
-        Raises:
-            ValueError: If a space with the given ID already exists.
+            A string combining first name and surnames.
         """
-        if self._space_repo.get(space_id): raise ValueError("Space with this ID already exists")
-        space = SpaceMeetingRoom(space_id, space_name, capacity, room_number, floor,
-                                 num_power_outlets=num_power_outlets,
-                                 equipment_list=equipment_list)
-        self._space_repo.save(space)
-        return space
+        return f"{self.name} {self.surname1} {self.surname2}"
 
-    def list_spaces(self):
-        """Retrieves all stored spaces.
+    def is_active(self):
+        """Checks if the user is active.
 
         Returns:
-            A list containing all spaces.
+            True if the user is active, otherwise False.
         """
-        return self._space_repo.list()
+        return self._active
 
-    def get_available_spaces(self, start: datetime, end: datetime):
-        """Retrieves spaces that do not have overlapping active bookings.
+    def deactivate(self):
+        """Deactivates the user account."""
+        self._active = False
 
-        Args:
-            start: Desired booking start datetime.
-            end: Desired booking end datetime.
+    def can_make_booking(self):
+        """Checks whether the user is allowed to make a booking.
 
         Returns:
-            A list of spaces available during the specified time range.
+            True if the user is active, otherwise False.
         """
-        available_spaces = []
-        for space in self._space_repo.list():
-            bookings_for_space = [
-                booking for booking in self._booking_repo.list()
-                if booking.space.space_id == space.space_id and booking.is_active()
-            ]
-            if all(end <= booking.start_time or start >= booking.end_time for booking in bookings_for_space):
-                available_spaces.append(space)
-        return available_spaces
+        return self._active
+
+    @property
+    def max_active_bookings(self):
+        """Returns the maximum number of active bookings the user can have."""
+        return self._max_active_bookings
+
+    @property
+    def max_booking_duration(self):
+        """Returns the maximum allowed duration for a single booking."""
+        return self._max_booking_duration

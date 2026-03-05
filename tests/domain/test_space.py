@@ -1,3 +1,5 @@
+"""tests/domain/test_space.py"""
+
 import unittest
 from domain.space import Space
 

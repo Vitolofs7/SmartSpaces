@@ -1,4 +1,4 @@
-# application/space_service.py
+"""application/space_service.py"""
 
 from domain.space import Space
 from domain.space_meetingroom import SpaceMeetingRoom
@@ -10,7 +10,7 @@ class SpaceService:
 
     This service handles the creation and retrieval of spaces, including
     specialized meeting rooms, and determines space availability based on
-    active bookings.
+    active bookings. Space IDs are assigned automatically by the repository.
 
     Args:
         space_repo: Repository responsible for storing and retrieving spaces.
@@ -27,32 +27,29 @@ class SpaceService:
         self._space_repo = space_repo
         self._booking_repo = booking_repo
 
-    def create_space(self, space_id, space_name, capacity, space_type):
+    def create_space(self, space_name, capacity, space_type):
         """Creates a new generic space.
 
+        The space ID is assigned automatically by the repository.
+
         Args:
-            space_id: Unique identifier for the space.
             space_name: Name of the space.
             capacity: Maximum number of people allowed in the space.
             space_type: Type/category of the space.
 
         Returns:
             The newly created space instance.
-
-        Raises:
-            ValueError: If a space with the given ID already exists.
         """
-        if self._space_repo.get(space_id): raise ValueError("Space with this ID already exists")
-        space = Space(space_id, space_name, capacity, space_type)
+        space = Space(None, space_name, capacity, space_type)
         self._space_repo.save(space)
         return space
 
-    def create_meeting_room(self, space_id, space_name, capacity, room_number, floor, num_power_outlets,
-                            equipment_list):
+    def create_meeting_room(self, space_name, capacity, room_number, floor, num_power_outlets, equipment_list):
         """Creates a new meeting room space with additional attributes.
 
+        The space ID is assigned automatically by the repository.
+
         Args:
-            space_id: Unique identifier for the meeting room.
             space_name: Name of the meeting room.
             capacity: Maximum number of people allowed in the meeting room.
             room_number: Room number identifier.
@@ -62,12 +59,8 @@ class SpaceService:
 
         Returns:
             The newly created meeting room instance.
-
-        Raises:
-            ValueError: If a space with the given ID already exists.
         """
-        if self._space_repo.get(space_id): raise ValueError("Space with this ID already exists")
-        space = SpaceMeetingRoom(space_id, space_name, capacity, room_number, floor,
+        space = SpaceMeetingRoom(None, space_name, capacity, room_number, floor,
                                  num_power_outlets=num_power_outlets,
                                  equipment_list=equipment_list)
         self._space_repo.save(space)

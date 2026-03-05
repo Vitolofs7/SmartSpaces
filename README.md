@@ -102,7 +102,7 @@ The repository is on the main branch (`main`) with the current content for deliv
 
 ### **Requirements**
 
-- Python 3.9+
+- Python 3.13+
 - No external dependencies (all data in-memory for simulation).
 
 ### **Installation**

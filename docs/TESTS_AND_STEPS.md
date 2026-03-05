@@ -10,7 +10,7 @@ All tests are written using Python's `unittest` module and are located in the `t
 
 ### 1.1 Requirements
 
-- Python >= 3.13
+- Python 3.13+
 - Virtual environment (optional but recommended)
 - Installed dependencies (if any)
 

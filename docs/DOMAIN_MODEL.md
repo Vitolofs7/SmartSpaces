@@ -65,7 +65,7 @@ Each entity encapsulates its own rules and guarantees its own validity.
 
 ---
 
-### SpaceMeetingroom (Specialized Space)
+### SpaceMeetingRoom (Specialized Space)
 
 **Responsibility**
 

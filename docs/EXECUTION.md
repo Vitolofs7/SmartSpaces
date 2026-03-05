@@ -3,8 +3,8 @@
 ## Requirements
 
 To execute the Smart Spaces project, the following requirements are needed:
-
-- **Python 3.9 or higher**
+- 
+- **Python 3.13 or higher**
 - A terminal or command-line interface
 - No external libraries or frameworks are required
 
@@ -42,9 +42,13 @@ Once the application is running, the user can interact with the system through t
 
 6. Finish booking
 
-7. Create Space
+7. Create space
 
-8. Exit
+8. List available spaces
+
+9. Modify booking
+
+10. Exit
 
 Each option is selected by typing its number and pressing Enter.
 
@@ -54,8 +58,7 @@ Each option is selected by typing its number and pressing Enter.
 
 ### Running the Test Suite
 
-All tests are located in the `tests/` directory and use Python's built-in `unittest` module. From the project root (
-`SmartSpaces/`), run:
+All tests are located in the `tests/` directory and use Python's built-in `unittest` module. From the project root (`SmartSpaces/`), run:
 
 ```bash
 # Run all tests
@@ -105,8 +108,7 @@ coverage report
 coverage html
 ```
 
-This creates an `htmlcov/` directory. Open `htmlcov/index.html` in your browser to browse results interactively, with
-covered and uncovered lines highlighted.
+This creates an `htmlcov/` directory. Open `htmlcov/index.html` in your browser to browse results interactively, with covered and uncovered lines highlighted.
 
 > **Tip:** Add `htmlcov/` and `.coverage` to your `.gitignore` to avoid committing generated coverage artefacts.
 
@@ -170,7 +172,7 @@ attempting an invalid booking), the system will:
 
 * All data is stored in memory and is reset each time the program is executed.
 * The system is designed for single-user, sequential interaction.
-* To exit the application safely, select option `8` (Exit).
+* To exit the application safely, select option `10` (Exit).
 
 ## Summary
 

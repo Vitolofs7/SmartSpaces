@@ -1,4 +1,4 @@
-# infrastructure/user_memory_repository.py
+"""infrastructure/user_memory_repository.py"""
 
 from domain.user_repository import UserRepository
 

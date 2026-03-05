@@ -1,4 +1,4 @@
-# application/user_service.py
+"""application/user_service.py"""
 
 class UserService:
     """Application service responsible for managing users.

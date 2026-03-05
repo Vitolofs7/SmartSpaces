@@ -1,4 +1,4 @@
-# domain/booking_repository.py
+"""domain/booking_repository.py"""
 
 from domain.booking import Booking
 

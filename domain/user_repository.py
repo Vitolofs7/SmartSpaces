@@ -1,4 +1,4 @@
-# domain/user_repository.py
+"""domain/user_repository.py"""
 
 from domain.user import User
 

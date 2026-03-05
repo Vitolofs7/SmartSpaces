@@ -1,4 +1,4 @@
-# infrastructure/space_memory_repository.py
+"""infrastructure/space_memory_repository.py"""
 
 from domain.space_repository import SpaceRepository
 
@@ -6,20 +6,27 @@ from domain.space_repository import SpaceRepository
 class SpaceMemoryRepository(SpaceRepository):
     """In-memory implementation of the SpaceRepository interface.
 
-    Stores spaces in a dictionary using their IDs as keys. Useful for testing
-    or scenarios without a persistent storage backend.
+    Stores spaces in a dictionary using their IDs as keys. Assigns unique
+    auto-incremented IDs to new spaces. Useful for testing or scenarios
+    without a persistent storage backend.
     """
 
     def __init__(self):
-        """Initializes an empty in-memory space repository."""
+        """Initializes an empty in-memory space repository with auto-increment ID tracking."""
         self._spaces = {}
+        self._last_id = 0
 
     def save(self, space):
         """Stores or updates a space in memory.
 
+        If the space does not have an ID, assigns a new unique ID.
+
         Args:
             space: Space instance to save.
         """
+        if space.space_id is None:
+            self._last_id += 1
+            space._space_id = f"S{self._last_id}"
         self._spaces[space.space_id] = space
 
     def get(self, space_id):
