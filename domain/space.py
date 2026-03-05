@@ -42,7 +42,6 @@ class Space:
         self.__capacity = capacity
         self._space_status = Space.STATUS_AVAILABLE
         self._space_type = space_type or Space.TYPE_GENERIC
-        self._bookings = {}
 
     def __str__(self):
         """Returns a human-readable representation of the space.

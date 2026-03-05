@@ -133,37 +133,29 @@ def main():
         option = input("Choose an option: ").strip()
         try:
             if option == "1":
-                # List all spaces
                 print("\n".join(str(s) for s in space_service.list_spaces()))
             elif option == "2":
-                # List all users
                 print("\n".join(
                     f"{u.user_id} - {u.full_name()} - Active: {u.is_active()}" for u in user_service.list_users()))
             elif option == "3":
-                # List all bookings
                 print("\n".join(
                     f"{b.booking_id} - {b.user.full_name()} - {b.space.space_name} - Status: {b.status}" for b in
                     booking_service.list_bookings()))
             elif option == "4":
-                # Create a new booking
                 user_name = select_user(user_service)
                 space_name = select_space(space_service)
                 start, end = input_dates()
                 booking = booking_service.create_booking(user_name, space_name, start, end)
                 print(f"\nBooking {booking.booking_id} created successfully")
             elif option == "5":
-                # Cancel a booking
                 booking_service.cancel_booking(input("Booking ID to cancel: ").strip())
                 print("Booking cancelled.")
             elif option == "6":
-                # Finish a booking
                 booking_service.finish_booking(input("Booking ID to finish: ").strip())
                 print("Booking finished.")
             elif option == "7":
-                # Create a new space or meeting room
                 create_space(space_service)
             elif option == "8":
-                # List available spaces for a given date range
                 start, end = input_dates()
                 available_spaces = space_service.get_available_spaces(booking_repo, start, end)
                 if not available_spaces:
@@ -173,13 +165,11 @@ def main():
                     for s in available_spaces:
                         print(s)
             elif option == "9":
-                # Modify an existing booking
                 booking_id = input("Enter booking ID to modify: ").strip()
                 new_start, new_end = input_dates()
                 booking = booking_service.modify_booking(booking_id, new_start, new_end)
                 print(f"Booking {booking.booking_id} rescheduled to {booking.start_time} - {booking.end_time}")
             elif option == "10":
-                # Exit the program
                 print("Goodbye!")
                 break
             else:

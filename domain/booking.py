@@ -15,7 +15,6 @@ class Booking:
     """
 
     STATUS_ACTIVE, STATUS_CANCELLED, STATUS_FINISHED = "ACTIVE", "CANCELLED", "FINISHED"
-    _id_counter = 1
 
     def __init__(self, space, user, start_time, end_time):
         """Initializes a booking instance.

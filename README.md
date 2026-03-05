@@ -63,12 +63,6 @@ The system allows:
 
 👤 **User Management**
 
-Users can have different types and rules:
-
-- **Basic Users**: Strict limits on active bookings and booking duration.
-- **Premium Users**: Higher limits for flexibility.
-- **Administrators**: Can manage all spaces, users, and bookings.
-
 User behaviors include:
 
 - Checking active bookings and allowed duration.

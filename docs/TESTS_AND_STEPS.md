@@ -139,6 +139,60 @@ Location: `tests/domain/test_integration.py`
 * `User` → 97–100%
 * Integration → validates the full booking flow in realistic simulated scenarios.
 
+### 4.1 How to Reproduce Coverage Results
+
+To measure and display the coverage figures shown above, follow this complete sequence from the project root (
+`SmartSpaces/`):
+
+**Step 1 — Install dependencies** (including `coverage`):
+
+```bash
+pip install -r requirements.txt
+```
+
+> Make sure `coverage` is listed in `requirements.txt`. If not, you can install it directly with `pip install coverage`.
+
+**Step 2 — Run the test suite under `coverage`:**
+
+```bash
+coverage run -m unittest discover -s tests -t .
+```
+
+This executes all tests and records which lines of code are exercised.
+
+**Step 3 — Display the coverage report in the terminal:**
+
+```bash
+coverage report
+```
+
+You will see a table like:
+
+```
+Name                                Stmts   Miss  Cover
+-------------------------------------------------------
+src/domain/booking.py                  45      2    96%
+src/domain/space.py                    38      1    97%
+src/domain/user.py                     31      1    97%
+tests/domain/test_booking.py           72      0   100%
+tests/domain/test_space.py             58      0   100%
+tests/domain/test_user.py             44      0   100%
+tests/domain/test_integration.py       61      0   100%
+-------------------------------------------------------
+TOTAL                                 349      4    99%
+```
+
+**Step 4 (optional) — Generate an HTML report** for detailed, line-by-line visualisation:
+
+```bash
+coverage html
+```
+
+This creates an `htmlcov/` directory. Open `htmlcov/index.html` in your browser to browse coverage results
+interactively, with covered and uncovered lines highlighted.
+
+> **Tip:** Add `htmlcov/` and `.coverage` to your `.gitignore` to avoid committing generated coverage artefacts.
+
 ---
 
 ## 5. Final Notes

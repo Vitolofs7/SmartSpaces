@@ -3,6 +3,54 @@
 All relevant project changes, organized by version/release.
 ---
 
+## [0.3.5] - 2026-03-05
+
+### Added (New Features)
+
+- Added `docs/README.md` as an index and entry point for the `docs/` folder, listing all documents with descriptions and a Quick Start section.
+
+### Changed (Changes)
+
+- Updated `docs/EXECUTION.md` to cover phase 03:
+  - Added **Running Tests** section with commands to run the full test suite via `unittest discover`.
+  - Added **Running Tests with Coverage** subsection with the complete four-step sequence: `pip install -r requirements.txt`, `coverage run`, `coverage report`, and optional `coverage html`.
+- Updated `docs/TESTS_AND_STEPS.md`:
+  - Added subsection **4.1 How to Reproduce Coverage Results** under the Test Coverage section, documenting the full command sequence to reproduce the reported coverage percentages.
+- Renamed `SpaceMeetingroom` to `SpaceMeetingRoom` across `domain/space_meetingroom.py` to follow Python naming conventions (`Room` as an independent word).
+- Renamed setter parameters `v` to their descriptive names (`room_number`, `floor`, `num_power_outlets`) in `domain/space_meetingroom.py`.
+- Renamed parameter `n` to `num_people` in `can_accommodate` method (`domain/space_meetingroom.py`).
+- Renamed local variable `eq` to `equipment_display` in `__str__` (`domain/space_meetingroom.py`).
+- Renamed `_data` attribute to `_bookings`, `_spaces`, and `_users` in the three memory repositories for clarity.
+- Renamed single-letter variables `b`, `u`, `s` to `booking`, `user`, `space` in `application/booking_service.py` and `presentation/menu.py`.
+- Standardized repository attribute naming across services: `_booking_repo`, `_space_repo`, and `_user_repo` (replacing `_user_repository` in `UserService`).
+- Removed obvious inline comments in `presentation/menu.py` (lines 136–176) that restated what the code already expressed.
+- Fixed typo in `docs/BUSINESS_RULES.md`: replaced `CANCELED` with `CANCELLED` to match the codebase.
+- Removed undocumented user role descriptions (`Basic Users`, `Premium Users`, `Administrators`) from `README.md` (lines 64–77) as they do not correspond to any implemented class; updated the section to describe the actual `User` domain class.
+
+### Fixed (Bug Fixes)
+
+- Removed unused class attribute `_id_counter = 1` from `domain/booking.py`.
+- Removed unused instance attribute `self._bookings = {}` from `domain/space.py`.
+
+### Deprecated (Deprecated)
+
+- None.
+
+### Removed (Removed)
+
+- None.
+
+### Security (Security)
+
+- None.
+
+### Compatibility / Breaking Changes (Compatibility)
+
+- **Breaking**: `SpaceMeetingroom` renamed to `SpaceMeetingRoom`. Update any imports or references across the codebase.
+- All other changes are backward-compatible. No business logic was modified.
+
+---
+
 ## [0.3.4] - 2026-02-11
 
 ### Added (New Features)

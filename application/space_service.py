@@ -1,7 +1,7 @@
 # application/space_service.py
 
 from domain.space import Space
-from domain.space_meetingroom import SpaceMeetingroom
+from domain.space_meetingroom import SpaceMeetingRoom
 from datetime import datetime
 
 
@@ -64,7 +64,7 @@ class SpaceService:
             ValueError: If a space with the given ID already exists.
         """
         if self._space_repo.get(space_id): raise ValueError("Space with this ID already exists")
-        s = SpaceMeetingroom(space_id, space_name, capacity, room_number, floor, num_power_outlets=num_power_outlets,
+        s = SpaceMeetingRoom(space_id, space_name, capacity, room_number, floor, num_power_outlets=num_power_outlets,
                              equipment_list=equipment_list)
         self._space_repo.save(s)
         return s

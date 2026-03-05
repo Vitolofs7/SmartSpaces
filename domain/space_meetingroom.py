@@ -3,7 +3,7 @@
 from domain.space import Space
 
 
-class SpaceMeetingroom(Space):
+class SpaceMeetingRoom(Space):
     """Domain entity representing a meeting room space.
 
     Extends the generic Space entity by adding meeting room specific
@@ -32,7 +32,7 @@ class SpaceMeetingroom(Space):
         Raises:
             ValueError: If room number, floor, or number of power outlets are invalid.
         """
-        super().__init__(space_id, space_name, capacity, space_type=SpaceMeetingroom.TYPE)
+        super().__init__(space_id, space_name, capacity, space_type=SpaceMeetingRoom.TYPE)
         self.__room_number, self.__floor, self.__num_power_outlets = room_number, floor, num_power_outlets
         self.__equipment_list = equipment_list or []
         self._validate_room_number(room_number)
@@ -45,8 +45,8 @@ class SpaceMeetingroom(Space):
         Returns:
             A formatted string describing the meeting room and its attributes.
         """
-        eq = ', '.join(self.equipment_list) or 'None'
-        return f"[{self.space_id}] {self.space_name}\n  • Type: {self.space_type}\n  • Status: {self.space_status}\n  • Capacity: {self.capacity}\n  • Room number: {self.room_number}\n  • Floor: {self.floor}\n  • Power outlets: {self.num_power_outlets}\n  • Equipment: {eq}"
+        equipment_display = ', '.join(self.equipment_list) or 'None'
+        return f"[{self.space_id}] {self.space_name}\n  • Type: {self.space_type}\n  • Status: {self.space_status}\n  • Capacity: {self.capacity}\n  • Room number: {self.room_number}\n  • Floor: {self.floor}\n  • Power outlets: {self.num_power_outlets}\n  • Equipment: {equipment_display}"
 
     @property
     def room_number(self):
@@ -58,17 +58,17 @@ class SpaceMeetingroom(Space):
         return self.__room_number
 
     @room_number.setter
-    def room_number(self, v):
+    def room_number(self, new_room_number):
         """Sets the meeting room number.
 
         Args:
-            v: New room number.
+            new_room_number: New room number.
 
         Raises:
             ValueError: If the room number is invalid.
         """
-        self._validate_room_number(v)
-        self.__room_number = v
+        self._validate_room_number(new_room_number)
+        self.__room_number = new_room_number
 
     @property
     def floor(self):
@@ -80,17 +80,17 @@ class SpaceMeetingroom(Space):
         return self.__floor
 
     @floor.setter
-    def floor(self, v):
+    def floor(self, new_floor):
         """Sets the floor where the meeting room is located.
 
         Args:
-            v: New floor number.
+            new_floor: New floor number.
 
         Raises:
             ValueError: If the floor value is invalid.
         """
-        self._validate_floor(v)
-        self.__floor = v
+        self._validate_floor(new_floor)
+        self.__floor = new_floor
 
     @property
     def num_power_outlets(self):
@@ -102,17 +102,17 @@ class SpaceMeetingroom(Space):
         return self.__num_power_outlets
 
     @num_power_outlets.setter
-    def num_power_outlets(self, v):
+    def num_power_outlets(self, new_num_power_outlets):
         """Sets the number of available power outlets.
 
         Args:
-            v: New number of power outlets.
+            new_num_power_outlets: New number of power outlets.
 
         Raises:
             ValueError: If the number of power outlets is invalid.
         """
-        self._validate_num_power_outlets(v)
-        self.__num_power_outlets = v
+        self._validate_num_power_outlets(new_num_power_outlets)
+        self.__num_power_outlets = new_num_power_outlets
 
     @property
     def equipment_list(self):
@@ -123,38 +123,38 @@ class SpaceMeetingroom(Space):
         """
         return list(self.__equipment_list)
 
-    def _validate_room_number(self, v):
+    def _validate_room_number(self, room_number):
         """Validates the meeting room number.
 
         Args:
-            v: Room number value.
+            room_number: Room number value.
 
         Raises:
             ValueError: If the room number is not a valid non-empty string.
         """
-        if not isinstance(v, str) or not v.strip(): raise ValueError("Room number must be a non-empty string")
+        if not isinstance(room_number, str) or not room_number.strip(): raise ValueError("Room number must be a non-empty string")
 
-    def _validate_floor(self, v):
+    def _validate_floor(self, floor):
         """Validates the floor number.
 
         Args:
-            v: Floor value.
+            floor: Floor value.
 
         Raises:
             ValueError: If the floor is not a non-negative integer.
         """
-        if not isinstance(v, int) or v < 0: raise ValueError("Floor must be a non-negative integer")
+        if not isinstance(floor, int) or floor < 0: raise ValueError("Floor must be a non-negative integer")
 
-    def _validate_num_power_outlets(self, v):
+    def _validate_num_power_outlets(self, num_power_outlets):
         """Validates the number of power outlets.
 
         Args:
-            v: Number of power outlets.
+            num_power_outlets: Number of power outlets.
 
         Raises:
             ValueError: If the number of power outlets is not a non-negative integer.
         """
-        if not isinstance(v, int) or v < 0: raise ValueError("Number of power outlets must be non-negative")
+        if not isinstance(num_power_outlets, int) or num_power_outlets < 0: raise ValueError("Number of power outlets must be non-negative")
 
     def has_equipment(self, item):
         """Checks whether the meeting room contains specific equipment.
@@ -187,11 +187,11 @@ class SpaceMeetingroom(Space):
         """
         if item in self.__equipment_list: self.__equipment_list.remove(item)
 
-    def can_accommodate(self, n):
+    def can_accommodate(self, num_people):
         """Checks if the meeting room can accommodate a given number of people.
 
         Args:
-            n: Number of people.
+            num_people: Number of people.
 
         Returns:
             True if the meeting room capacity is sufficient, otherwise False.
@@ -199,5 +199,5 @@ class SpaceMeetingroom(Space):
         Raises:
             ValueError: If the number of people is invalid.
         """
-        if not isinstance(n, int) or n < 0: raise ValueError("Number must be non-negative")
-        return n <= self.capacity
+        if not isinstance(num_people, int) or num_people < 0: raise ValueError("Number must be non-negative")
+        return num_people <= self.capacity

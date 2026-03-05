@@ -12,7 +12,7 @@ class SpaceMemoryRepository(SpaceRepository):
 
     def __init__(self):
         """Initializes an empty in-memory space repository."""
-        self._data = {}
+        self._spaces = {}
 
     def save(self, space):
         """Stores or updates a space in memory.
@@ -20,7 +20,7 @@ class SpaceMemoryRepository(SpaceRepository):
         Args:
             space: Space instance to save.
         """
-        self._data[space.space_id] = space
+        self._spaces[space.space_id] = space
 
     def get(self, space_id):
         """Retrieves a space by its ID.
@@ -31,7 +31,7 @@ class SpaceMemoryRepository(SpaceRepository):
         Returns:
             The space instance if found, otherwise None.
         """
-        return self._data.get(space_id)
+        return self._spaces.get(space_id)
 
     def list(self):
         """Retrieves all stored spaces.
@@ -39,7 +39,7 @@ class SpaceMemoryRepository(SpaceRepository):
         Returns:
             A list of all space instances.
         """
-        return list(self._data.values())
+        return list(self._spaces.values())
 
     def delete(self, space_id):
         """Deletes a space by its ID if it exists.
@@ -47,4 +47,4 @@ class SpaceMemoryRepository(SpaceRepository):
         Args:
             space_id: Unique identifier of the space to delete.
         """
-        self._data.pop(space_id, None)
+        self._spaces.pop(space_id, None)

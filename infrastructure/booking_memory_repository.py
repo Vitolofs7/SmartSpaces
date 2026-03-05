@@ -12,7 +12,7 @@ class BookingMemoryRepository(BookingRepository):
 
     def __init__(self):
         """Initializes an empty in-memory repository with auto-increment ID tracking."""
-        self._data, self._last_id = {}, 0
+        self._bookings, self._last_id = {}, 0
 
     def save(self, booking):
         """Stores or updates a booking in memory.
@@ -25,7 +25,7 @@ class BookingMemoryRepository(BookingRepository):
         if booking.booking_id is None:
             self._last_id += 1
             booking._booking_id = f"B{self._last_id}"
-        self._data[booking.booking_id] = booking
+        self._bookings[booking.booking_id] = booking
 
     def get(self, booking_id):
         """Retrieves a booking by its ID.
@@ -36,7 +36,7 @@ class BookingMemoryRepository(BookingRepository):
         Returns:
             The booking instance if found, otherwise None.
         """
-        return self._data.get(booking_id)
+        return self._bookings.get(booking_id)
 
     def list(self):
         """Retrieves all stored bookings.
@@ -44,7 +44,7 @@ class BookingMemoryRepository(BookingRepository):
         Returns:
             A list of all booking instances.
         """
-        return list(self._data.values())
+        return list(self._bookings.values())
 
     def delete(self, booking_id):
         """Deletes a booking by its ID if it exists.
@@ -52,4 +52,4 @@ class BookingMemoryRepository(BookingRepository):
         Args:
             booking_id: Unique identifier of the booking to delete.
         """
-        self._data.pop(booking_id, None)
+        self._bookings.pop(booking_id, None)

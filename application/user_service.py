@@ -7,16 +7,16 @@ class UserService:
     layer between the application logic and the user repository.
 
     Args:
-        user_repository: Repository responsible for storing and retrieving users.
+        user_repo: Repository responsible for storing and retrieving users.
     """
 
-    def __init__(self, user_repository):
+    def __init__(self, user_repo):
         """Initializes the user service with its repository.
 
         Args:
-            user_repository: Repository used to manage user persistence.
+            user_repo: Repository used to manage user persistence.
         """
-        self._user_repository = user_repository
+        self._user_repo = user_repo
 
     def list_users(self):
         """Retrieves all stored users.
@@ -24,4 +24,4 @@ class UserService:
         Returns:
             A list containing all users.
         """
-        return self._user_repository.list()
+        return self._user_repo.list()
