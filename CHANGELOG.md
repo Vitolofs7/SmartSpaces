@@ -3,6 +3,58 @@
 All relevant project changes, organized by version/release.
 ---
 
+## [0.4.0] - 2026-03-21
+
+### Added (New Features)
+
+- Added `crear_bd.py` script at the project root to initialize the SQLite database (`smartspaces.db`) from scratch.
+- Created four relational tables in SQLite:
+    - `spaces`: stores common attributes for all space types (`space_id`, `space_name`, `capacity`, `space_type`, `space_status`).
+    - `meeting_rooms`: stores `SpaceMeetingRoom`-specific attributes (`room_number`, `floor`, `equipment_list`, `num_power_outlets`) with a FOREIGN KEY referencing `spaces`.
+    - `users`: stores user data including `active` status as INTEGER (1=active, 0=inactive).
+    - `bookings`: stores booking records with FOREIGN KEYs referencing both `spaces` and `users`; datetimes stored as ISO 8601 TEXT.
+- `crear_bd.py` seeds all tables with the same initial data previously defined in `infrastructure/seed_data.py`.
+- `crear_bd.py` automatically drops and recreates the database on each run to ensure a clean state.
+- `crear_bd.py` prints a verification summary of all four tables after insertion.
+- Updated `docs/README.md` to include `python crear_bd.py` as step 3 in the Quick Start section.
+- Updated `docs/LAYERED_ARCHITECTURE.md` to document the database schema table and describe the infrastructure layer as SQLite-backed.
+- Updated `docs/BUSINESS_RULES.md` to include a **Database Integrity Rules** section covering FOREIGN KEY enforcement, NOT NULL constraints, and `PRAGMA foreign_keys = ON`.
+- Updated `docs/DOMAIN_MODEL.md` to include database mapping for each entity (`spaces`, `meeting_rooms`, `users`, `bookings` tables).
+- Updated `docs/INITIAL_DATA.md` to reference `crear_bd.py` instead of `seed_data.py` and document SQL-based data modification.
+- Updated `docs/EXECUTION.md` to add a **Setting Up the Database** section with commands to initialize, reset, and delete the database.
+- Updated `docs/DESCRIPTION_AND_SCOPE.md` to reflect SQLite persistence as an included feature and remove persistent storage from excluded functionality.
+
+### Changed (Changes)
+
+- Mapped `SpaceMeetingRoom` inheritance to two related tables (`spaces` + `meeting_rooms`) following the joined-table inheritance pattern.
+- `equipment_list` stored as a comma-separated TEXT string in the `meeting_rooms` table (use `.split(",")` to recover the list in Python).
+- Space status updated to `RESERVED` in the `spaces` table for spaces with active bookings at seed time.
+- Updated `README.md` to reflect SQLite-backed persistence: revised Overview, Architecture, Installation, and Project Structure sections; added **Database Management** section with commands to create, reset, and delete the database.
+
+### Fixed (Bug Fixes)
+
+- None.
+
+### Deprecated (Deprecated)
+
+- `infrastructure/seed_data.py` in-memory seeding is superseded by `crear_bd.py` for database-backed persistence.
+
+### Removed (Removed)
+
+- Removed **Persistent storage** from the excluded functionality section in `docs/DESCRIPTION_AND_SCOPE.md`.
+
+### Security (Security)
+
+- All SQL inserts use parameterized queries (`?` placeholders) to prevent SQL injection.
+- `PRAGMA foreign_keys = ON` enabled to enforce referential integrity across all tables.
+
+### Compatibility / Breaking Changes (Compatibility)
+
+- `python crear_bd.py` must be executed before launching the application for the first time.
+- In-memory repositories remain active and are still used by the test suite; no changes to existing tests.
+
+---
+
 ## [0.3.5] - 2026-03-05
 
 ### Added (New Features)
