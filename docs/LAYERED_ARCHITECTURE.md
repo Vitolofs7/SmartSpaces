@@ -1,16 +1,3 @@
-# Layered Architecture
-
-## Architectural Overview
-
-The Smart Spaces project follows a **layered architecture**, designed to clearly separate responsibilities, improve
-maintainability, and support future evolution of the system.
-
-The architecture is organized into the following layers:
-
-presentation → application → domain
-↑
-infrastructure
-
 Each layer has a well-defined role, and **dependencies are strictly controlled** to avoid coupling and preserve the
 integrity of the domain model.
 
@@ -107,14 +94,14 @@ This layer contains no business logic and does not manipulate domain objects dir
 
 ### Responsibility
 
-The **infrastructure layer** provides technical implementations required by the application layer, acting as an *
-*adapter** to external systems.
+The **infrastructure layer** provides technical implementations required by the application layer, acting as an
+**adapter** to external systems.
 
 In this project, infrastructure concerns include:
 
-- In-memory repositories
-- Seed data initialization
-- Persistence abstractions (without real databases)
+- SQLite-backed repositories (`smartspaces.db`)
+- Database initialization and seed data via `crear_bd.py`
+- Persistence abstractions over a relational database
 
 ### Key Characteristics
 
@@ -128,12 +115,23 @@ In this project, infrastructure concerns include:
 - Is used by the application layer via abstractions
 - Is never accessed directly by the presentation layer
 
+### Database Schema
+
+The infrastructure layer maps domain entities to four SQLite tables:
+
+| Table          | Maps to              | Notes                                          |
+|----------------|----------------------|------------------------------------------------|
+| `spaces`       | `Space`              | Stores common attributes for all space types   |
+| `meeting_rooms`| `SpaceMeetingRoom`   | Stores extra attributes; FK → `spaces`         |
+| `users`        | `User`               | `active` stored as INTEGER (1/0)               |
+| `bookings`     | `Booking`            | Datetimes as ISO 8601 TEXT; FK → `spaces`, `users` |
+
 ### Examples
 
-- `SpaceMemoryRepository`
-- `UserMemoryRepository`
-- `BookingMemoryRepository`
-- `seed_data`
+- `SpaceMemoryRepository` (in-memory, used for tests)
+- `UserMemoryRepository` (in-memory, used for tests)
+- `BookingMemoryRepository` (in-memory, used for tests)
+- `crear_bd.py` — initializes and seeds `smartspaces.db`
 
 ---
 
@@ -160,7 +158,7 @@ The following dependencies are **not allowed**:
 - Clear separation of concerns
 - High maintainability and readability
 - Easy testing of domain and application logic
-- Infrastructure can be replaced or extended with minimal impact
+- Infrastructure can be replaced or extended with minimal impact (e.g. switching from in-memory to SQLite)
 - Domain model remains clean and independent
 
 ---
@@ -168,5 +166,6 @@ The following dependencies are **not allowed**:
 ## Summary
 
 The layered architecture used in Smart Spaces ensures that business logic remains central and protected, while technical
-and interaction concerns are isolated in their respective layers. This structure supports scalability, clarity, and
-long-term evolution of the system.
+and interaction concerns are isolated in their respective layers. Data is persisted via a SQLite relational database
+managed entirely within the infrastructure layer, with no impact on domain or application logic. This structure
+supports scalability, clarity, and long-term evolution of the system.
