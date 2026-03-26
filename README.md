@@ -120,7 +120,7 @@ The repository is on the main branch (`main`) with the current content for deliv
 
 3. Initialize the database:
 ```bash
-  python crear_bd.py
+  python create_db.py
 ```
 
 4. Run the application:
