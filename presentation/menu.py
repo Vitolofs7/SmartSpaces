@@ -103,12 +103,8 @@ def main():
                 for user in user_service.list_users():
                     print(f"{user.user_id} - {user.full_name()} - Active: {user.is_active()}")
             elif option == "3":
-                # BookingSQLiteRepository.listar() necesita los repos para reconstruir entidades
-                for booking in booking_repo.listar(user_repo, space_repo):
-                    print(
-                        f"{booking.booking_id} - {booking.user.full_name()} - "
-                        f"{booking.space.space_name} - Status: {booking.status}"
-                    )
+                for booking in booking_service.list_bookings():
+                    print(f"{booking.booking_id} - {booking.user.full_name()} booked {booking.space.space_name} from {booking.start_time} to {booking.end_time} - Status: {booking.status}")
             elif option == "4":
                 user_name  = select_user(user_service)
                 space_name = select_space(space_service)
