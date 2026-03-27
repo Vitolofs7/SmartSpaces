@@ -1,5 +1,6 @@
 """application/booking_service.py"""
 
+from domain import booking
 from domain.booking import Booking
 from datetime import datetime
 
@@ -72,8 +73,9 @@ class BookingService:
             )
 
         booking = Booking.create(space=space, user=user, start_time=start_time, end_time=end_time,
-                                 booking_repo=self._booking_repo)
-        self._space_repo.save(space)
+                         booking_repo=self._booking_repo)
+        self._booking_repo.save(booking)
+
         return booking
 
     def modify_booking(self, booking_id: str, new_start, new_end):

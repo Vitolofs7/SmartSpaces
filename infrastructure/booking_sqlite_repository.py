@@ -32,6 +32,11 @@ class BookingSQLiteRepository:
         try:
             with conn:
                 cursor = conn.cursor()
+                if booking.booking_id is None:
+                    cursor.execute("SELECT MAX(CAST(SUBSTR(booking_id,2) AS INTEGER)) FROM bookings")
+                    max_id = cursor.fetchone()[0] or 0
+                    booking._booking_id = f"B{max_id + 1}"
+                    
                 cursor.execute("""
                     INSERT INTO bookings 
                     (booking_id, user_id, space_id, start_time, end_time, booking_status)

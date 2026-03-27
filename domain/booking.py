@@ -73,7 +73,6 @@ class Booking:
                 raise ValueError(f"Space '{space.space_name}' already booked.")
 
         space.reserve()
-        booking_repo.save(new_booking)
         return new_booking
 
     @property
