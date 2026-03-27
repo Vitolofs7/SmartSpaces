@@ -36,6 +36,7 @@ cursor.execute("""
         equipment_list    TEXT    NOT NULL,
         num_power_outlets INTEGER NOT NULL,
         FOREIGN KEY (space_id) REFERENCES spaces(space_id)
+               ON DELETE CASCADE
     )
 """)
 

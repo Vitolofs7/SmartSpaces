@@ -1,13 +1,13 @@
 """presentation/menu.py"""
 
 from datetime import datetime
-from infrastructure.space_memory_repository import SpaceMemoryRepository
-from infrastructure.user_memory_repository import UserMemoryRepository
-from infrastructure.booking_memory_repository import BookingMemoryRepository
+from infrastructure.space_sqlite_repository import SpaceSQLiteRepository
+from infrastructure.user_sqlite_repository import UserSQLiteRepository
+from infrastructure.booking_sqlite_repository import BookingSQLiteRepository
 from application.booking_service import BookingService
 from application.space_service import SpaceService
 from application.user_service import UserService
-from infrastructure.seed_data import seed_all
+from infrastructure.seed_data_sqlite import seed_all
 
 
 def show_menu():
@@ -28,17 +28,6 @@ def show_menu():
 
 
 def parse_datetime(value: str) -> datetime:
-    """Parses a string into a datetime object using multiple accepted formats.
-
-    Args:
-        value: Date string to parse.
-
-    Returns:
-        Parsed datetime object.
-
-    Raises:
-        ValueError: If the string does not match any accepted format.
-    """
     for fmt in ("%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M"):
         try:
             return datetime.strptime(value, fmt)
@@ -48,14 +37,6 @@ def parse_datetime(value: str) -> datetime:
 
 
 def select_user(user_service):
-    """Prompts the operator to select a user from the list.
-
-    Args:
-        user_service: UserService instance.
-
-    Returns:
-        The full name of the selected user.
-    """
     print("\nAvailable users:")
     for user in user_service.list_users():
         print(user.full_name())
@@ -63,14 +44,6 @@ def select_user(user_service):
 
 
 def select_space(space_service):
-    """Prompts the operator to select a space from the list.
-
-    Args:
-        space_service: SpaceService instance.
-
-    Returns:
-        The name of the selected space.
-    """
     print("\nAvailable spaces:")
     for space in space_service.list_spaces():
         print(space.space_name)
@@ -78,11 +51,6 @@ def select_space(space_service):
 
 
 def input_dates():
-    """Prompts the operator to input start and end datetimes for a booking.
-
-    Returns:
-        Tuple containing start and end datetime objects.
-    """
     print("\nEnter booking dates. (YYYY-MM-DD HH:MM or YYYY/MM/DD HH:MM)")
     start = parse_datetime(input("Start datetime: ").strip())
     end = parse_datetime(input("End datetime: ").strip())
@@ -90,13 +58,6 @@ def input_dates():
 
 
 def create_space(space_service):
-    """Prompts the operator to create a new space or meeting room.
-
-    The space ID is assigned automatically by the repository.
-
-    Args:
-        space_service: SpaceService instance.
-    """
     print("\nSelect space type:\n1. Generic space\n2. Meeting room")
     space_type = input("Choose type: ").strip()
     space_name = input("Space name: ").strip()
@@ -119,12 +80,15 @@ def create_space(space_service):
 
 def main():
     """Main entry point for the Smart Spaces menu-driven application."""
-    space_repo = SpaceMemoryRepository()
-    user_repo = UserMemoryRepository()
-    booking_repo = BookingMemoryRepository()
+    DB_PATH = "smartspaces.db"
+
+    space_repo   = SpaceSQLiteRepository(DB_PATH)
+    user_repo    = UserSQLiteRepository(DB_PATH)
+    booking_repo = BookingSQLiteRepository(DB_PATH)
+
     booking_service = BookingService(booking_repo, space_repo, user_repo)
-    space_service = SpaceService(space_repo, booking_repo)
-    user_service = UserService(user_repo)
+    space_service   = SpaceService(space_repo, booking_repo)
+    user_service    = UserService(user_repo)
 
     seed_all(space_repo, user_repo, booking_repo)
 
@@ -139,11 +103,14 @@ def main():
                 for user in user_service.list_users():
                     print(f"{user.user_id} - {user.full_name()} - Active: {user.is_active()}")
             elif option == "3":
-                for booking in booking_service.list_bookings():
+                # BookingSQLiteRepository.listar() necesita los repos para reconstruir entidades
+                for booking in booking_repo.listar(user_repo, space_repo):
                     print(
-                        f"{booking.booking_id} - {booking.user.full_name()} - {booking.space.space_name} - Status: {booking.status}")
+                        f"{booking.booking_id} - {booking.user.full_name()} - "
+                        f"{booking.space.space_name} - Status: {booking.status}"
+                    )
             elif option == "4":
-                user_name = select_user(user_service)
+                user_name  = select_user(user_service)
                 space_name = select_space(space_service)
                 start, end = input_dates()
                 booking = booking_service.create_booking(user_name, space_name, start, end)
