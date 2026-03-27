@@ -29,6 +29,12 @@ class SpaceSQLiteRepository:
             with conn:
                 cursor = conn.cursor()
 
+                # Asignar ID automático si es None
+                if space.space_id is None:
+                    cursor.execute("SELECT MAX(CAST(SUBSTR(space_id,2) AS INTEGER)) FROM spaces")
+                    max_id = cursor.fetchone()[0] or 0
+                    space.space_id = f"S{max_id + 1}"
+
                 cursor.execute(
                     """
                     INSERT INTO spaces
