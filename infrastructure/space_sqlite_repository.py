@@ -5,6 +5,7 @@ Transforma excepciones sqlite3 en excepciones de dominio.
 """
 
 import sqlite3
+from domain import space
 from domain.space import Space
 from domain.space_meetingroom import SpaceMeetingRoom
 from infrastructure.exceptions import (
@@ -30,10 +31,20 @@ class SpaceSQLiteRepository:
                 cursor = conn.cursor()
 
                 # Asignar ID automático si es None
+                # Asignar ID automático si es None
                 if space.space_id is None:
-                    cursor.execute("SELECT MAX(CAST(SUBSTR(space_id,2) AS INTEGER)) FROM spaces")
-                    max_id = cursor.fetchone()[0] or 0
-                    space.space_id = f"S{max_id + 1}"
+                    if isinstance(space, SpaceMeetingRoom):
+                        cursor.execute(
+                            "SELECT MAX(CAST(SUBSTR(space_id, 3) AS INTEGER)) FROM spaces WHERE space_id LIKE 'SM%'"
+                        )
+                        max_id = cursor.fetchone()[0] or 0
+                        space.space_id = f"SM{max_id + 1}"
+                    else:
+                        cursor.execute(
+                            "SELECT MAX(CAST(SUBSTR(space_id, 2) AS INTEGER)) FROM spaces WHERE space_id LIKE 'S%' AND space_id NOT LIKE 'SM%'"
+                        )
+                        max_id = cursor.fetchone()[0] or 0
+                        space.space_id = f"S{max_id + 1}"
 
                 cursor.execute(
                     """
