@@ -1,6 +1,40 @@
 # Changelog
 
-All relevant project changes, organized by version/release.
+## All relevant project changes, organized by version/release.
+
+---
+
+## [0.4.1] - 2026-03-28
+
+### Fixed (Bug Fixes)
+
+- Fixed `UNIQUE constraint failed: spaces.space_id` error triggered when creating a booking,
+  caused by `BookingService` incorrectly persisting the associated `Space` object.
+  Space persistence is now handled exclusively by `SpaceRepository`.
+- Fixed `create_booking()` returning `None` due to incorrect control flow in the creation pipeline;
+  the method now always returns a valid `Booking` instance.
+- Fixed `booking_id` being `None` at persistence time; automatic ID generation (`B1`, `B2`, `B3`, …)
+  is now handled by `BookingSQLiteRepository`, querying the database to avoid collisions with existing IDs.
+- Fixed `UNIQUE constraint failed: bookings.booking_id` caused by dual persistence:
+  both `Booking.create()` and `BookingService` were saving the booking independently.
+  Removed the redundant save to ensure a single persistence point.
+- Fixed `BookingSQLiteRepository.list()` being called with arguments (`user_repo`, `space_repo`);
+  the method takes no parameters and resolves its dependencies internally.
+- Fixed space ID differentiation between `Space` and `SpaceMeetingRoom`:
+  generic spaces now use the `S1, S2, S3…` series and meeting rooms use `SM1, SM2, SM3…`.
+- Fixed `SpaceSQLiteRepository` generating `None` IDs due to incorrect access to `_space_id`
+  and counters not being initialised from the database; corrected attribute access and
+  synchronised counters against existing rows on startup.
+- Fixed ID counter collision caused by mixed prefix handling (`S` and `SM`);
+  counters are now computed with separate queries:
+  `LIKE 'S%' AND NOT LIKE 'SM%'` for generic spaces and `LIKE 'SM%'` for meeting rooms.
+- Fixed database seed script (`crear_bd.py`) using `S`-prefixed IDs for `SpaceMeetingRoom` rows;
+  seed data now uses `SM1`, `SM2`, … and booking foreign keys updated accordingly.
+- Fixed `AttributeError: _last_meeting_id` in `SpaceSQLiteRepository` by adding the missing
+  instance counters `_last_generic_id` and `_last_meeting_id`.
+- Fixed `meeting_rooms` insert failing when `equipment_list` was `None`;
+  the value is now normalised to an empty string before persistence.
+
 ---
 
 ## [0.4.0] - 2026-03-21
@@ -9,10 +43,10 @@ All relevant project changes, organized by version/release.
 
 - Added `crear_bd.py` script at the project root to initialize the SQLite database (`smartspaces.db`) from scratch.
 - Created four relational tables in SQLite:
-    - `spaces`: stores common attributes for all space types (`space_id`, `space_name`, `capacity`, `space_type`, `space_status`).
-    - `meeting_rooms`: stores `SpaceMeetingRoom`-specific attributes (`room_number`, `floor`, `equipment_list`, `num_power_outlets`) with a FOREIGN KEY referencing `spaces`.
-    - `users`: stores user data including `active` status as INTEGER (1=active, 0=inactive).
-    - `bookings`: stores booking records with FOREIGN KEYs referencing both `spaces` and `users`; datetimes stored as ISO 8601 TEXT.
+  - `spaces`: stores common attributes for all space types (`space_id`, `space_name`, `capacity`, `space_type`, `space_status`).
+  - `meeting_rooms`: stores `SpaceMeetingRoom`-specific attributes (`room_number`, `floor`, `equipment_list`, `num_power_outlets`) with a FOREIGN KEY referencing `spaces`.
+  - `users`: stores user data including `active` status as INTEGER (1=active, 0=inactive).
+  - `bookings`: stores booking records with FOREIGN KEYs referencing both `spaces` and `users`; datetimes stored as ISO 8601 TEXT.
 - `crear_bd.py` seeds all tables with the same initial data previously defined in `infrastructure/seed_data.py`.
 - `crear_bd.py` automatically drops and recreates the database on each run to ensure a clean state.
 - `crear_bd.py` prints a verification summary of all four tables after insertion.
@@ -65,12 +99,12 @@ All relevant project changes, organized by version/release.
 ### Changed (Changes)
 
 - Updated `docs/EXECUTION.md` to cover phase 03:
-    - Added **Running Tests** section with commands to run the full test suite via `unittest discover`.
-    - Added **Running Tests with Coverage** subsection with the complete four-step sequence:
-      `pip install -r requirements.txt`, `coverage run`, `coverage report`, and optional `coverage html`.
+  - Added **Running Tests** section with commands to run the full test suite via `unittest discover`.
+  - Added **Running Tests with Coverage** subsection with the complete four-step sequence:
+    `pip install -r requirements.txt`, `coverage run`, `coverage report`, and optional `coverage html`.
 - Updated `docs/TESTS_AND_STEPS.md`:
-    - Added subsection **4.1 How to Reproduce Coverage Results** under the Test Coverage section, documenting the full
-      command sequence to reproduce the reported coverage percentages.
+  - Added subsection **4.1 How to Reproduce Coverage Results** under the Test Coverage section, documenting the full
+    command sequence to reproduce the reported coverage percentages.
 - Renamed `SpaceMeetingroom` to `SpaceMeetingRoom` across `domain/space_meetingroom.py` to follow Python naming
   conventions (`Room` as an independent word).
 - Renamed setter parameters `v` to their descriptive names (`room_number`, `floor`, `num_power_outlets`) in
@@ -152,42 +186,42 @@ All relevant project changes, organized by version/release.
 ### Added (New Features)
 
 - Implemented comprehensive **unit tests** for domain classes:
-    - `Booking` domain:
-        - Full coverage for creation, cancellation, finishing, overlap detection, and rescheduling.
-        - Tests for invalid users, unavailable spaces, and overlapping bookings.
-    - `Space` domain:
-        - Tests for creation, invalid values, status transitions (`AVAILABLE`, `RESERVED`, `MAINTENANCE`), and helper
-          methods (`is_available`, `is_reserved`, `reserve`, `release`).
-    - `User` domain:
-        - Tests for creation, invalid fields, deactivation, full name property, and booking permissions.
+  - `Booking` domain:
+    - Full coverage for creation, cancellation, finishing, overlap detection, and rescheduling.
+    - Tests for invalid users, unavailable spaces, and overlapping bookings.
+  - `Space` domain:
+    - Tests for creation, invalid values, status transitions (`AVAILABLE`, `RESERVED`, `MAINTENANCE`), and helper
+      methods (`is_available`, `is_reserved`, `reserve`, `release`).
+  - `User` domain:
+    - Tests for creation, invalid fields, deactivation, full name property, and booking permissions.
 - Added **integration tests** (`TestIntegrationBookingSystem`) to simulate full booking flows including:
-    - Multiple users and spaces.
-    - Booking creation, cancellation, finishing, and rescheduling.
-    - Validation for inactive users and spaces in maintenance.
-    - Verification of booking IDs uniqueness.
+  - Multiple users and spaces.
+  - Booking creation, cancellation, finishing, and rescheduling.
+  - Validation for inactive users and spaces in maintenance.
+  - Verification of booking IDs uniqueness.
 
 ### Changed (Changes)
 
 - Refactored **integration test `test_full_booking_flow`**:
-    - Ensured `finish()` only called on active reservations to prevent `Space not reserved` errors.
-    - Adjusted test steps to properly handle spaces before and after maintenance mode.
-    - Rearranged booking/cancellation flow to prevent invalid state transitions during testing.
+  - Ensured `finish()` only called on active reservations to prevent `Space not reserved` errors.
+  - Adjusted test steps to properly handle spaces before and after maintenance mode.
+  - Rearranged booking/cancellation flow to prevent invalid state transitions during testing.
 - Updated test mocks for repository behavior:
-    - `FakeBookingRepo` now assigns `_booking_id` automatically.
-    - Ensures `Booking.create` interacts with the repo similarly to real application behavior.
+  - `FakeBookingRepo` now assigns `_booking_id` automatically.
+  - Ensures `Booking.create` interacts with the repo similarly to real application behavior.
 - Updated unit tests to increase code coverage:
-    - `Booking` coverage now 93–100% including edge cases.
-    - `Space` coverage improved to 97–100%.
-    - `User` coverage improved to 97–100%.
+  - `Booking` coverage now 93–100% including edge cases.
+  - `Space` coverage improved to 97–100%.
+  - `User` coverage improved to 97–100%.
 
 ### Fixed (Bug Fixes)
 
 - Resolved `ValueError: Space not reserved` in integration test by correcting the order of operations for finishing and
   maintenance transitions.
 - Fixed minor edge-case errors in unit tests:
-    - Overlapping bookings detection.
-    - Rescheduling with active and inactive bookings.
-    - Creation of bookings on unavailable or maintenance spaces.
+  - Overlapping bookings detection.
+  - Rescheduling with active and inactive bookings.
+  - Creation of bookings on unavailable or maintenance spaces.
 
 ### Deprecated (Deprecated)
 
@@ -254,9 +288,9 @@ All relevant project changes, organized by version/release.
 ### Added (New Features)
 
 - **List available spaces by date range**:
-    - Added option **8. List available spaces** in the console menu.
-    - Users can enter a start and end datetime.
-    - System lists only spaces that are not booked in that range.
+  - Added option **8. List available spaces** in the console menu.
+  - Users can enter a start and end datetime.
+  - System lists only spaces that are not booked in that range.
 - Enhanced **date input parsing** for bookings with flexible formats (`YYYY-MM-DD HH:MM` and `YYYY/MM/DD HH:MM`).
 - Updated seed data to include **sample bookings** for testing.
 
@@ -290,12 +324,12 @@ All relevant project changes, organized by version/release.
 ### Changed (Changes)
 
 - Compact code format applied to:
-    - `application/booking_service.py`
-    - `application/space_service.py`
-    - `application/user_service.py`
-    - `infrastructure/booking_memory_repository.py`
-    - `infrastructure/space_memory_repository.py`
-    - `infrastructure/user_memory_repository.py`
+  - `application/booking_service.py`
+  - `application/space_service.py`
+  - `application/user_service.py`
+  - `infrastructure/booking_memory_repository.py`
+  - `infrastructure/space_memory_repository.py`
+  - `infrastructure/user_memory_repository.py`
 - Removed redundant docstrings in repository implementations (interfaces remain documented).
 
 ### Fixed (Bug Fixes)
@@ -335,15 +369,15 @@ All relevant project changes, organized by version/release.
 ### Changed (Changes)
 
 - Refactored `Booking` domain class:
-    - Removed manual ID generation from presentation and service layers.
-    - Factory method `Booking.create` now uses repository for storage and ID assignment.
-    - Domain encapsulates booking logic: activation, cancellation, finishing, and overlap checks.
+  - Removed manual ID generation from presentation and service layers.
+  - Factory method `Booking.create` now uses repository for storage and ID assignment.
+  - Domain encapsulates booking logic: activation, cancellation, finishing, and overlap checks.
 - Refactored `Space` domain class to:
-    - Manage status internally (`AVAILABLE`, `RESERVED`, `MAINTENANCE`).
-    - Provide helper methods for reservations and releases.
+  - Manage status internally (`AVAILABLE`, `RESERVED`, `MAINTENANCE`).
+  - Provide helper methods for reservations and releases.
 - Refactored `User` domain class to:
-    - Include active status and booking rules.
-    - Expose `full_name()` and `can_make_booking()` for service layer use.
+  - Include active status and booking rules.
+  - Expose `full_name()` and `can_make_booking()` for service layer use.
 - Menu (`presentation/menu.py`) now delegates all data operations to services and passes only user-friendly
   identifiers (names) instead of IDs.
 
@@ -377,26 +411,26 @@ All relevant project changes, organized by version/release.
 - Detailed visualization of spaces, displaying specific attributes of `MeetingRoom`.
 - Implemented `__str__` methods to improve information presentation in the console.
 - Added complete documentation in the `docs/` folder:
-    - `DESCRIPTION_AND_SCOPE.md`
-    - `EXECUTION.md`
-    - `LAYERED_ARCHITECTURE.md`
-    - `USE_CASES.md`
-    - `BUSINESS_RULES.md`
-    - `DOMAIN_MODEL.md`
-    - `REPOSITORY_CONTRACT.md`
+  - `DESCRIPTION_AND_SCOPE.md`
+  - `EXECUTION.md`
+  - `LAYERED_ARCHITECTURE.md`
+  - `USE_CASES.md`
+  - `BUSINESS_RULES.md`
+  - `DOMAIN_MODEL.md`
+  - `REPOSITORY_CONTRACT.md`
 - Added this `CHANGELOG.md` file to track project evolution.
 
 ### Changed (Changes)
 
 - Updated `README.md` to include:
-    - General project description.
-    - Objectives.
-    - Requirements.
-    - Installation and execution instructions.
+  - General project description.
+  - Objectives.
+  - Requirements.
+  - Installation and execution instructions.
 - Refactored the menu (`presentation/menu.py`) to:
-    - Centralize date validations.
-    - Delegate business logic to `BookingService`.
-    - Improve readability and user flow structure.
+  - Centralize date validations.
+  - Delegate business logic to `BookingService`.
+  - Improve readability and user flow structure.
 - Adjusted the space repository to store instances of `SpaceMeetingroom` subclasses.
 
 ### Fixed (Bug Fixes)
@@ -424,8 +458,8 @@ All relevant project changes, organized by version/release.
 - **Breaking**: `Space` now requires the `space_type` attribute.
 - **Breaking**: the menu depends on spaces correctly implementing `__str__`.
 - To migrate:
-    - Update any `Space` creation to include `space_type`.
-    - Ensure new subclasses correctly override the space type.
+  - Update any `Space` creation to include `space_type`.
+  - Ensure new subclasses correctly override the space type.
 
 ---
 
@@ -435,14 +469,14 @@ All relevant project changes, organized by version/release.
 
 - Initial version of the Smart Spaces system.
 - Console menu with basic management of:
-    - Spaces.
-    - Users.
-    - Bookings.
+  - Spaces.
+  - Users.
+  - Bookings.
 - Layered implementation:
-    - `presentation`
-    - `application`
-    - `domain`
-    - `infrastructure`
+  - `presentation`
+  - `application`
+  - `domain`
+  - `infrastructure`
 - In-memory repositories for spaces, users, and bookings.
 - Application service `BookingService`.
 - Sample data loaded at application startup.

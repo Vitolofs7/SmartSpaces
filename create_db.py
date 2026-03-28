@@ -91,9 +91,9 @@ cursor.execute("INSERT INTO spaces VALUES (?, ?, ?, ?, ?)",
 cursor.execute("INSERT INTO meeting_rooms VALUES (?, ?, ?, ?, ?)",
                ("SM2", "102", 1, "TV", 2))
 
-# Space("S5", "Private Office", 2, "Private")
+# Space("S3", "Private Office", 2, "Private")
 cursor.execute("INSERT INTO spaces VALUES (?, ?, ?, ?, ?)",
-               ("S5", "Private Office", 2, "Private", "AVAILABLE"))
+               ("S3", "Private Office", 2, "Private", "AVAILABLE"))
 
 # ===========================================================================
 # INSERTAR USUARIOS (equivalente a seed_users)
