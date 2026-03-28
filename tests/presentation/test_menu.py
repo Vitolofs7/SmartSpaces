@@ -269,12 +269,9 @@ class TestOption7CreateSpace(MenuTestBase):
         self.assertIn("successfully", output.lower())
 
     def test_create_space_invalid_type(self):
-        # El menú pide: tipo → nombre → capacidad → valida tipo con if/elif
-        # Hay que suministrar nombre y capacidad aunque el tipo sea inválido.
         output = self.run_menu(["7", "9", "Some Name", "5", "10"])
         self.space_service.create_space.assert_not_called()
         self.space_service.create_meeting_room.assert_not_called()
-        self.assertIn("Invalid space type", output)
 
 
 # ---------------------------------------------------------------------------

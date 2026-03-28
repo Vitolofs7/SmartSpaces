@@ -36,6 +36,7 @@ cursor.execute("""
         equipment_list    TEXT    NOT NULL,
         num_power_outlets INTEGER NOT NULL,
         FOREIGN KEY (space_id) REFERENCES spaces(space_id)
+               ON DELETE CASCADE
     )
 """)
 
@@ -78,21 +79,21 @@ cursor.execute("INSERT INTO spaces VALUES (?, ?, ?, ?, ?)",
 cursor.execute("INSERT INTO spaces VALUES (?, ?, ?, ?, ?)",
                ("S2", "Open Space", 10, "Basic", "AVAILABLE"))
 
-# SpaceMeetingRoom("S3", "Main Meeting Room", 8, "101", 1, ["Projector", "Whiteboard"], 4)
+# SpaceMeetingRoom("SM1", "Main Meeting Room", 8, "101", 1, ["Projector", "Whiteboard"], 4)
 cursor.execute("INSERT INTO spaces VALUES (?, ?, ?, ?, ?)",
-               ("S3", "Main Meeting Room", 8, "Meeting room", "AVAILABLE"))
+               ("SM1", "Main Meeting Room", 8, "Meeting room", "AVAILABLE"))
 cursor.execute("INSERT INTO meeting_rooms VALUES (?, ?, ?, ?, ?)",
-               ("S3", "101", 1, "Projector,Whiteboard", 4))
+               ("SM1", "101", 1, "Projector,Whiteboard", 4))
 
-# SpaceMeetingRoom("S4", "Small Meeting Room", 4, "102", 1, ["TV"], 2)
+# SpaceMeetingRoom("SM2", "Small Meeting Room", 4, "102", 1, ["TV"], 2)
 cursor.execute("INSERT INTO spaces VALUES (?, ?, ?, ?, ?)",
-               ("S4", "Small Meeting Room", 4, "Meeting room", "AVAILABLE"))
+               ("SM2", "Small Meeting Room", 4, "Meeting room", "AVAILABLE"))
 cursor.execute("INSERT INTO meeting_rooms VALUES (?, ?, ?, ?, ?)",
-               ("S4", "102", 1, "TV", 2))
+               ("SM2", "102", 1, "TV", 2))
 
-# Space("S5", "Private Office", 2, "Private")
+# Space("S3", "Private Office", 2, "Private")
 cursor.execute("INSERT INTO spaces VALUES (?, ?, ?, ?, ?)",
-               ("S5", "Private Office", 2, "Private", "AVAILABLE"))
+               ("S3", "Private Office", 2, "Private", "AVAILABLE"))
 
 # ===========================================================================
 # INSERTAR USUARIOS (equivalente a seed_users)
@@ -118,7 +119,7 @@ bookings = [
      (now + timedelta(hours=1)).isoformat(),
      (now + timedelta(hours=2)).isoformat(),
      "ACTIVE"),
-    ("B2", "S3", "U2",
+    ("B2", "SM1", "U2",  # se cambia S3 → SM1
      (now + timedelta(days=1)).isoformat(),
      (now + timedelta(days=1, hours=2)).isoformat(),
      "ACTIVE"),
@@ -127,6 +128,7 @@ bookings = [
      (now + timedelta(hours=5)).isoformat(),
      "ACTIVE"),
 ]
+
 cursor.executemany("INSERT INTO bookings VALUES (?, ?, ?, ?, ?, ?)", bookings)
 
 # Actualizar el status de los espacios que quedan reservados
