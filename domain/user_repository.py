@@ -63,3 +63,14 @@ class UserRepository:
             NotImplementedError: Must be implemented by subclasses.
         """
         raise NotImplementedError
+
+    def update(self, user: User):
+        """Updates an existing user.
+
+        Args:
+            user: User instance to update.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses.
+        """
+        raise NotImplementedError

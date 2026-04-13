@@ -63,3 +63,14 @@ class SpaceRepository:
             NotImplementedError: Must be implemented by subclasses.
         """
         raise NotImplementedError
+
+    def update(self, space: Space):
+        """Updates an existing space.
+
+        Args:
+            space: Space instance to update.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses.
+        """
+        raise NotImplementedError

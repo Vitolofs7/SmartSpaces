@@ -1,6 +1,10 @@
 """infrastructure/booking_memory_repository.py"""
 
 from domain.booking_repository import BookingRepository
+from domain.exceptions import (
+    BookingAlreadyExistsException,
+    BookingNotFoundError,
+)
 
 
 class BookingMemoryRepository(BookingRepository):
@@ -15,16 +19,34 @@ class BookingMemoryRepository(BookingRepository):
         self._bookings, self._last_id = {}, 0
 
     def save(self, booking):
-        """Stores or updates a booking in memory.
+        """Stores a new booking in memory.
 
         If the booking does not have an ID, assigns a new unique ID.
 
         Args:
             booking: Booking instance to save.
+            
+        Raises:
+            BookingAlreadyExistsException: If the booking already exists.
         """
         if booking.booking_id is None:
             self._last_id += 1
             booking._booking_id = f"B{self._last_id}"
+        elif booking.booking_id in self._bookings:
+            raise BookingAlreadyExistsException(f"Ya existe una reserva con ID '{booking.booking_id}'")
+        self._bookings[booking.booking_id] = booking
+
+    def update(self, booking):
+        """Updates a booking in memory.
+
+        Args:
+            booking: Booking instance to update.
+            
+        Raises:
+            BookingNotFoundError: If the booking is not found.
+        """
+        if booking.booking_id not in self._bookings:
+            raise BookingNotFoundError(f"No existe ninguna reserva con ID '{booking.booking_id}'")
         self._bookings[booking.booking_id] = booking
 
     def get(self, booking_id):
@@ -34,9 +56,17 @@ class BookingMemoryRepository(BookingRepository):
             booking_id: Unique identifier of the booking.
 
         Returns:
-            The booking instance if found, otherwise None.
+            The booking instance if found.
+
+        Raises:
+            BookingNotFoundError: If no booking with the given ID exists.
         """
-        return self._bookings.get(booking_id)
+        booking = self._bookings.get(booking_id)
+        if booking is None:
+            raise BookingNotFoundError(
+                f"No existe ninguna reserva con ID '{booking_id}'"
+            )
+        return booking
 
     def list(self):
         """Retrieves all stored bookings.

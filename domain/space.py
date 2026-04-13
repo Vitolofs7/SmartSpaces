@@ -38,6 +38,8 @@ class Space:
             ValueError: If space_name is empty.
             ValueError: If capacity is not greater than zero.
         """
+        if space_id is not None and (not isinstance(space_id, str) or not space_id.strip()):
+            raise ValueError("Space ID cannot be empty")
         space_name = (space_name or "").strip()
         if not space_name: raise ValueError("Space name cannot be empty")
         if capacity <= 0: raise ValueError("Capacity must be > 0")

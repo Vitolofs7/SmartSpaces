@@ -20,9 +20,9 @@ def seed_spaces(space_repo: SpaceMemoryRepository):
     spaces = [
         Space("S1", "Conference Room", 5, "Basic"),
         Space("S2", "Open Space", 10, "Basic"),
-        SpaceMeetingRoom("S3", "Main Meeting Room", 8, "101", 1, ["Projector", "Whiteboard"], 4),
-        SpaceMeetingRoom("S4", "Small Meeting Room", 4, "102", 1, ["TV"], 2),
-        Space("S5", "Private Office", 2, "Private"),
+        SpaceMeetingRoom("SM1", "Main Meeting Room", 8, "101", 1, ["Projector", "Whiteboard"], 4),
+        SpaceMeetingRoom("SM2", "Small Meeting Room", 4, "102", 1, ["TV"], 2),
+        Space("S3", "Private Office", 2, "Private"),
     ]
     for s in spaces:
         space_repo.save(s)
@@ -56,7 +56,7 @@ def seed_bookings(booking_repo: BookingMemoryRepository, space_repo, user_repo):
     now = datetime.now()
     bookings_data = [
         ("U1", "S1", now + timedelta(hours=1), now + timedelta(hours=2)),
-        ("U2", "S3", now + timedelta(days=1), now + timedelta(days=1, hours=2)),
+        ("U2", "SM1", now + timedelta(days=1), now + timedelta(days=1, hours=2)),
         ("U3", "S2", now + timedelta(hours=3), now + timedelta(hours=5)),
     ]
     for user_id, space_id, start, end in bookings_data:

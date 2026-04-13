@@ -1,7 +1,8 @@
-"""infrastructure/exceptions.py
+"""domain/exceptions.py
 
-Excepciones personalizadas del dominio para errores de persistencia.
-Transforma errores de SQLite en conceptos que el dominio entiende.
+Excepciones propias del dominio para errores de persistencia.
+Definen conceptos que el dominio entiende: entidad no encontrada,
+entidad duplicada, error genérico de persistencia.
 """
 
 
