@@ -8,6 +8,7 @@ from application.booking_service import BookingService
 from application.space_service import SpaceService
 from application.user_service import UserService
 from infrastructure.seed_data_sqlite import seed_all
+from domain.exceptions import RepositoryException
 
 
 def show_menu():
@@ -138,7 +139,7 @@ def main():
                 break
             else:
                 print("Invalid option.")
-        except ValueError as e:
+        except (ValueError, RepositoryException) as e:
             print(f"Error: {e}")
 
 

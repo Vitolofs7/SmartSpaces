@@ -8,14 +8,15 @@ import sqlite3
 from domain import space
 from domain.space import Space
 from domain.space_meetingroom import SpaceMeetingRoom
-from infrastructure.exceptions import (
+from domain.space_repository import SpaceRepository
+from domain.exceptions import (
     SpaceAlreadyExistsException,
     SpaceNotFoundError,
     PersistenceException,
 )
 
 
-class SpaceSQLiteRepository:
+class SpaceSQLiteRepository(SpaceRepository):
     def __init__(self, db_path: str = "smartspaces.db"):
         self._db_path = db_path
 
@@ -30,7 +31,6 @@ class SpaceSQLiteRepository:
             with conn:
                 cursor = conn.cursor()
 
-                # Asignar ID automático si es None
                 # Asignar ID automático si es None
                 if space.space_id is None:
                     if isinstance(space, SpaceMeetingRoom):
@@ -79,9 +79,7 @@ class SpaceSQLiteRepository:
                     )
 
         except sqlite3.IntegrityError:
-            raise SpaceAlreadyExistsException(
-                f"Ya existe un espacio con ID '{space.space_id}'"
-            )
+            raise SpaceAlreadyExistsException(f"Ya existe un espacio con ID '{space.space_id}'")
         except sqlite3.OperationalError as e:
             raise PersistenceException(f"Error al guardar el espacio: {e}")
         finally:
@@ -140,6 +138,8 @@ class SpaceSQLiteRepository:
             obj._space_status = space_status
             return obj
 
+        except SpaceNotFoundError:
+            raise
         except sqlite3.OperationalError as e:
             raise PersistenceException(f"Error al leer el espacio: {e}")
         finally:
@@ -214,6 +214,21 @@ class SpaceSQLiteRepository:
         finally:
             conn.close()
 
+    def delete(self, space_id: str) -> None:
+        conn = self._connect()
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "DELETE FROM spaces WHERE space_id = ?",
+                    (space_id,),
+                )
+
+        except sqlite3.OperationalError as e:
+            raise PersistenceException(f"Error al eliminar el espacio: {e}")
+        finally:
+            conn.close()
+
     def update(self, space: Space) -> None:
         conn = self._connect()
         try:
@@ -235,6 +250,11 @@ class SpaceSQLiteRepository:
                     ),
                 )
 
+                if cursor.rowcount == 0:
+                    raise SpaceNotFoundError(
+                        f"No existe ningún espacio con ID '{space.space_id}' para actualizar"
+                    )
+
                 if isinstance(space, SpaceMeetingRoom):
                     equipment_str = ",".join(space.equipment_list)
                     cursor.execute(
@@ -251,23 +271,9 @@ class SpaceSQLiteRepository:
                             space.space_id,
                         ),
                     )
-
+        except SpaceNotFoundError:
+            raise
         except sqlite3.OperationalError as e:
             raise PersistenceException(f"Error al actualizar el espacio: {e}")
-        finally:
-            conn.close()
-
-    def delete(self, space_id: str) -> None:
-        conn = self._connect()
-        try:
-            with conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "DELETE FROM spaces WHERE space_id = ?",
-                    (space_id,),
-                )
-
-        except sqlite3.OperationalError as e:
-            raise PersistenceException(f"Error al eliminar el espacio: {e}")
         finally:
             conn.close()

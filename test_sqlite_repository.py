@@ -7,7 +7,7 @@ Ejecutar desde la raíz del proyecto: python test_sqlite_repository.py
 from domain.space import Space
 from domain.space_meetingroom import SpaceMeetingRoom
 from infrastructure.space_sqlite_repository import SpaceSQLiteRepository
-from infrastructure.exceptions import (
+from domain.exceptions import (
     SpaceAlreadyExistsException,
     SpaceNotFoundError,
 )

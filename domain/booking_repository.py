@@ -63,3 +63,14 @@ class BookingRepository:
             NotImplementedError: Must be implemented by subclasses.
         """
         raise NotImplementedError
+
+    def update(self, booking: Booking):
+        """Updates an existing booking.
+
+        Args:
+            booking: Booking instance to update.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses.
+        """
+        raise NotImplementedError

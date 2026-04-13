@@ -8,14 +8,16 @@ from datetime import datetime
 from domain.booking import Booking
 from domain.user import User
 from domain.space import Space
-from infrastructure.exceptions import (
+from domain.space_meetingroom import SpaceMeetingRoom
+from domain.booking_repository import BookingRepository
+from domain.exceptions import (
     BookingAlreadyExistsException,
     BookingNotFoundError,
     PersistenceException,
 )
 
 
-class BookingSQLiteRepository:
+class BookingSQLiteRepository(BookingRepository):
     """Repositorio SQLite para persistencia de reservas."""
 
     def __init__(self, db_path: str = "smartspaces.db"):
@@ -50,22 +52,55 @@ class BookingSQLiteRepository:
                     booking.status
                 ))
         except sqlite3.IntegrityError:
-            raise BookingAlreadyExistsException(
-                f"Ya existe una reserva con ID '{booking.booking_id}'"
-            )
+            raise BookingAlreadyExistsException(f"Ya existe una reserva con ID '{booking.booking_id}'")
         except sqlite3.OperationalError as e:
             raise PersistenceException(f"Error al guardar la reserva: {e}")
         finally:
             conn.close()
 
-    def get(self, booking_id: str, user_repo, space_repo) -> Booking:
+    def update(self, booking: Booking) -> None:
+        """Actualiza una reserva existente en la base de datos."""
+        conn = self._connect()
+        try:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    UPDATE bookings 
+                    SET user_id = ?, space_id = ?, start_time = ?, end_time = ?, booking_status = ?
+                    WHERE booking_id = ?
+                """, (
+                    booking.user.user_id,
+                    booking.space.space_id,
+                    booking.start_time.isoformat(),
+                    booking.end_time.isoformat(),
+                    booking.status,
+                    booking.booking_id
+                ))
+                if cursor.rowcount == 0:
+                    raise BookingNotFoundError(f"No existe ninguna reserva con ID '{booking.booking_id}'")
+        except BookingNotFoundError:
+            raise
+        except sqlite3.OperationalError as e:
+            raise PersistenceException(f"Error al actualizar la reserva: {e}")
+        finally:
+            conn.close()
+
+    def get(self, booking_id: str) -> Booking:
         """Recupera una reserva por su ID y reconstruye la entidad Booking."""
         conn = self._connect()
         try:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT booking_id, user_id, space_id, start_time, end_time, booking_status
-                FROM bookings WHERE booking_id = ?
+                SELECT 
+                    b.booking_id, b.start_time, b.end_time, b.booking_status,
+                    u.user_id, u.name, u.surname1, u.surname2, u.active,
+                    s.space_id, s.space_name, s.capacity, s.space_type, s.space_status,
+                    mr.room_number, mr.floor, mr.equipment_list, mr.num_power_outlets
+                FROM bookings b
+                JOIN users u ON b.user_id = u.user_id
+                JOIN spaces s ON b.space_id = s.space_id
+                LEFT JOIN meeting_rooms mr ON s.space_id = mr.space_id
+                WHERE b.booking_id = ?
             """, (booking_id,))
             
             row = cursor.fetchone()
@@ -74,37 +109,41 @@ class BookingSQLiteRepository:
                     f"No existe ninguna reserva con ID '{booking_id}'"
                 )
             
-            booking_id, user_id, space_id, start_time, end_time, booking_status = row
-            user: User = user_repo.obtener(user_id)
-            space: Space = space_repo.obtener(space_id)
-            
-            booking = Booking(space, user, datetime.fromisoformat(start_time), datetime.fromisoformat(end_time))
-            booking._booking_id = booking_id
+            (bid, start_time, end_time, booking_status,
+             user_id, name, surname1, surname2, active,
+             space_id, space_name, capacity, space_type, space_status,
+             room_number, floor, equipment_str, num_power_outlets) = row
+
+            user = User(user_id, name, surname1, surname2)
+            if not active:
+                user.deactivate()
+
+            if room_number is not None:
+                equipment_list = equipment_str.split(",") if equipment_str else []
+                space = SpaceMeetingRoom(
+                    space_id=space_id,
+                    space_name=space_name,
+                    capacity=capacity,
+                    room_number=room_number,
+                    floor=floor,
+                    equipment_list=equipment_list,
+                    num_power_outlets=num_power_outlets,
+                )
+            else:
+                space = Space(space_id, space_name, capacity, space_type)
+            space._space_status = space_status
+
+            booking = Booking(space, user,
+                            datetime.fromisoformat(start_time),
+                            datetime.fromisoformat(end_time))
+            booking._booking_id = bid
             booking._booking_status = booking_status
             return booking
+
+        except BookingNotFoundError:
+            raise
         except sqlite3.OperationalError as e:
             raise PersistenceException(f"Error al leer la reserva: {e}")
-        finally:
-            conn.close()
-
-    def update(self, booking: Booking) -> None:
-        """Actualiza los datos de una reserva."""
-        conn = self._connect()
-        try:
-            with conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    UPDATE bookings 
-                    SET start_time = ?, end_time = ?, booking_status = ?
-                    WHERE booking_id = ?
-                """, (
-                    booking.start_time.isoformat(),
-                    booking.end_time.isoformat(),
-                    booking.status,
-                    booking.booking_id
-                ))
-        except sqlite3.OperationalError as e:
-            raise PersistenceException(f"Error al actualizar la reserva: {e}")
         finally:
             conn.close()
 
@@ -121,7 +160,7 @@ class BookingSQLiteRepository:
             conn.close()
 
     def list(self) -> list[Booking]:
-        """Recupera todas las reservas activas usando JOINs para reconstruir entidades."""
+        """Recupera todas las reservas usando JOINs para reconstruir entidades."""
         conn = self._connect()
         reservas = []
         try:
@@ -129,28 +168,44 @@ class BookingSQLiteRepository:
             cursor.execute("""
                 SELECT 
                     b.booking_id, b.start_time, b.end_time, b.booking_status,
-                    u.user_id, u.name, u.surname1, u.surname2,
-                    s.space_id, s.space_name, s.capacity, s.space_type, s.space_status
+                    u.user_id, u.name, u.surname1, u.surname2, u.active,
+                    s.space_id, s.space_name, s.capacity, s.space_type, s.space_status,
+                    mr.room_number, mr.floor, mr.equipment_list, mr.num_power_outlets
                 FROM bookings b
                 JOIN users u ON b.user_id = u.user_id
                 JOIN spaces s ON b.space_id = s.space_id
+                LEFT JOIN meeting_rooms mr ON s.space_id = mr.space_id
             """)
 
             for row in cursor.fetchall():
-                (booking_id, start_time, end_time, booking_status,
-                user_id, name, surname1, surname2,
-                space_id, space_name, capacity, space_type, space_status) = row
+                (bid, start_time, end_time, booking_status,
+                 user_id, name, surname1, surname2, active,
+                 space_id, space_name, capacity, space_type, space_status,
+                 room_number, floor, equipment_str, num_power_outlets) = row
 
-                from domain.user import User
-                from domain.space import Space
                 user = User(user_id, name, surname1, surname2)
-                space = Space(space_id, space_name, capacity, space_type)
+                if not active:
+                    user.deactivate()
+
+                if room_number is not None:
+                    equipment_list = equipment_str.split(",") if equipment_str else []
+                    space = SpaceMeetingRoom(
+                        space_id=space_id,
+                        space_name=space_name,
+                        capacity=capacity,
+                        room_number=room_number,
+                        floor=floor,
+                        equipment_list=equipment_list,
+                        num_power_outlets=num_power_outlets,
+                    )
+                else:
+                    space = Space(space_id, space_name, capacity, space_type)
                 space._space_status = space_status
 
                 booking = Booking(space, user,
                                 datetime.fromisoformat(start_time),
                                 datetime.fromisoformat(end_time))
-                booking._booking_id = booking_id
+                booking._booking_id = bid
                 booking._booking_status = booking_status
                 reservas.append(booking)
 

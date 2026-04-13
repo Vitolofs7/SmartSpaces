@@ -1,6 +1,10 @@
 """infrastructure/space_memory_repository.py"""
 
 from domain.space_repository import SpaceRepository
+from domain.exceptions import (
+    SpaceAlreadyExistsException,
+    SpaceNotFoundError,
+)
 
 
 class SpaceMemoryRepository(SpaceRepository):
@@ -23,10 +27,28 @@ class SpaceMemoryRepository(SpaceRepository):
 
         Args:
             space: Space instance to save.
+
+        Raises:
+            SpaceAlreadyExistsException: If saving a new space whose ID already exists.
         """
         if space.space_id is None:
             self._last_id += 1
             space._space_id = f"S{self._last_id}"
+        elif space.space_id in self._spaces:
+            raise SpaceAlreadyExistsException(f"Ya existe un espacio con ID '{space.space_id}'")
+        self._spaces[space.space_id] = space
+
+    def update(self, space):
+        """Updates a space in memory.
+
+        Args:
+            space: Space instance to update.
+
+        Raises:
+            SpaceNotFoundError: If space is not found.
+        """
+        if space.space_id not in self._spaces:
+            raise SpaceNotFoundError(f"No existe ningún espacio con ID '{space.space_id}'")
         self._spaces[space.space_id] = space
 
     def get(self, space_id):
@@ -36,9 +58,17 @@ class SpaceMemoryRepository(SpaceRepository):
             space_id: Unique identifier of the space.
 
         Returns:
-            The space instance if found, otherwise None.
+            The space instance if found.
+
+        Raises:
+            SpaceNotFoundError: If no space with the given ID exists.
         """
-        return self._spaces.get(space_id)
+        space = self._spaces.get(space_id)
+        if space is None:
+            raise SpaceNotFoundError(
+                f"No existe ningún espacio con ID '{space_id}'"
+            )
+        return space
 
     def list(self):
         """Retrieves all stored spaces.

@@ -21,12 +21,14 @@ class TestIntegrationBookingSystem(unittest.TestCase):
         class FakeBookingRepo:
             def __init__(self):
                 self.bookings = []
+                self._last_id = 0
 
             def list(self):
-                return self.bookings
+                return list(self.bookings)
 
             def save(self, booking):
-                booking._booking_id = len(self.bookings) + 1
+                self._last_id += 1
+                booking._booking_id = f"B{self._last_id}"
                 self.bookings.append(booking)
 
         self.repo = FakeBookingRepo()
@@ -38,10 +40,12 @@ class TestIntegrationBookingSystem(unittest.TestCase):
 
     def test_full_booking_flow(self):
         b1 = Booking.create(self.space1, self.user1, self.start, self.end, self.repo)
+        self.repo.save(b1)
         self.assertTrue(b1.is_active())
         self.assertEqual(self.space1.space_status, Space.STATUS_RESERVED)
 
         b2 = Booking.create(self.space2, self.user2, self.start, self.end, self.repo)
+        self.repo.save(b2)
         self.assertTrue(b2.is_active())
         self.assertEqual(self.space2.space_status, Space.STATUS_RESERVED)
 
@@ -65,6 +69,7 @@ class TestIntegrationBookingSystem(unittest.TestCase):
             self.end + timedelta(minutes=30),
             self.repo
         )
+        self.repo.save(b3)
         self.assertEqual(b3.space, self.space1)
         self.assertEqual(self.space1.space_status, Space.STATUS_RESERVED)
 

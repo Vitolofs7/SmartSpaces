@@ -1,6 +1,10 @@
 """infrastructure/user_memory_repository.py"""
 
 from domain.user_repository import UserRepository
+from domain.exceptions import (
+    UserAlreadyExistsException,
+    UserNotFoundError,
+)
 
 
 class UserMemoryRepository(UserRepository):
@@ -15,11 +19,29 @@ class UserMemoryRepository(UserRepository):
         self._users = {}
 
     def save(self, user):
-        """Stores or updates a user in memory.
+        """Stores a new user in memory.
 
         Args:
             user: User instance to save.
+            
+        Raises:
+            UserAlreadyExistsException: If the user already exists.
         """
+        if user.user_id in self._users:
+            raise UserAlreadyExistsException(f"Ya existe un usuario con ID '{user.user_id}'")
+        self._users[user.user_id] = user
+
+    def update(self, user):
+        """Updates a user in memory.
+
+        Args:
+            user: User instance to update.
+            
+        Raises:
+            UserNotFoundError: If the user is not found.
+        """
+        if user.user_id not in self._users:
+            raise UserNotFoundError(f"No existe ningún usuario con ID '{user.user_id}'")
         self._users[user.user_id] = user
 
     def get(self, user_id):
@@ -29,9 +51,17 @@ class UserMemoryRepository(UserRepository):
             user_id: Unique identifier of the user.
 
         Returns:
-            The user instance if found, otherwise None.
+            The user instance if found.
+
+        Raises:
+            UserNotFoundError: If no user with the given ID exists.
         """
-        return self._users.get(user_id)
+        user = self._users.get(user_id)
+        if user is None:
+            raise UserNotFoundError(
+                f"No existe ningún usuario con ID '{user_id}'"
+            )
+        return user
 
     def list(self):
         """Retrieves all stored users.

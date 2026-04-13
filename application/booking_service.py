@@ -3,6 +3,7 @@
 from domain import booking
 from domain.booking import Booking
 from datetime import datetime
+from domain.exceptions import BookingNotFoundError
 
 
 class BookingService:
@@ -92,11 +93,12 @@ class BookingService:
         Raises:
             ValueError: If the booking does not exist.
         """
-        booking = self._booking_repo.get(booking_id)
-        if not booking:
+        try:
+            booking = self._booking_repo.get(booking_id)
+        except BookingNotFoundError:
             raise ValueError("Booking not found")
         booking.reschedule(new_start, new_end, self._booking_repo)
-        self._booking_repo.save(booking)
+        self._booking_repo.update(booking)
         return booking
 
     def cancel_booking(self, booking_id: str):
@@ -112,11 +114,13 @@ class BookingService:
             ValueError: If the booking does not exist.
             ValueError: If the booking is not active.
         """
-        booking = self._booking_repo.get(booking_id)
-        if not booking: raise ValueError("Booking not found")
+        try:
+            booking = self._booking_repo.get(booking_id)
+        except BookingNotFoundError:
+            raise ValueError("Booking not found")
         if not booking.is_active(): raise ValueError("Only active bookings can be cancelled")
         booking.cancel()
-        self._booking_repo.save(booking)
+        self._booking_repo.update(booking)
 
     def finish_booking(self, booking_id: str):
         """Marks an active booking as finished and releases the associated space.
@@ -131,11 +135,13 @@ class BookingService:
             ValueError: If the booking does not exist.
             ValueError: If the booking is not active.
         """
-        booking = self._booking_repo.get(booking_id)
-        if not booking: raise ValueError("Booking not found")
+        try:
+            booking = self._booking_repo.get(booking_id)
+        except BookingNotFoundError:
+            raise ValueError("Booking not found")
         if not booking.is_active(): raise ValueError("Only active bookings can be finished")
         booking.finish()
-        self._booking_repo.save(booking)
+        self._booking_repo.update(booking)
 
     def list_bookings(self):
         """Returns all stored bookings.
@@ -154,7 +160,10 @@ class BookingService:
         Returns:
             The booking instance if found, otherwise None.
         """
-        return self._booking_repo.get(booking_id)
+        try:
+            return self._booking_repo.get(booking_id)
+        except BookingNotFoundError:
+            return None
 
     def get_bookings_for_user(self, user_name: str):
         """Retrieves all bookings associated with a specific user.
