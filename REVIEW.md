@@ -33,6 +33,14 @@
 
 ## REVISIÓN FASE 02 - 2026-03-03 — Nota: 7,5/10
 
+### Resuelto desde la revisión anterior
+
+De los problemas de nomenclatura y documentación identificados en REVIEW.md (2026-03-03 y 2026-02-25), se han corregido:
+
+- **Nomenclatura: `SpaceMeetingroom` → `SpaceMeetingRoom`** — Resuelto. `domain/space_meetingroom.py:6` ahora usa convención PascalCase correcta.
+
+- **Docstrings en módulos** — Resuelto. Los módulos ahora tienen docstrings formales `"""..."""` en lugar de comentarios `# ruta/fichero.py`.
+
 ### Cumple
 
 - `CHANGELOG.md` muy bien estructurado con secciones Added/Changed/Fixed/Security desde `0.1.0` hasta `0.3.4`.
@@ -69,6 +77,14 @@
  - **[TYPO]** `docs/BUSINESS_RULES.md:100,108` — Usa `CANCELLED` en lugar de `CANCELED` para coincidir con el código.
 
 ## REVISIÓN FASE 01 - 2026-03-03 — Nota: 8,5/10
+
+### Resuelto desde la revisión anterior
+
+De los bugs y problemas de diseño identificados en REVIEW.md (2026-03-03 y 2026-02-25), se han corregido:
+
+- **[BUG] Doble liberación de espacio en `cancel_booking` / `finish_booking`** — Resuelto. `booking_service.py:122,143` ahora solo llama a `booking.cancel()` / `booking.finish()` sin segunda llamada a `b.space.release()`. Pruebas funcionales confirmaron que Finish booking (opción 6) ahora funciona correctamente.
+
+- **[DISEÑO] Reglas de usuario (`max_active_bookings`, `max_booking_duration`) no aplicadas** — Resuelto. `booking_service.py:61-74` valida ambas reglas en `create_booking()`. Pruebas confirmaron rechazo cuando usuario supera límite de bookings activos.
 
 ### Cumple
 
