@@ -205,7 +205,7 @@ Almacena las reservas hechas por los usuarios sobre los espacios.
 
 Con el diseño de tablas descrito arriba, el esquema de la base de datos queda así:
 
-![Diagrama relacional SmartSpaces](/SmartSpaces/docs/img/diagrama_relacional_smartspaces.svg)
+![Diagrama relacional SmartSpaces](img/diagrama_relacional_smartspaces.svg)
 
 El diagrama muestra las 4 tablas del sistema y sus relaciones:
 - **spaces ↔ meeting_rooms** (1:0..1): cada sala de reuniones extiende un espacio base
