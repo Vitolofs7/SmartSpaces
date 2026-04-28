@@ -170,7 +170,7 @@ Los métodos indicados a continuación no existen actualmente; es necesario impl
 
 ---
 
-## 5. Puntos de atención
+## 5. Advertencias
 
 ### 5.1 Reservas solapadas → 409 Conflict
 
