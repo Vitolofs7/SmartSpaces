@@ -19,6 +19,7 @@ from domain.exceptions import (
     UserAlreadyExistsException,
     SpaceAlreadyExistsException,
     BookingAlreadyExistsException,
+    BookingConflictError,
     PersistenceException,
 )
 from domain.space_meetingroom import SpaceMeetingRoom
@@ -245,17 +246,25 @@ def create_booking_route(user_name, space_name, fecha_inicio, fecha_fin):
     try:
         start = datetime.fromisoformat(fecha_inicio)
         end = datetime.fromisoformat(fecha_fin)
-        booking = booking_service.create_booking(user_name, space_name, start, end)
+
+        booking = booking_service.create_booking(
+            user_name,
+            space_name,
+            start,
+            end,
+        )
+
         return redirect(url_for("get_booking", booking_id=booking.booking_id))
-    except ValueError as e:
-        if "ISO" in str(e):
-            return error_response(
-                f"Formato de fecha inválido. Use ISO 8601: YYYY-MM-DDTHH:MM:SS", 400
-            )
-        else:
-            return error_response(str(e), 400)
+
+    except BookingConflictError as e:
+        return error_response(str(e), 409)
+
     except BookingAlreadyExistsException:
         return error_response("Reserva ya existe", 409)
+
+    except ValueError as e:
+        return error_response(str(e), 400)
+
     except Exception as e:
         return error_response(f"Error al crear reserva: {str(e)}", 500)
 
@@ -264,7 +273,7 @@ def create_booking_route(user_name, space_name, fecha_inicio, fecha_fin):
 def cancel_booking_route(booking_id):
     """POST /bookings/<booking_id>/cancelar - Cancela una reserva."""
     try:
-        booking = booking_service.cancel_booking(booking_id)
+        booking_service.cancel_booking(booking_id)
         return redirect(url_for("get_booking", booking_id=booking_id))
     except BookingNotFoundError:
         return error_response(f"Reserva '{booking_id}' no encontrada", 404)
@@ -278,7 +287,7 @@ def cancel_booking_route(booking_id):
 def finish_booking_route(booking_id):
     """POST /bookings/<booking_id>/finalizar - Finaliza una reserva."""
     try:
-        booking = booking_service.finish_booking(booking_id)
+        booking_service.finish_booking(booking_id)
         return redirect(url_for("get_booking", booking_id=booking_id))
     except BookingNotFoundError:
         return error_response(f"Reserva '{booking_id}' no encontrada", 404)
@@ -337,19 +346,32 @@ def reschedule_booking_route(booking_id, nueva_fecha_inicio, nueva_fecha_fin):
     try:
         new_start = datetime.fromisoformat(nueva_fecha_inicio)
         new_end = datetime.fromisoformat(nueva_fecha_fin)
-        booking = booking_service.modify_booking(booking_id, new_start, new_end)
+
+        booking = booking_service.modify_booking(
+            booking_id,
+            new_start,
+            new_end,
+        )
+
         return redirect(url_for("get_booking", booking_id=booking_id))
-    except ValueError as e:
-        if "ISO" in str(e):
-            return error_response(
-                f"Formato de fecha inválido. Use ISO 8601: YYYY-MM-DDTHH:MM:SS", 400
-            )
-        else:
-            return error_response(str(e), 400)
+
+    except BookingConflictError as e:
+        return error_response(str(e), 409)
+
     except BookingNotFoundError:
-        return error_response(f"Reserva '{booking_id}' no encontrada", 404)
+        return error_response(
+            f"Reserva '{booking_id}' no encontrada",
+            404,
+        )
+
+    except ValueError as e:
+        return error_response(str(e), 400)
+
     except Exception as e:
-        return error_response(f"Error al reprogramar reserva: {str(e)}", 500)
+        return error_response(
+            f"Error al reprogramar reserva: {str(e)}",
+            500,
+        )
 
 
 @app.route("/bookings/usuario/<user_name>", methods=["GET"])

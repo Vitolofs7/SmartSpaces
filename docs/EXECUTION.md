@@ -6,10 +6,10 @@ To execute the Smart Spaces project, the following requirements are needed:
 
 - **Python 3.13 or higher**
 - A terminal or command-line interface
-- No external libraries or frameworks are required
+- **Flask** (`pip install flask`) — required only for the web interface
 
-The application uses only the Python standard library. Data is persisted in a SQLite database (`smartspaces.db`),
-which is also part of the standard library and requires no additional installation.
+The application uses only the Python standard library for the console menu. Data is persisted in a SQLite database
+(`smartspaces.db`), which is also part of the standard library and requires no additional installation.
 
 ---
 
@@ -17,7 +17,7 @@ which is also part of the standard library and requires no additional installati
 
 Before running the application for the first time, the database must be initialized. From the project root:
 ```bash
-python crear_bd.py
+python create_db.py
 ```
 
 This script will:
@@ -26,7 +26,7 @@ This script will:
 - Create all required tables (`spaces`, `meeting_rooms`, `users`, `bookings`).
 - Populate them with the initial seed data.
 
-> ⚠️ Running `crear_bd.py` again will **drop and recreate** the database, resetting all data to its initial state.
+> ⚠️ Running `create_db.py` again will **drop and recreate** the database, resetting all data to its initial state.
 
 **To delete the database manually:**
 ```bash
@@ -39,7 +39,7 @@ del smartspaces.db
 
 ---
 
-## How to Execute the Menu
+## How to Execute the Console Menu
 
 1. Open a terminal.
 2. Navigate to the root directory of the project (where the `presentation` folder is located).
@@ -53,9 +53,74 @@ After executing this command, the main menu of the Smart Spaces system will be d
 
 ---
 
+## How to Execute the Web Interface (Flask)
+
+Smart Spaces also includes a REST API built with Flask, following the **POST-Redirect-GET** pattern for write
+operations.
+
+1. Ensure the database has been initialized (`smartspaces.db` exists).
+2. From the project root, start the server:
+```bash
+python -m presentation.app
+```
+3. Open `http://localhost:5000` in your browser, or interact via `curl`.
+
+### Available Routes
+
+#### 📥 Read (GET)
+
+| Route | Description |
+|-------|-------------|
+| `GET /` | Welcome page with links to main endpoints |
+| `GET /users` | List all users |
+| `GET /users/<user_id>` | Get a specific user |
+| `GET /spaces` | List all spaces |
+| `GET /spaces/<space_id>` | Get a specific space |
+| `GET /bookings` | List all bookings |
+| `GET /bookings/<booking_id>` | Get a specific booking |
+| `GET /spaces/disponibles/<fecha_inicio>/<fecha_fin>` | Available spaces in a date range (ISO 8601) |
+| `GET /bookings/usuario/<user_name>` | Bookings for a specific user |
+| `GET /bookings/espacio/<space_name>` | Bookings for a specific space |
+
+#### ➕ Create (POST with redirect)
+
+| Route | Description |
+|-------|-------------|
+| `POST /users/nuevo/<user_id>/<name>/<surname1>/<surname2>` | Create a new user |
+| `POST /spaces/nuevo/<space_name>/<int:capacity>/<space_type>` | Create a new space |
+| `POST /spaces/nueva-sala/<name>/<capacity>/<room>/<floor>/<outlets>` | Create a meeting room |
+| `POST /bookings/nueva/<user>/<space>/<fecha_inicio>/<fecha_fin>` | Create a new booking |
+
+#### 🔄 Status Changes (POST with redirect)
+
+| Route | Description |
+|-------|-------------|
+| `POST /bookings/<booking_id>/cancelar` | Cancel a booking |
+| `POST /bookings/<booking_id>/finalizar` | Mark a booking as finished |
+| `POST /bookings/<booking_id>/reprogramar/<nueva_inicio>/<nueva_fin>` | Reschedule a booking |
+
+#### 🚫 Deactivation (POST with redirect)
+
+| Route | Description |
+|-------|-------------|
+| `POST /users/<user_id>/desactivar` | Deactivate a user |
+
+### HTTP Status Codes
+
+| Code | Meaning |
+|------|---------|
+| `200 OK` | Successful operation (GET) |
+| `302 Found` | Redirect after POST (POST-Redirect-GET pattern) |
+| `400 Bad Request` | Invalid data (malformed date, inactive user, etc.) |
+| `404 Not Found` | Resource does not exist |
+| `409 Conflict` | Duplicate resource or state conflict |
+| `500 Internal Server Error` | Unexpected server error |
+
+---
+
 ## Main Menu Options
 
-Once the application is running, the user can interact with the system through the following options:
+Once the console application is running, the user can interact with the system through the following options:
 
 1. List spaces
 2. List users
@@ -171,6 +236,22 @@ with covered and uncovered lines highlighted.
 3. The booking status is updated to finished in the database.
 4. The system confirms the operation.
 
+### Example 5: Creating a Booking via Web API
+
+```bash
+curl -X POST http://localhost:5000/bookings/nueva/user1/space2/2025-06-01T09:00/2025-06-01T11:00
+```
+
+The server responds with a `302` redirect to `GET /bookings/<new_booking_id>`, returning the created booking as JSON.
+
+### Example 6: Listing Available Spaces via Web API
+
+```bash
+curl http://localhost:5000/spaces/disponibles/2025-06-01T09:00/2025-06-01T11:00
+```
+
+Returns a JSON list of spaces with no overlapping bookings in the given time range.
+
 ---
 
 ## Error Handling During Execution
@@ -178,21 +259,28 @@ with covered and uncovered lines highlighted.
 If the user performs an invalid action (such as entering an incorrect date format, selecting a non-existent ID, or
 attempting an invalid booking), the system will:
 
-- Reject the operation.
-- Display an explanatory error message.
-- Return safely to the main menu.
+- **Console menu**: reject the operation, display an explanatory error message, and return safely to the main menu.
+- **Web API**: return the appropriate HTTP error code (`400`, `404`, `409`, or `500`) with a JSON error description.
 
 ---
 
 ## Execution Notes
 
 - Data is persisted in `smartspaces.db` and survives between executions.
-- Run `python crear_bd.py` to reset all data to its initial state.
-- The system is designed for single-user, sequential interaction.
-- To exit the application safely, select option `10` (Exit).
+- Run `python create_db.py` to reset all data to its initial state.
+- The console menu is designed for single-user, sequential interaction.
+- The Flask web interface can serve multiple requests but is intended for development/demo use; it runs Flask's
+  built-in server, which is not suitable for production deployments.
+- To exit the console application safely, select option `10` (Exit).
+- To stop the Flask server, press `Ctrl+C` in the terminal.
 
 ## Summary
 
-The Smart Spaces menu provides a simple, guided way to interact with the system, allowing users to explore spaces,
-manage bookings, and validate the system's behavior through a clear command-line interface. All data is durably
-persisted in a SQLite relational database.
+Smart Spaces offers two ways to interact with the system:
+
+- **Console menu** — a simple, guided command-line interface for exploring spaces, managing bookings, and validating
+  system behavior.
+- **Flask web interface** — a REST API exposing all core operations over HTTP, suitable for integration with other
+  tools or front-end clients.
+
+All data is durably persisted in a SQLite relational database regardless of which interface is used.

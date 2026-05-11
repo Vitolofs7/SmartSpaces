@@ -1,5 +1,8 @@
 """domain/booking.py"""
 
+from domain.exceptions import BookingConflictError
+
+
 class Booking:
     """Domain entity representing a booking for a space.
 
@@ -32,7 +35,8 @@ class Booking:
         Raises:
             ValueError: If start_time is not earlier than end_time.
         """
-        if start_time >= end_time: raise ValueError("Start time must be before end time.")
+        if start_time >= end_time:
+            raise ValueError("Start time must be before end time.")
         self._booking_id, self._space, self._user = None, space, user
         self._start_time, self._end_time = start_time, end_time
         self._booking_status = Booking.STATUS_ACTIVE
@@ -69,9 +73,12 @@ class Booking:
 
         new_booking = Booking(space, user, start_time, end_time)
         for booking in booking_repo.list():
-            if booking.space.space_id == space.space_id and new_booking.overlaps_with(booking):
-                raise ValueError(f"Space '{space.space_name}' already booked.")
-
+            if booking.space.space_id == space.space_id and new_booking.overlaps_with(
+                booking
+            ):
+                raise BookingConflictError(
+                    f"Space '{space.space_name}' already booked."
+                )
         space.reserve()
         return new_booking
 
@@ -143,7 +150,8 @@ class Booking:
         Raises:
             ValueError: If the booking is not active.
         """
-        if not self.is_active(): raise ValueError("Only active bookings can be cancelled.")
+        if not self.is_active():
+            raise ValueError("Only active bookings can be cancelled.")
         self._booking_status = Booking.STATUS_CANCELLED
         self._space.release()
 
@@ -153,7 +161,8 @@ class Booking:
         Raises:
             ValueError: If the booking is not active.
         """
-        if not self.is_active(): raise ValueError("Only active bookings can be finished.")
+        if not self.is_active():
+            raise ValueError("Only active bookings can be finished.")
         self._booking_status = Booking.STATUS_FINISHED
         self._space.release()
 
@@ -166,7 +175,8 @@ class Booking:
         Returns:
             True if both bookings are active and overlap in time, otherwise False.
         """
-        if not self.is_active() or not other.is_active(): return False
+        if not self.is_active() or not other.is_active():
+            return False
         return self._start_time < other.end_time and other.start_time < self._end_time
 
     def reschedule(self, new_start, new_end, booking_repo):
@@ -191,10 +201,15 @@ class Booking:
             raise ValueError("Start time must be before end time.")
 
         for booking in booking_repo.list():
-            if booking.space.space_id == self.space.space_id and booking != self and booking.is_active():
+            if (
+                booking.space.space_id == self.space.space_id
+                and booking != self
+                and booking.is_active()
+            ):
                 if new_start < booking.end_time and booking.start_time < new_end:
-                    raise ValueError(
-                        f"Space '{self.space.space_name}' is already booked from {booking.start_time} to {booking.end_time}")
+                    raise BookingConflictError(
+                        f"Space '{self.space.space_name}' is already booked from {booking.start_time} to {booking.end_time}"
+                    )
 
         self._start_time = new_start
         self._end_time = new_end

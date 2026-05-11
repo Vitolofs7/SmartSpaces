@@ -40,6 +40,9 @@ class BookingNotFoundError(RepositoryException):
     """Se lanza cuando se busca una reserva que no existe."""
     pass
 
+class BookingConflictError(Exception):
+    """Conflicto de reservas (solapamiento, límite de reservas activas, etc.)."""
+    pass
 
 class PersistenceException(RepositoryException):
     """Se lanza ante cualquier otro error inesperado del motor de base de datos."""

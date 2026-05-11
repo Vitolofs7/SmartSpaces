@@ -87,7 +87,7 @@ User behaviors include:
 
 The system uses a layered architecture:
 
-- **Presentation**: Console-based interactive menu (`presentation.menu`).
+- **Presentation**: Console-based interactive menu (`presentation.menu`) and Flask REST API (`presentation.app`).
 - **Application**: Services coordinating use cases (`BookingService`, `SpaceService`, `UserService`).
 - **Domain**: Core models and rules (`User`, `Space`, `Booking`, etc.).
 - **Infrastructure**: SQLite-backed repositories and initial seed data.
@@ -104,7 +104,8 @@ The repository is on the main branch (`main`) with the current content for deliv
 ### **Requirements**
 
 - Python 3.13+
-- No external dependencies (SQLite is included in the Python standard library).
+- Flask (`pip install flask`)
+- No other external dependencies (SQLite is included in the Python standard library).
 
 ### **Installation**
 
@@ -150,27 +151,72 @@ The database is stored in a single file `smartspaces.db` at the project root.
 
 ---
 
-🌳 **Workflow (Git Flow)**  
-This project follows a branch-based development methodology, where each change is integrated via Pull Requests to
-maintain traceability and code quality.
+## 🌐 **Web Interface (Flask)**
 
-🔄 **Contribution Process**
+Smart Spaces also exposes a REST API via Flask, following the **POST-Redirect-GET** pattern for write operations.
 
-1. Create a specific branch from `master` using the prefixes detailed below.
-2. Make changes and commits following the naming standards.
-3. Open a Pull Request (PR) describing the changes introduced.
-4. Merge into the main branch after ensuring all tests pass successfully.
+### **Starting the server**
 
-**Prefixes**
+Run from the project root:
+```bash
+python -m presentation.app
+```
+Then open `http://localhost:5000` in your browser, or interact via `curl`.
 
-| Prefix    | Description                              |
-|-----------|------------------------------------------|
-| feature/  | New features and capabilities            |
-| fix/      | Bug fixes and error corrections          |
-| docs/     | Documentation updates and improvements   |
-| refactor/ | Code improvements without changing logic |
-| test/     | Adding or updating test cases            |
+---
 
+### **Available Routes**
+
+#### 📥 Read (GET)
+
+| Route | Description |
+|-------|-------------|
+| `GET /` | Welcome page with links to main endpoints |
+| `GET /users` | List all users |
+| `GET /users/<user_id>` | Get a specific user |
+| `GET /spaces` | List all spaces |
+| `GET /spaces/<space_id>` | Get a specific space |
+| `GET /bookings` | List all bookings |
+| `GET /bookings/<booking_id>` | Get a specific booking |
+| `GET /spaces/disponibles/<fecha_inicio>/<fecha_fin>` | Available spaces in a date range (ISO 8601) |
+| `GET /bookings/usuario/<user_name>` | Bookings for a specific user |
+| `GET /bookings/espacio/<space_name>` | Bookings for a specific space |
+
+#### ➕ Create (POST with redirect)
+
+| Route | Description |
+|-------|-------------|
+| `POST /users/nuevo/<user_id>/<name>/<surname1>/<surname2>` | Create a new user |
+| `POST /spaces/nuevo/<space_name>/<int:capacity>/<space_type>` | Create a new space |
+| `POST /spaces/nueva-sala/<name>/<capacity>/<room>/<floor>/<outlets>` | Create a meeting room |
+| `POST /bookings/nueva/<user>/<space>/<fecha_inicio>/<fecha_fin>` | Create a new booking |
+
+#### 🔄 Status Changes (POST with redirect)
+
+| Route | Description |
+|-------|-------------|
+| `POST /bookings/<booking_id>/cancelar` | Cancel a booking |
+| `POST /bookings/<booking_id>/finalizar` | Mark a booking as finished |
+| `POST /bookings/<booking_id>/reprogramar/<nueva_inicio>/<nueva_fin>` | Reschedule a booking |
+
+#### 🚫 Deactivation (POST with redirect)
+
+| Route | Description |
+|-------|-------------|
+| `POST /users/<user_id>/desactivar` | Deactivate a user |
+
+---
+
+### **HTTP Status Codes**
+
+| Code | Meaning |
+|------|---------|
+| `200 OK` | Successful operation (GET) |
+| `302 Found` | Redirect after POST (POST-Redirect-GET pattern) |
+| `400 Bad Request` | Invalid data (malformed date, inactive user, etc.) |
+| `404 Not Found` | Resource does not exist |
+| `409 Conflict` | Duplicate resource or state conflict |
+| `500 Internal Server Error` | Unexpected server error |
 
 ---
 
@@ -180,6 +226,7 @@ The Smart Spaces system follows a **layered architecture**, ensuring separation 
 
 1. **Presentation Layer**  
    - CLI Menu (`presentation/menu.py`) where users interact with the system.  
+   - Flask REST API (`presentation/app.py`) exposing HTTP endpoints.
    - Handles input, displays output, and forwards requests to the Application Layer.
 
 2. **Application Layer**  
@@ -243,8 +290,32 @@ SmartSpaces
  ┃ ┣ 📜__init__.py              # Package initializer for infrastructure layer
  ┗ 📂presentation               # Presentation layer: user interface
    ┣ 📜menu.py                  # Console menu for user interaction
+   ┣ 📜app.py                   # Flask REST API web interface
    ┗ 📜__init__.py              # Package initializer for presentation layer
 ```
+
+---
+
+🌳 **Workflow (Git Flow)**  
+This project follows a branch-based development methodology, where each change is integrated via Pull Requests to
+maintain traceability and code quality.
+
+🔄 **Contribution Process**
+
+1. Create a specific branch from `master` using the prefixes detailed below.
+2. Make changes and commits following the naming standards.
+3. Open a Pull Request (PR) describing the changes introduced.
+4. Merge into the main branch after ensuring all tests pass successfully.
+
+**Prefixes**
+
+| Prefix    | Description                              |
+|-----------|------------------------------------------|
+| feature/  | New features and capabilities            |
+| fix/      | Bug fixes and error corrections          |
+| docs/     | Documentation updates and improvements   |
+| refactor/ | Code improvements without changing logic |
+| test/     | Adding or updating test cases            |
 
 ---
 
