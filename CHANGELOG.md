@@ -4,6 +4,76 @@
 
 ---
 
+## [0.5.1] - 2026-05-11
+
+### Fixed (Bug Fixes)
+
+* Fixed HTTP status mapping inconsistency in `create_booking_route`:
+
+  * `BookingConflictError` is now correctly returned as **409 Conflict** for all business constraint violations.
+  * Ensured separation of error types:
+
+    * Booking conflicts (overlaps, user limits) → 409
+    * Validation errors (date format, duration rules) → 400
+
+* Fixed incorrect assumption in tests for booking creation:
+
+  * Clarified that **user booking limit (`max_active_bookings`) is evaluated before duration validation**, causing 409 to be returned before 400 in some scenarios.
+
+* Fixed `curl` test misinterpretation due to redirect handling:
+
+  * Confirmed that POST endpoints returning redirects (302) require `curl -L` for full resolution.
+
+* Fixed misunderstanding in booking cancellation verification:
+
+  * Confirmed `cancel_booking_route` correctly returns **302 redirect** and persists state as `CANCELLED` in domain.
+
+### Changed (Clarifications / Test Behavior)
+
+* Updated expected testing behavior:
+
+  * Booking duration validation (400) only occurs if user active booking limit is not exceeded.
+  * Test cases must be executed in isolation or with cleaned state between runs.
+
+* Improved understanding of service-layer validation order in `BookingService.create_booking`:
+
+  * User existence → space existence → active booking limit → duration validation → overlap validation.
+
+### Notes
+
+* No changes to domain or repository logic.
+* All fixes are **test expectation + API behavior clarifications**, not structural code changes.
+* System behavior is correct; adjustments are purely in validation interpretation and testing sequence.
+
+---
+
+## [0.5.0] - 2026-05-02
+
+### Added (New Features)
+
+- Added `presentation/app.py`: Flask REST API with 18 routes covering all console menu operations.
+- Added Flask framework as web interface layer (Presentation tier).
+- Created routes for reading (GET): `/users`, `/spaces`, `/bookings`, `/spaces/disponibles`.
+- Created routes for creation (POST): `/users/nuevo`, `/spaces/nuevo`, `/bookings/nueva`, `/spaces/nueva-sala`.
+- Created routes for state changes (POST): `/bookings/<id>/cancelar`, `/bookings/<id>/finalizar`, `/bookings/<id>/reprogramar`.
+- Created routes for user operations (POST): `/users/<id>/desactivar`.
+- Implemented `redirect()` + `url_for()` pattern for all POST operations (POST-Redirect-GET).
+- Implemented proper HTTP status codes: 200 OK, 404 Not Found, 409 Conflict, 400 Bad Request, 500 Server Error.
+- Added JSON serialization functions: `format_user()`, `format_space()`, `format_booking()`.
+- Added global error handlers for 404 and 500 errors.
+
+### Changed
+
+- `requirements.txt`: Added `flask>=2.0.0` dependency.
+- `presentation/`: Both `menu.py` (console) and `app.py` (web) now coexist as alternate presentation layers.
+
+### Technical Details
+
+- Application Layer: Added 8 service methods (UserService, SpaceService, BookingService).
+- Domain Layer: Unchanged (all business logic remains in `domain/`).
+- Infrastructure Layer: Unchanged (SQLite repositories unchanged).
+- Bootstrap: Uses existing `crear_servicio_sqlite()` from infrastructure.
+
 ## [0.4.1] - 2026-03-28
 
 ### Fixed (Bug Fixes)

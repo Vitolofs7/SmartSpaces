@@ -3,6 +3,7 @@
 from domain.space import Space
 from domain.space_meetingroom import SpaceMeetingRoom
 from datetime import datetime
+from domain.exceptions import SpaceNotFoundError
 
 
 class SpaceService:
@@ -93,3 +94,17 @@ class SpaceService:
             if all(end <= booking.start_time or start >= booking.end_time for booking in bookings_for_space):
                 available_spaces.append(space)
         return available_spaces
+    
+    def get_space(self, space_id: str):
+        """Recupera un espacio por su ID.
+        
+        Args:
+            space_id: Identificador del espacio (ej: "S1", "SM1")
+        
+        Returns:
+            El espacio (Space o SpaceMeetingRoom)
+        
+        Raises:
+            SpaceNotFoundError: Si no existe el espacio
+        """
+        return self._space_repo.get(space_id)
