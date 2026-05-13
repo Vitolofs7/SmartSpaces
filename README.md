@@ -165,6 +165,58 @@ Then open `http://localhost:5000` in your browser, or interact via `curl`.
 
 ---
 
+### 📊 Observability and Logging
+
+The API now includes global observability through logging and help routes:
+
+#### **Log File**
+
+* **Location**: `smartspaces.log` (project root)
+* **Content**: Records all HTTP requests, errors, and operations.
+* **Format**: `YYYY-MM-DD HH:MM:SS - smartspaces - LEVEL - message`
+* **Levels**:
+
+  * `INFO`: Successful operations (creations, updates, access to `/help`)
+  * `WARNING`: Resources not found (404), invalid data (400), conflicts (409)
+  * `ERROR`: Internal server errors (500)
+
+**Log example:**
+
+```text
+2026-05-11 14:32:15 - smartspaces - INFO - GET /users
+2026-05-11 14:32:16 - smartspaces - INFO - User created: U99
+2026-05-11 14:32:17 - smartspaces - WARNING - User not found: U999
+2026-05-11 14:32:18 - smartspaces - INFO - POST /bookings/new/Alice Smith Johnson/Conference Room/2026-05-15T10:00:00/2026-05-15T12:00:00
+2026-05-11 14:32:19 - smartspaces - INFO - Booking created: B4
+```
+
+#### **`/help` Route**
+
+* **URL**: `http://localhost:5000/help`
+* **Content**: HTML table listing all registered routes.
+* **Columns**: Route | HTTP Methods | Function (endpoint)
+* **Advantage**: Automatically updates whenever routes are added or removed. No manual changes required.
+
+#### **Custom Error Handlers**
+
+* **404 Not Found**: Returns an HTML page with a user-friendly message when accessing a non-existent URL.
+* **500 Internal Server Error**: Returns an HTML page if an unhandled error occurs.
+
+#### **Disable or Reconfigure Logging**
+
+If you need to change the logging level or the log file location, edit the beginning of `presentation/app.py`:
+
+```python
+logging.basicConfig(
+    filename='smartspaces.log',        # ← change log file name or path
+    level=logging.INFO,                # ← change to DEBUG, WARNING, ERROR, etc.
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+```
+
+---
+
 ### **Available Routes**
 
 #### 📥 Read (GET)

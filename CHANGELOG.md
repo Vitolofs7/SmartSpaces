@@ -4,6 +4,47 @@
 
 ---
 
+## [0.5.2] - 2026-05-11
+
+### Added (New Features)
+
+* **Global observability**: Added 404 and 500 error handlers that return custom HTML pages.
+* **`/help` route**: Lists all registered routes by iterating through `app.url_map.iter_rules()`. It updates automatically whenever routes are added or removed, without modifying the code.
+* **Global logging**: Configured using `logging.basicConfig()` at the beginning of `app.py`.
+
+  * File: `smartspaces.log` (with timestamps for every request).
+  * Format: `YYYY-MM-DD HH:MM:SS - module - LEVEL - message`.
+  * Request logging: `@app.before_request` hook logs `{METHOD} {PATH}` for every request.
+  * Error logging: 404, 409, and 400 errors logged at WARNING level; 500 errors at ERROR level.
+  * Action logging: Creations, updates, and cancellations logged at INFO level.
+* **`.gitignore` file**: Includes `*.log` to avoid versioning log files.
+
+### Changed
+
+* `presentation/app.py`: Refactored to include Lab A3 patterns (observability and logging).
+* `app.py` now generates detailed logs for all operations (reads, writes, errors).
+* Error handlers now return HTML pages with inline CSS styling for improved visual presentation.
+
+### Technical Details
+
+* **Logging framework**: Python standard library `logging` module.
+* **Log rotation**: Currently disabled (single `smartspaces.log` file).
+* **HTML error pages**: Handcrafted with inline CSS (to be refactored into Jinja2 templates in future phases).
+* **`@app.before_request` hook**: Executes before every request and records it in the log.
+* **`/help` route**: Generates dynamic HTML with a routes table (self-updating without code changes).
+
+### Test
+
+* Verified menu↔web coexistence: creations made through the web interface appear in the menu, and vice versa.
+* Confirmed that `domain/` and `infrastructure/` have not changed.
+* `presentation/menu.py` continues to work without modifications.
+
+---
+
+[Cambios anteriores de UT4E1 y versiones anteriores...]
+
+---
+
 ## [0.5.1] - 2026-05-11
 
 ### Fixed (Bug Fixes)

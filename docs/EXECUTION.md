@@ -274,6 +274,129 @@ attempting an invalid booking), the system will:
 - To exit the console application safely, select option `10` (Exit).
 - To stop the Flask server, press `Ctrl+C` in the terminal.
 
+---
+
+### Logging and Observability
+
+#### Log File
+
+Each API execution generates a `smartspaces.log` file in the project root:
+
+```bash
+ls -la smartspaces.log
+```
+
+The file contains a record of all HTTP requests and operations:
+
+* **Read operations** (GET): Logged at INFO level
+* **Creation operations** (successful POST): Logged at INFO level
+* **Errors** (4xx, 5xx): Logged at WARNING or ERROR level depending on the case
+
+You can inspect the log in real time:
+
+```bash
+# Linux/Mac
+tail -f smartspaces.log
+
+# Windows PowerShell
+Get-Content smartspaces.log -Wait
+```
+
+#### `/help` Route
+
+The `/help` route dynamically lists all registered routes:
+
+```bash
+curl http://localhost:5000/help
+```
+
+Or open it in your browser: `http://localhost:5000/help`
+
+**Advantage**: When new routes are added in future deliveries, `/help` updates automatically without requiring any code modifications.
+
+#### Log Cleanup
+
+To reset the log file (delete it):
+
+```bash
+# Linux/Mac
+rm smartspaces.log
+
+# Windows CMD
+del smartspaces.log
+```
+
+A new log file will be created automatically during the next execution.
+
+#### Logging Configuration
+
+If you want to change the logging level (show more or fewer details):
+
+1. Open `presentation/app.py`.
+2. Locate the section named `"LOGGING CONFIGURATION"`.
+3. Change the `level` parameter:
+
+   * `logging.DEBUG`: Maximum detail (all events)
+   * `logging.INFO`: General information (default)
+   * `logging.WARNING`: Only warnings and errors
+   * `logging.ERROR`: Only critical errors
+
+### Custom Error Handlers
+
+The API now returns custom HTML pages for 404 and 500 errors:
+
+* **404 Not Found**: Triggered when accessing a route that does not exist.
+
+  ```bash
+  curl http://localhost:5000/non-existent-route
+  ```
+
+  Returns an HTML page with links to `/` and `/help`.
+
+* **500 Internal Server Error**: Triggered when an unhandled server error occurs.
+  Returns an HTML page recommending that the administrator be contacted.
+
+### Menu↔Web Coexistence Verification
+
+To verify that the console menu and the web API share the same database:
+
+**Terminal 1 - Web API:**
+
+```bash
+python -m presentation.app
+```
+
+**Terminal 2 - Console Menu:**
+
+```bash
+python -m presentation.menu
+```
+
+**Test:**
+
+1. From the web API (curl or browser), create a user:
+
+   ```bash
+   curl -X POST "http://localhost:5000/users/new/U99/Alice/Test/User"
+   ```
+
+2. From the console menu (Terminal 2), list users (option 2).
+   You should see the `U99` user that was just created from the web interface.
+
+3. From the menu, create a booking.
+
+4. From the web API:
+
+   ```bash
+   curl http://localhost:5000/bookings
+   ```
+
+   You should see the booking created from the console menu.
+
+**Conclusion**: Both interfaces share `smartspaces.db` and can be used interchangeably.
+
+---
+
 ## Summary
 
 Smart Spaces offers two ways to interact with the system:
