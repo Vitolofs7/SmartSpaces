@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ space.space_name }} - SmartSpaces API{% endblock %}
+
+{% block content %}
+<h1>🏢 Space Details</h1>
+
+<div class="grid">
+    <div class="card">
+        <h3>Information</h3>
+        <p><strong>Space ID:</strong> <code>{{ space.space_id }}</code></p>
+        <p><strong>Name:</strong> {{ space.space_name }}</p>
+        <p><strong>Type:</strong> {{ space.space_type }}</p>
+        <p><strong>Capacity:</strong> {{ space.capacity }} people</p>
+        <p>
+            <strong>Status:</strong>
+            {% if space.space_status == 'AVAILABLE' %}
+                <span class="badge active">✓ Available</span>
+            {% elif space.space_status == 'OCCUPIED' %}
+                <span class="badge inactive">Occupied</span>
+            {% else %}
+                <span class="badge">{{ space.space_status }}</span>
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Meeting Room specific details -->
+    {% if space.room_number is defined %}
+    <div class="card">
+        <h3>Meeting Room Details</h3>
+        <p><strong>Room Number:</strong> {{ space.room_number }}</p>
+        <p><strong>Floor:</strong> {{ space.floor }}</p>
+        <p><strong>Power Outlets:</strong> {{ space.num_power_outlets }}</p>
+        <p><strong>Equipment:</strong></p>
+        {% if space.equipment_list %}
+            <ul style="margin-left: 20px;">
+                {% for item in space.equipment_list %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No equipment registered.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="mt-3">
+    <a href="{{ url_for('list_spaces') }}" class="btn secondary">← Back to Spaces</a>
+</div>
+{% endblock %}

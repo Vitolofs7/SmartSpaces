@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Spaces - SmartSpaces API{% endblock %}
+
+{% block content %}
+<h1>🏢 Spaces</h1>
+
+{% if spaces %}
+    <p>Total spaces: <strong>{{ spaces|length }}</strong></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Space ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Capacity</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for space in spaces %}
+            <tr>
+                <td><code>{{ space.space_id }}</code></td>
+                <td>{{ space.space_name }}</td>
+                <td>{{ space.space_type }}</td>
+                <td>{{ space.capacity }} people</td>
+                <td>
+                    {% if space.space_status == 'AVAILABLE' %}
+                        <span class="badge active">✓ Available</span>
+                    {% elif space.space_status == 'OCCUPIED' %}
+                        <span class="badge inactive">Occupied</span>
+                    {% else %}
+                        <span class="badge">{{ space.space_status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('get_space', space_id=space.space_id) }}" class="btn">Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="warning-box">
+        <strong>⚠️ No spaces found</strong>
+    </div>
+{% endif %}
+
+<div class="mt-3">
+    <a href="{{ url_for('index') }}" class="btn secondary">← Back to Home</a>
+</div>
+{% endblock %}

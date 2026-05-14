@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Home - SmartSpaces API{% endblock %}
+
+{% block content %}
+<h1>🏠 Welcome to SmartSpaces API</h1>
+
+<p>
+    SmartSpaces is an intelligent space management system that helps organizations manage and optimize shared physical 
+    spaces such as classrooms, meeting rooms, and workstations, ensuring bookings are conflict-free and usage rules are 
+    automatically enforced.
+</p>
+
+<div class="info-box">
+    <strong>ℹ️ Info:</strong> This is the REST API interface. For detailed API documentation, visit the 
+    <a href="{{ url_for('ayuda') }}">Help page</a>.
+</div>
+
+<h2>Quick Navigation</h2>
+<div class="grid">
+    <div class="card">
+        <h3>👥 Users</h3>
+        <p>View and manage system users.</p>
+        <a href="{{ url_for('list_users') }}" class="btn">View Users</a>
+    </div>
+
+    <div class="card">
+        <h3>🏢 Spaces</h3>
+        <p>Explore available spaces and meeting rooms.</p>
+        <a href="{{ url_for('list_spaces') }}" class="btn">View Spaces</a>
+    </div>
+
+    <div class="card">
+        <h3>📅 Bookings</h3>
+        <p>Check and manage all space reservations.</p>
+        <a href="{{ url_for('list_bookings') }}" class="btn">View Bookings</a>
+    </div>
+
+    <div class="card">
+        <h3>📚 API Help</h3>
+        <p>View all available API endpoints and documentation.</p>
+        <a href="{{ url_for('ayuda') }}" class="btn">API Documentation</a>
+    </div>
+</div>
+
+<h2>API Features</h2>
+<ul style="margin-left: 20px; line-height: 2;">
+    <li>✅ 19 REST endpoints for complete space management</li>
+    <li>✅ Global logging and observability</li>
+    <li>✅ Automatic route discovery via <code>/ayuda</code></li>
+    <li>✅ Responsive HTML interface with Jinja2 templates</li>
+    <li>✅ Real-time data persistence with SQLite</li>
+    <li>✅ Comprehensive error handling with user-friendly pages</li>
+</ul>
+
+<h2>Getting Started</h2>
+<p>
+    Start by exploring users, spaces, or bookings using the navigation menu above. To check available spaces for a 
+    specific date range, use the API directly with date parameters in ISO 8601 format.
+</p>
+
+<div class="text-center mt-3">
+    <p class="text-muted">Version 1.0 | Last updated: May 2026</p>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Users - SmartSpaces API{% endblock %}
+
+{% block content %}
+<h1>👥 Users</h1>
+
+{% if users %}
+    <p>Total users: <strong>{{ users|length }}</strong></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Full Name</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td><code>{{ user.user_id }}</code></td>
+                <td>{{ user.full_name }}</td>
+                <td>
+                    {% if user.active %}
+                        <span class="badge active">✓ Active</span>
+                    {% else %}
+                        <span class="badge inactive">✗ Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('get_user', user_id=user.user_id) }}" class="btn">Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="warning-box">
+        <strong>⚠️ No users found</strong>
+    </div>
+{% endif %}
+
+<div class="mt-3">
+    <a href="{{ url_for('index') }}" class="btn secondary">← Back to Home</a>
+</div>
+{% endblock %}

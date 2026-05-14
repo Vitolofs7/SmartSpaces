@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Booking {{ booking.booking_id }} - SmartSpaces API{% endblock %}
+
+{% block content %}
+<h1>📅 Booking Details</h1>
+
+<div class="grid">
+    <div class="card">
+        <h3>Booking Information</h3>
+        <p><strong>Booking ID:</strong> <code>{{ booking.booking_id }}</code></p>
+        <p><strong>Space:</strong> {{ booking.space_name }} (<code>{{ booking.space_id }}</code>)</p>
+        <p><strong>User:</strong> {{ booking.user_name }} (<code>{{ booking.user_id }}</code>)</p>
+        <p><strong>Start Time:</strong> {{ booking.start_time }}</p>
+        <p><strong>End Time:</strong> {{ booking.end_time }}</p>
+        <p>
+            <strong>Status:</strong>
+            {% if booking.booking_status == 'ACTIVE' %}
+                <span class="badge active">✓ Active</span>
+            {% elif booking.booking_status == 'CANCELLED' %}
+                <span class="badge cancelled">⊘ Cancelled</span>
+            {% elif booking.booking_status == 'FINISHED' %}
+                <span class="badge finished">✓ Finished</span>
+            {% else %}
+                <span class="badge">{{ booking.booking_status }}</span>
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Actions</h3>
+        {% if booking.booking_status == 'ACTIVE' %}
+            <p>
+                <form method="POST" action="{{ url_for('cancel_booking_route', booking_id=booking.booking_id) }}" style="display: inline;">
+                    <button type="submit" class="btn danger" onclick="return confirm('Cancel this booking?')">
+                        Cancel Booking
+                    </button>
+                </form>
+            </p>
+            <p>
+                <form method="POST" action="{{ url_for('finish_booking_route', booking_id=booking.booking_id) }}" style="display: inline;">
+                    <button type="submit" class="btn" onclick="return confirm('Mark as finished?')">
+                        Mark as Finished
+                    </button>
+                </form>
+            </p>
+            <p class="text-muted">This booking is currently active.</p>
+        {% elif booking.booking_status == 'CANCELLED' %}
+            <p class="text-muted">This booking has been cancelled and cannot be modified.</p>
+        {% elif booking.booking_status == 'FINISHED' %}
+            <p class="text-muted">This booking has been completed.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-3">
+    <a href="{{ url_for('list_bookings') }}" class="btn secondary">← Back to Bookings</a>
+</div>
+{% endblock %}

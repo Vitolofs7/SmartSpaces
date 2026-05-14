@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}API Help - SmartSpaces API{% endblock %}
+
+{% block content %}
+<h1>📚 API Documentation & Help</h1>
+
+<p>
+    This page lists all available endpoints in the SmartSpaces REST API. The endpoint list is automatically generated 
+    from the registered routes and updates dynamically when new routes are added.
+</p>
+
+<div class="info-box">
+    <strong>ℹ️ Total Endpoints:</strong> {{ routes|length }} available
+</div>
+
+<h2>All Routes</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Route</th>
+            <th>HTTP Methods</th>
+            <th>Endpoint Function</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for route in routes %}
+        <tr>
+            <td><code style="background: #f5f5f5; padding: 4px 8px; border-radius: 3px;">{{ route.path }}</code></td>
+            <td>
+                {% set methods = route.methods.split(',') %}
+                {% for method in methods %}
+                    {% if method == 'GET' %}
+                        <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 3px; font-weight: bold; margin-right: 4px; display: inline-block;">{{ method }}</span>
+                    {% elif method == 'POST' %}
+                        <span style="background: #cfe2ff; color: #084298; padding: 4px 8px; border-radius: 3px; font-weight: bold; margin-right: 4px; display: inline-block;">{{ method }}</span>
+                    {% else %}
+                        <span style="background: #e2e3e5; color: #383d41; padding: 4px 8px; border-radius: 3px; font-weight: bold; margin-right: 4px; display: inline-block;">{{ method }}</span>
+                    {% endif %}
+                {% endfor %}
+            </td>
+            <td><code>{{ route.endpoint }}</code></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Common Use Cases</h2>
+
+<h3>🔍 Retrieve Information (GET requests)</h3>
+<ul style="margin-left: 20px; line-height: 2;">
+    <li><code>GET /users</code> - List all users</li>
+    <li><code>GET /users/&lt;user_id&gt;</code> - Get a specific user</li>
+    <li><code>GET /spaces</code> - List all spaces</li>
+    <li><code>GET /spaces/&lt;space_id&gt;</code> - Get a specific space</li>
+    <li><code>GET /bookings</code> - List all bookings</li>
+    <li><code>GET /bookings/&lt;booking_id&gt;</code> - Get a specific booking</li>
+    <li><code>GET /spaces/disponibles/2026-05-15T09:00:00/2026-05-15T17:00:00</code> - Find available spaces in a time range</li>
+</ul>
+
+<h3>➕ Create Resources (POST requests)</h3>
+<ul style="margin-left: 20px; line-height: 2;">
+    <li><code>POST /users/nuevo/&lt;id&gt;/&lt;name&gt;/&lt;surname1&gt;/&lt;surname2&gt;</code> - Create a new user</li>
+    <li><code>POST /spaces/nuevo/&lt;name&gt;/&lt;capacity&gt;/&lt;type&gt;</code> - Create a new space</li>
+    <li><code>POST /spaces/nueva-sala/&lt;...&gt;</code> - Create a new meeting room</li>
+    <li><code>POST /bookings/nueva/&lt;user&gt;/&lt;space&gt;/&lt;start&gt;/&lt;end&gt;</code> - Create a new booking</li>
+</ul>
+
+<h3>🔄 Modify Resources (POST requests)</h3>
+<ul style="margin-left: 20px; line-height: 2;">
+    <li><code>POST /bookings/&lt;id&gt;/cancelar</code> - Cancel a booking</li>
+    <li><code>POST /bookings/&lt;id&gt;/finalizar</code> - Mark booking as finished</li>
+    <li><code>POST /bookings/&lt;id&gt;/reprogramar/&lt;new_start&gt;/&lt;new_end&gt;</code> - Reschedule a booking</li>
+    <li><code>POST /users/&lt;id&gt;/desactivar</code> - Deactivate a user</li>
+</ul>
+
+<h2>Date Format</h2>
+<p>
+    When specifying dates and times (for bookings, availability searches, etc.), use ISO 8601 format:
+</p>
+<p><code>YYYY-MM-DDTHH:MM:SS</code></p>
+<p>Example: <code>2026-05-15T14:30:00</code></p>
+
+<h2>HTTP Status Codes</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Meaning</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>200</code></td>
+            <td>OK - Request succeeded</td>
+            <td>GET request returned data</td>
+        </tr>
+        <tr>
+            <td><code>302</code></td>
+            <td>Redirect - POST followed by GET</td>
+            <td>After creating a resource</td>
+        </tr>
+        <tr>
+            <td><code>400</code></td>
+            <td>Bad Request - Invalid data</td>
+            <td>Malformed date, invalid parameters</td>
+        </tr>
+        <tr>
+            <td><code>404</code></td>
+            <td>Not Found - Resource doesn't exist</td>
+            <td>User ID not in database</td>
+        </tr>
+        <tr>
+            <td><code>409</code></td>
+            <td>Conflict - Duplicate or state conflict</td>
+            <td>Creating a user with duplicate ID</td>
+        </tr>
+        <tr>
+            <td><code>500</code></td>
+            <td>Server Error - Internal problem</td>
+            <td>Unexpected server error</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="mt-3">
+    <a href="{{ url_for('index') }}" class="btn secondary">← Back to Home</a>
+</div>
+{% endblock %}

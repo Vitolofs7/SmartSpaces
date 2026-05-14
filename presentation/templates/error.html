@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Error {{ code }} - SmartSpaces API{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 40px 0;">
+    {% if code == 404 %}
+        <h1 style="font-size: 60px; color: #e74c3c; margin: 0;">❌ 404</h1>
+        <h2>Route Not Found</h2>
+        <p style="font-size: 18px; color: #555; margin: 20px 0;">
+            The page you're looking for doesn't exist.
+        </p>
+        {% if path %}
+            <div class="warning-box" style="display: inline-block; margin: 20px 0;">
+                <code>{{ path }}</code>
+            </div>
+        {% endif %}
+
+    {% elif code == 500 %}
+        <h1 style="font-size: 60px; color: #c0392b; margin: 0;">⚠️ 500</h1>
+        <h2>Internal Server Error</h2>
+        <p style="font-size: 18px; color: #555; margin: 20px 0;">
+            Something went wrong on our end. Our team has been notified.
+        </p>
+        <div class="error-box" style="display: inline-block; margin: 20px 0; max-width: 500px;">
+            Please try again later or contact the administrator if the problem persists.
+        </div>
+
+    {% else %}
+        <h1 style="font-size: 60px; color: #e67e22; margin: 0;">⚠️ {{ code }}</h1>
+        <h2>Error</h2>
+        <p style="font-size: 18px; color: #555; margin: 20px 0;">
+            An error occurred while processing your request.
+        </p>
+    {% endif %}
+</div>
+
+<div style="text-align: center; margin-top: 40px;">
+    <p>
+        <a href="{{ url_for('index') }}" class="btn">🏠 Go to Home</a>
+        <a href="{{ url_for('ayuda') }}" class="btn secondary">📚 API Help</a>
+    </p>
+</div>
+{% endblock %}
