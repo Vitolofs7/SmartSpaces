@@ -4,6 +4,111 @@
 
 ---
 
+## [0.5.3] - 2026-05-13
+
+### Added (New Features)
+
+* **Jinja2 template engine integration**: Replaced inline HTML generation in Flask routes with reusable Jinja2 templates following the Lab A4 architectural patterns.
+
+* **Base template architecture**: Added a shared `base.html` template with:
+
+  * Global header.
+  * Navigation menu.
+  * Shared page layout.
+  * Reusable Jinja2 blocks.
+
+* **Template inheritance system**: All read-only pages now extend from `base.html` using `{% extends "base.html" %}`.
+
+* **Dynamic HTML rendering**: Added dedicated templates for:
+
+  * `index.html`
+  * `users.html`
+  * `user_detail.html`
+  * `spaces.html`
+  * `space_detail.html`
+  * `bookings.html`
+  * `booking_detail.html`
+  * `ayuda.html`
+  * `error.html`
+
+* **Reusable error template**: Both `@app.errorhandler(404)` and `@app.errorhandler(500)` now render a common `error.html` template.
+
+* **Jinja2 syntax integration**:
+
+  * Variable injection with `{{ variable }}`.
+  * Iteration using `{% for %}`.
+  * Conditional rendering using `{% if %}`.
+  * Template inheritance and reusable blocks.
+  * `url_for()` usage inside templates for dynamic navigation links.
+
+* **Unified frontend navigation**: Added consistent navigation header across all pages, including error pages.
+
+* **Responsive UI styling**: Introduced a modern CSS layout with:
+
+  * Responsive grids.
+  * Styled tables.
+  * Status badges.
+  * Hover effects.
+  * Card-based layouts.
+  * Mobile-friendly breakpoints.
+
+### Changed
+
+* `presentation/app.py`: Refactored all read-only routes to use `render_template()` instead of returning inline HTML or plain text.
+* Error handlers now render Jinja2 templates instead of handcrafted inline HTML responses.
+* `/help` route migrated to `ayuda.html` template using dynamic route iteration with `app.url_map.iter_rules()`.
+* Read endpoints now pass dictionaries and formatted data structures directly into templates.
+* HTML presentation layer moved entirely into `presentation/templates/`.
+
+### Technical Details
+
+* **Template directory**: Added `presentation/templates/`.
+
+* **Rendering engine**: Flask + Jinja2.
+
+* **Template inheritance pattern**:
+
+  * Shared structure in `base.html`.
+  * Child templates override content blocks.
+
+* **Presentation separation**: Business logic remains in services/repositories while HTML rendering is isolated in templates.
+
+* **Read-only routes migrated**:
+
+  * `/`
+  * `/users`
+  * `/users/<id>`
+  * `/spaces`
+  * `/spaces/<id>`
+  * `/bookings`
+  * `/bookings/<id>`
+  * `/spaces/disponibles/...`
+  * `/bookings/usuario/...`
+  * `/bookings/espacio/...`
+  * `/ayuda`
+
+* **POST routes unchanged**: Creation/update operations continue using redirects and existing controller flow.
+
+* **Compatibility preserved**:
+
+  * `domain/` unchanged.
+  * `infrastructure/` unchanged.
+  * `presentation/menu.py` unchanged.
+  * `application/` only uses delegation methods where required.
+
+### Test
+
+* Verified that all templates render correctly through Flask routes.
+* Confirmed that `base.html` navigation appears on all pages, including `404` and `500` error pages.
+* Verified coexistence between console menu and web interface.
+* Confirmed that all GET routes now use `render_template()`.
+* Verified that all POST routes continue working without modification.
+* Tested Jinja2 inheritance and block rendering across all templates.
+* Confirmed that the existing API behavior remains backward compatible.
+* Verified project structure consistency with Lab A4 template architecture patterns.
+
+---
+
 ## [0.5.2] - 2026-05-11
 
 ### Added (New Features)
@@ -38,10 +143,6 @@
 * Verified menu↔web coexistence: creations made through the web interface appear in the menu, and vice versa.
 * Confirmed that `domain/` and `infrastructure/` have not changed.
 * `presentation/menu.py` continues to work without modifications.
-
----
-
-[Cambios anteriores de UT4E1 y versiones anteriores...]
 
 ---
 

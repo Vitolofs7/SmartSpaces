@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Home - SmartSpaces API{% endblock %}
+
+{% block content %}
+<h1>Welcome to SmartSpaces</h1>
+<p>Intelligent space management and booking system for the modern organization</p>
+
+<div class="info-box">
+    <strong>✨ Tip:</strong> This is the REST API interface. For detailed documentation and all available endpoints, 
+    visit the <a href="{{ url_for('ayuda') }}">API Help page</a>.
+</div>
+
+<h2>Quick Navigation</h2>
+<div class="grid">
+    <div class="card">
+        <h3>👥 User Management</h3>
+        <p>View and manage all system users, including activation status and booking history.</p>
+        <a href="{{ url_for('list_users') }}" class="btn primary" style="width: 100%; text-align: center;">Browse Users</a>
+    </div>
+
+    <div class="card">
+        <h3>🏢 Space Inventory</h3>
+        <p>Explore all available spaces: classrooms, meeting rooms, and work areas with detailed information.</p>
+        <a href="{{ url_for('list_spaces') }}" class="btn primary" style="width: 100%; text-align: center;">View Spaces</a>
+    </div>
+
+    <div class="card">
+        <h3>📅 Booking Management</h3>
+        <p>Track all space reservations, check availability, and manage bookings across the organization.</p>
+        <a href="{{ url_for('list_bookings') }}" class="btn primary" style="width: 100%; text-align: center;">See Bookings</a>
+    </div>
+
+    <div class="card">
+        <h3>📚 API Documentation</h3>
+        <p>Complete API reference with all endpoints, methods, and usage examples for integration.</p>
+        <a href="{{ url_for('ayuda') }}" class="btn primary" style="width: 100%; text-align: center;">API Docs</a>
+    </div>
+</div>
+
+<h2>Key Features</h2>
+<div class="grid">
+    <div style="grid-column: 1 / -1;">
+        <ul style="margin-left: 1.5rem;">
+            <li><strong>📊 Real-time Availability:</strong> Check available spaces for any date and time range</li>
+            <li><strong>🔄 Smart Bookings:</strong> Create, modify, and cancel reservations with automatic conflict detection</li>
+            <li><strong>👤 User Management:</strong> Complete user lifecycle with activation/deactivation controls</li>
+            <li><strong>🏢 Space Types:</strong> Support for generic spaces and specialized meeting rooms with equipment tracking</li>
+            <li><strong>📱 REST API:</strong> 19 fully documented endpoints for integration with external systems</li>
+            <li><strong>🌐 Web Interface:</strong> Modern, responsive HTML interface for direct interaction</li>
+            <li><strong>📊 Observability:</strong> Comprehensive logging and error handling with user-friendly pages</li>
+            <li><strong>🔒 Data Integrity:</strong> SQLite-backed persistence with transactional safety</li>
+        </ul>
+    </div>
+</div>
+
+<h2>System Architecture</h2>
+<div class="info-box">
+    <p>
+        SmartSpaces is built on a <strong>layered architecture</strong> with clear separation of concerns:
+    </p>
+    <ul style="margin-left: 1.5rem; margin-top: 0.75rem;">
+        <li><strong>Domain Layer:</strong> Business logic and entities (User, Space, Booking)</li>
+        <li><strong>Application Layer:</strong> Use case orchestration (Services)</li>
+        <li><strong>Infrastructure Layer:</strong> Data persistence (SQLite repositories)</li>
+        <li><strong>Presentation Layer:</strong> Web API (Flask) and console menu interface</li>
+    </ul>
+</div>
+
+<h2>Getting Started</h2>
+<p>
+    <strong>For API consumers:</strong> Use any HTTP client to interact with the endpoints listed in the 
+    <a href="{{ url_for('ayuda') }}">API Help page</a>. The system supports both JSON responses (for API integrations) 
+    and HTML rendering (for web browsing).
+</p>
+<p>
+    <strong>For system administrators:</strong> The same SQLite database is accessible from both the REST API 
+    (this interface) and the console menu application, allowing seamless data sharing.
+</p>
+
+<div class="success-box">
+    <p style="margin: 0;">
+        <strong>✓ System Status: Operational</strong><br>
+        All services are running normally. No issues detected.
+    </p>
+</div>
+
+<div class="text-center mt-3">
+    <p class="text-muted">SmartSpaces API v1.0 | Built with Flask, Jinja2 & SQLite</p>
+</div>
+{% endblock %}
