@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Create New User - SmartSpaces API{% endblock %}
+
+{% block content %}
+<h1>Add New User</h1>
+<p>Create a new user account in the system.</p>
+
+<div class="grid">
+    <div style="grid-column: 1 / -1;">
+        <div class="card">
+            <form method="POST" action="{{ url_for('create_user_form') }}">
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="user_id" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gray-700);">
+                        User ID *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="user_id" 
+                        name="user_id" 
+                        required
+                        placeholder="e.g., U99"
+                        value="{{ form_data.get('user_id', '') }}"
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.95rem; font-family: 'Monaco', 'Menlo', monospace;"
+                    >
+                    <p style="font-size: 0.85rem; color: var(--gray-500); margin-top: 0.25rem;">Unique identifier for the user</p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="name" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gray-700);">
+                        First Name *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        required
+                        placeholder="e.g., John"
+                        value="{{ form_data.get('name', '') }}"
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.95rem;"
+                    >
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="surname1" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gray-700);">
+                        Surname 1 *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="surname1" 
+                        name="surname1" 
+                        required
+                        placeholder="e.g., Doe"
+                        value="{{ form_data.get('surname1', '') }}"
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.95rem;"
+                    >
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <label for="surname2" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--gray-700);">
+                        Surname 2 *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="surname2" 
+                        name="surname2" 
+                        required
+                        placeholder="e.g., Smith"
+                        value="{{ form_data.get('surname2', '') }}"
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.95rem;"
+                    >
+                </div>
+
+                <!-- Error message if any -->
+                {% if error_message %}
+                <div class="error-box">
+                    <strong>❌ Error creating user:</strong><br>
+                    {{ error_message }}
+                </div>
+                {% endif %}
+
+                <!-- Success message if needed -->
+                {% if success_message %}
+                <div class="success-box">
+                    <strong>✓ User created successfully!</strong><br>
+                    {{ success_message }}
+                </div>
+                {% endif %}
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn primary" style="flex: 1;">
+                        ✓ Create User
+                    </button>
+                    <a href="{{ url_for('list_users') }}" class="btn secondary" style="flex: 1; text-align: center;">
+                        ✕ Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="info-box" style="margin-top: 2rem;">
+            <strong>ℹ️ Required Fields:</strong><br>
+            User ID, First Name, Surname 1 and Surname 2 are required. User ID must be unique.
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a href="{{ url_for('list_users') }}" class="btn secondary">← Back to Users</a>
+</div>
+{% endblock %}

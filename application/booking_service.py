@@ -99,6 +99,9 @@ class BookingService:
         )
         self._booking_repo.save(booking)
 
+        space.reserve()
+        self._space_repo.update(space)
+
         return booking
 
     def modify_booking(self, booking_id: str, new_start, new_end):

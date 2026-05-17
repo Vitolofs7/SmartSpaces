@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva reserva — SmartSpaces{% endblock %}
+
+{% block content %}
+<div class="back">
+    <a href="{{ url_for('list_bookings') }}">← Todas las reservas</a>
+</div>
+
+<div class="page-header">
+    <h1>Nueva reserva</h1>
+    <p>Reserva un espacio para un rango horario concreto.</p>
+</div>
+
+<div class="card">
+    <div class="card-title">Datos de la reserva</div>
+    <form method="POST" action="{{ url_for('create_booking_form') }}">
+
+        <div style="margin-bottom: 1.5rem;">
+            <label for="user_name" style="display: block; margin-bottom: 0.4rem; font-size: 0.78rem; font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em;">
+                Nombre completo del usuario *
+            </label>
+            <input
+                type="text"
+                id="user_name"
+                name="user_name"
+                required
+                placeholder="ej. Ana García López"
+                value="{{ form_data.get('user_name', '') }}"
+                style="width: 100%; padding: 0.65rem 0.85rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--sans); font-size: 0.9rem; outline: none;"
+            >
+            <p style="font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem;">Debe coincidir exactamente con el nombre completo registrado.</p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label for="space_name" style="display: block; margin-bottom: 0.4rem; font-size: 0.78rem; font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em;">
+                Nombre del espacio *
+            </label>
+            <input
+                type="text"
+                id="space_name"
+                name="space_name"
+                required
+                placeholder="ej. Sala Reuniones A"
+                value="{{ form_data.get('space_name', '') }}"
+                style="width: 100%; padding: 0.65rem 0.85rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--sans); font-size: 0.9rem; outline: none;"
+            >
+            <p style="font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem;">El espacio debe existir en el sistema y estar disponible.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+                <label for="start_datetime" style="display: block; margin-bottom: 0.4rem; font-size: 0.78rem; font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em;">
+                    Fecha y hora de inicio *
+                </label>
+                <input
+                    type="datetime-local"
+                    id="start_datetime"
+                    name="start_datetime"
+                    required
+                    value="{{ form_data.get('start_datetime', '') }}"
+                    style="width: 100%; padding: 0.65rem 0.85rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--mono); font-size: 0.85rem; outline: none;"
+                >
+            </div>
+            <div>
+                <label for="end_datetime" style="display: block; margin-bottom: 0.4rem; font-size: 0.78rem; font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em;">
+                    Fecha y hora de fin *
+                </label>
+                <input
+                    type="datetime-local"
+                    id="end_datetime"
+                    name="end_datetime"
+                    required
+                    value="{{ form_data.get('end_datetime', '') }}"
+                    style="width: 100%; padding: 0.65rem 0.85rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--mono); font-size: 0.85rem; outline: none;"
+                >
+            </div>
+        </div>
+
+        {% if error_message %}
+        <div style="background: rgba(224,82,82,0.1); border: 1px solid rgba(224,82,82,0.3); border-radius: var(--radius); padding: 0.85rem 1rem; margin-bottom: 1.25rem; color: var(--danger); font-size: 0.85rem;">
+            <strong>Error:</strong> {{ error_message }}
+        </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+            <button type="submit" style="flex: 1; padding: 0.65rem; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: var(--sans); font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                Crear reserva
+            </button>
+            <a href="{{ url_for('list_bookings') }}" style="flex: 1; padding: 0.65rem; background: var(--border); color: var(--muted); border-radius: var(--radius); font-size: 0.875rem; font-weight: 600; text-align: center; text-decoration: none;">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<div style="background: rgba(79,142,247,0.07); border: 1px solid rgba(79,142,247,0.2); border-radius: var(--radius); padding: 0.85rem 1rem; font-size: 0.82rem; color: var(--muted); line-height: 1.8;">
+    <strong style="color: var(--accent);">Reglas:</strong>
+    el usuario debe existir y estar activo ·
+    el espacio debe existir y estar disponible ·
+    la hora de fin debe ser posterior a la de inicio ·
+    no se permiten solapamientos en el mismo espacio
+</div>
+{% endblock %}
